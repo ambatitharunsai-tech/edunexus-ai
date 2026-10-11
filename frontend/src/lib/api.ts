@@ -15,6 +15,7 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
     method,
     headers: {
       'Content-Type': 'application/json',
+      'X-User-Role': 'advisor',
       ...headers,
     },
   };
@@ -27,7 +28,8 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: response.statusText }));
-    throw new Error(error.detail || `API error: ${response.status}`);
+    const errorMsg = error.detail || error?.error?.message || `API error: ${response.status}`;
+    throw new Error(errorMsg);
   }
 
   return response.json();

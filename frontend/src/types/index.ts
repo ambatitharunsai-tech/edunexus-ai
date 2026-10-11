@@ -6,10 +6,12 @@ export interface Student {
   first_name: string;
   last_name: string;
   email?: string;
-  grade: string;
+  grade?: string;
+  current_grade?: string;
+  academic_term?: string;
   section?: string;
   enrollment_date: string;
-  status: 'active' | 'inactive' | 'graduated' | 'transferred';
+  status: 'active' | 'inactive' | 'graduated' | 'transferred' | 'withdrawn' | 'suspended' | 'on_leave';
   created_at?: string;
   updated_at?: string;
   // Computed
@@ -254,4 +256,92 @@ export interface CreateInterventionPayload {
   assigned_staff_name?: string;
   notes?: string;
 }
+
+// Stage 4 Students Directory & Student Journey Interfaces
+export type TrendDirection = 'improving' | 'stable' | 'declining';
+export type TimelineEventType = 'attendance' | 'academic' | 'intervention' | 'milestone' | 'engagement';
+
+export interface StudentListItem {
+  id: string;
+  student_id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  current_grade: string;
+  academic_term: string;
+  section?: string;
+  department?: string;
+  status: 'active' | 'inactive' | 'graduated' | 'withdrawn' | 'suspended' | 'on_leave';
+  attendance_rate?: number;
+  average_score?: number;
+  latest_assessment_percentage?: number;
+  trend?: TrendDirection;
+  review_status?: string;
+  risk_tier?: RiskLevel;
+  risk_score?: number;
+  active_interventions_count?: number;
+}
+
+export interface StudentDirectoryResponse {
+  students: StudentListItem[];
+  total: number;
+  page: number;
+  page_size: number;
+  departments: string[];
+  semesters: string[];
+}
+
+export interface JourneyTimelineEvent {
+  id: string;
+  date: string;
+  event_type: TimelineEventType;
+  title: string;
+  description: string;
+  metric_badge?: string;
+  severity: 'info' | 'success' | 'warning' | 'critical';
+  is_data_gap?: boolean;
+  gap_reason?: string;
+}
+
+export interface MissingDataNotice {
+  category: string;
+  metric: string;
+  status: string;
+  message: string;
+  impact_on_scoring: string;
+}
+
+export interface StudentJourneyProfileResponse {
+  student: Student;
+  department: string;
+  attendance_rate: number;
+  average_score: number;
+  latest_assessment_percentage?: number;
+  trend: TrendDirection;
+  review_status: string;
+  risk_profile: {
+    overall_risk: RiskLevel;
+    risk_score: number;
+    factors: Array<{
+      factor: string;
+      value: number;
+      weight: number;
+      contribution: number;
+    }>;
+    requires_review: boolean;
+    disclaimer: string;
+  };
+  missing_data_notices: MissingDataNotice[];
+  recent_attendance: AttendanceRecord[];
+  recent_assessments: AssessmentRecord[];
+  recent_engagements: EngagementRecord[];
+  interventions: Intervention[];
+  timeline_events: JourneyTimelineEvent[];
+  metrics_trend: Array<{
+    period: string;
+    attendance: number;
+    score: number;
+  }>;
+}
+
 

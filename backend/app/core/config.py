@@ -4,12 +4,15 @@ Handles environment-based application settings.
 """
 
 import os
+from pathlib import Path
 from typing import List, Union
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
-# Load local .env if present
-load_dotenv()
+# Load local .env from backend directory if present (avoid searching outside workspace)
+_backend_env = Path(__file__).resolve().parent.parent.parent / ".env"
+if _backend_env.is_file():
+    load_dotenv(dotenv_path=_backend_env)
 
 
 class Settings(BaseModel):
