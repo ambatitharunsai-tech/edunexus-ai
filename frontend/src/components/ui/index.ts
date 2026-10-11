@@ -4,3 +4,4 @@ export * from './Card';
 export * from './Input';
 export * from './EmptyState';
 export * from './Spinner';
+export * from './Modal';

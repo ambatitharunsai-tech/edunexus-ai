@@ -1,26 +1,35 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users,
   CalendarCheck,
   AlertTriangle,
   HeartHandshake,
-  ArrowUpRight,
   TrendingUp,
+  ArrowUpRight,
   CheckCircle2,
   Clock,
-  Sparkles,
+  ShieldAlert,
+  Search,
+  RefreshCw,
+  Database,
+  PlusCircle,
+  Layers,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
-  BarChart,
-  Bar,
+  ReferenceLine,
 } from 'recharts';
 import {
   Card,
@@ -31,169 +40,382 @@ import {
 } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-
-// Sample visual trend data for Stage 1 foundation
-const weeklyAttendanceData = [
-  { week: 'W1', attendance: 88, threshold: 80 },
-  { week: 'W2', attendance: 86, threshold: 80 },
-  { week: 'W3', attendance: 89, threshold: 80 },
-  { week: 'W4', attendance: 84, threshold: 80 },
-  { week: 'W5', attendance: 82, threshold: 80 },
-  { week: 'W6', attendance: 87, threshold: 80 },
-  { week: 'W7', attendance: 85, threshold: 80 },
-  { week: 'W8', attendance: 86.8, threshold: 80 },
-];
-
-const riskDistributionData = [
-  { tier: 'Low Risk', count: 182, fill: '#10b981' },
-  { tier: 'Moderate', count: 44, fill: '#f59e0b' },
-  { tier: 'High Focus', count: 18, fill: '#f97316' },
-  { tier: 'Critical', count: 6, fill: '#ef4444' },
-];
+import { Spinner } from '../components/ui/Spinner';
+import { EmptyState } from '../components/ui/EmptyState';
+import { useDashboardData } from '../hooks/useDashboardData';
+import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
+import { StudentQuickProfileModal } from '../features/dashboard/StudentQuickProfileModal';
+import type { FollowUpStudentItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
+  const { data, loading, error, refetch, createIntervention } = useDashboardData();
+
+  // Local state for interactive controls
+  const [academicTerm, setAcademicTerm] = useState<string>('AY 2025-26 Term 2');
+  const [dateRange, setDateRange] = useState<string>('30d');
+  const [followUpFilter, setFollowUpFilter] = useState<'all' | 'critical' | 'high' | 'medium'>('all');
+  const [followUpSearch, setFollowUpSearch] = useState<string>('');
+
+  // Modals state
+  const [interventionModalOpen, setInterventionModalOpen] = useState<boolean>(false);
+  const [selectedStudentForIntervention, setSelectedStudentForIntervention] = useState<FollowUpStudentItem | null>(null);
+
+  const [profileModalOpen, setProfileModalOpen] = useState<boolean>(false);
+  const [selectedStudentForProfile, setSelectedStudentForProfile] = useState<FollowUpStudentItem | null>(null);
+
+  // Filtered follow-up students
+  const followUpStudents = data?.follow_up_students;
+  const filteredFollowUps = useMemo(() => {
+    if (!followUpStudents) return [];
+    return followUpStudents.filter((student) => {
+      // Risk tier filter
+      if (followUpFilter !== 'all' && student.risk_level !== followUpFilter) {
+        return false;
+      }
+      // Search filter
+      if (followUpSearch.trim()) {
+        const query = followUpSearch.toLowerCase().trim();
+        const matchesName = student.name.toLowerCase().includes(query);
+        const matchesId = student.student_id.toLowerCase().includes(query);
+        const matchesConcern = student.primary_risk_factor.toLowerCase().includes(query);
+        if (!matchesName && !matchesId && !matchesConcern) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [followUpStudents, followUpFilter, followUpSearch]);
+
+  const handleOpenIntervention = (student?: FollowUpStudentItem) => {
+    setSelectedStudentForIntervention(student || null);
+    setInterventionModalOpen(true);
+  };
+
+  const handleOpenProfile = (student: FollowUpStudentItem) => {
+    setSelectedStudentForProfile(student);
+    setProfileModalOpen(true);
+  };
+
+  if (loading && !data) {
+    return (
+      <div className="py-24 flex flex-col items-center justify-center space-y-4">
+        <Spinner size="lg" />
+        <p className="text-sm font-medium text-slate-500 animate-pulse">
+          Aggregating cohort intelligence, risk signals, and attendance trends...
+        </p>
+      </div>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="p-8 max-w-xl mx-auto">
+        <Card className="border-rose-200 bg-rose-50/50">
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Failed to Load Dashboard Intelligence</h3>
+              <p className="text-xs text-slate-600 mt-1">{error}</p>
+            </div>
+            <Button onClick={refetch} variant="primary" size="sm" className="mx-auto flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              <span>Retry Query</span>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const { summary, attendance_trend, assessment_trend, risk_distribution, recent_activity, intervention_summary, metadata } = data;
+
   return (
     <div className="space-y-6">
-      {/* Platform Banner */}
-      <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* ── Context & Date Controls Header ─────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-white/20 text-white uppercase tracking-wider">
-              Stage 1 Foundation
-            </span>
-            <span className="text-xs text-indigo-200">
-              Prototype Ready for Evaluation
-            </span>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">
+              Executive Student Success Dashboard
+            </h2>
+            {metadata.is_demo ? (
+              <Badge variant="warning" size="sm" dot>
+                Demo Dataset
+              </Badge>
+            ) : (
+              <Badge variant="success" size="sm" dot>
+                Live Database
+              </Badge>
+            )}
           </div>
-          <h2 className="text-lg font-bold">
-            EduNexus AI Student Journey & Success Intelligence
-          </h2>
-          <p className="text-xs text-indigo-100 max-w-2xl mt-0.5">
-            Holistic monitoring combining academic trends, attendance signals, and transparent intervention tracking.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Holistic student trajectory monitoring combining academic trends, attendance signals, and support interventions.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Link to="/students">
-            <Button variant="secondary" size="sm">
-              Explore Directory
-            </Button>
-          </Link>
-          <Link to="/interventions">
-            <Button
-              className="bg-indigo-500 hover:bg-indigo-400 text-white border-0"
-              size="sm"
+
+        {/* Date / Term / Action Controls */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          {/* Term Selector */}
+          <select
+            value={academicTerm}
+            onChange={(e) => setAcademicTerm(e.target.value)}
+            className="px-2.5 py-1.5 text-xs bg-white rounded-lg border border-slate-200 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+            aria-label="Select Academic Term"
+          >
+            <option value="AY 2025-26 Term 2">AY 2025-26 Term 2 (Current)</option>
+            <option value="AY 2025-26 Term 1">AY 2025-26 Term 1</option>
+            <option value="AY 2024-25 Term 2">AY 2024-25 Term 2</option>
+          </select>
+
+          {/* Time Window Selector */}
+          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setDateRange('30d')}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                dateRange === '30d' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              Active Plans
-            </Button>
-          </Link>
+              30 Days
+            </button>
+            <button
+              type="button"
+              onClick={() => setDateRange('term')}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                dateRange === 'term' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Term
+            </button>
+            <button
+              type="button"
+              onClick={() => setDateRange('year')}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                dateRange === 'year' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Year
+            </button>
+          </div>
+
+          {/* Refresh Button */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={refetch}
+            title="Refresh analytics data"
+            className="px-2.5"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+
+          {/* Create Intervention Action */}
+          <Button
+            size="sm"
+            onClick={() => handleOpenIntervention()}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-2xs"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Create Intervention</span>
+          </Button>
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* ── Demo Mode / Connection Status Banner ───────────────────── */}
+      {metadata.is_demo && (
+        <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-950 via-slate-900 to-teal-950 text-white border border-indigo-900/50 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
+                Synthetic Demo Dataset Active
+              </span>
+              <span className="text-xs text-slate-300 flex items-center gap-1">
+                <Database className="w-3.5 h-3.5 text-teal-400" />
+                <span>36 Fictional Student Cohort</span>
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-white">
+              Operating in Verified Prototype Mode
+            </h3>
+            <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">
+              Live Supabase database credentials are placeholder or disconnected. Metrics, attendance rates, and risk factors are derived dynamically from the 36-student synthetic dataset generated in Stage 2.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/students">
+              <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs">
+                Explore Directory
+              </Button>
+            </Link>
+            <Link to="/interventions">
+              <Button size="sm" className="bg-teal-600 hover:bg-teal-500 text-white border-0 text-xs font-semibold">
+                View Active Plans ({summary.active_interventions_count})
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* ── KPI Cards Grid (Components 1 & 2 & Metric summaries) ───── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1 */}
-        <Card hoverable>
+        {/* KPI 1: Total Students */}
+        <Card hoverable className="border-slate-200">
           <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500">Total Enrolled Cohort</p>
-              <h3 className="text-2xl font-bold text-slate-900">250</h3>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Total Enrolled Cohort
+              </p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-black text-slate-900">
+                  {summary.total_students}
+                </h3>
+                <span className="text-xs font-medium text-slate-500">
+                  ({summary.active_students} active)
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>98.4% Active Retention</span>
+                <span>98.2% Active Retention</span>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
-        {/* KPI 2 */}
-        <Card hoverable>
+        {/* KPI 2: Students Requiring Review */}
+        <Card hoverable className="border-slate-200">
           <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500">Cohort Attendance Avg</p>
-              <h3 className="text-2xl font-bold text-slate-900">86.8%</h3>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Above 80% Institutional Min</span>
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Students Requiring Review
+              </p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-black text-slate-900">
+                  {summary.requiring_review_count}
+                </h3>
+                <span className="text-xs font-semibold text-amber-600">
+                  {summary.review_percentage}% of cohort
+                </span>
               </div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <CalendarCheck className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* KPI 3 */}
-        <Card hoverable>
-          <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500">Focus & Support Flags</p>
-              <h3 className="text-2xl font-bold text-slate-900">24</h3>
-              <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium">
+              <div className="flex items-center gap-1 text-xs text-amber-600 font-medium">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Requires Advisor Review</span>
+                <span>Advisor Check-in Needed</span>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
               <AlertTriangle className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
-        {/* KPI 4 */}
-        <Card hoverable>
+        {/* KPI 3: Cohort Attendance Average */}
+        <Card hoverable className="border-slate-200">
           <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500">Interventions Underway</p>
-              <h3 className="text-2xl font-bold text-slate-900">18</h3>
-              <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium">
-                <Clock className="w-3.5 h-3.5" />
-                <span>4 Follow-ups Due This Week</span>
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Cohort Attendance Rate
+              </p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-black text-slate-900">
+                  {summary.average_attendance}%
+                </h3>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{summary.attendance_status}</span>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 shadow-2xs">
+              <CalendarCheck className="w-5 h-5" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* KPI 4: Underway Interventions */}
+        <Card hoverable className="border-slate-200">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Active Support Plans
+              </p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-black text-slate-900">
+                  {summary.active_interventions_count}
+                </h3>
+                <span className="text-xs font-medium text-slate-500">
+                  of {intervention_summary.total} total
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-indigo-600 font-medium">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{summary.follow_ups_due_count} Follow-ups Due This Week</span>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-2xs">
               <HeartHandshake className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Charts Row */}
+      {/* ── Main Charts Row (Components 3 & 5) ──────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Attendance Trends Chart */}
-        <Card className="lg:col-span-2">
+        {/* Component 3: Attendance Trajectory Area Chart (2 Cols) */}
+        <Card className="lg:col-span-2 border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle>Institutional Attendance Trajectory</CardTitle>
-              <CardDescription>
-                Weekly aggregated attendance rate across all grade sections
+              <CardTitle className="text-base font-bold text-slate-900">
+                Institutional Attendance Trajectory
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Weekly aggregated attendance percentage tracked against the 80% institutional threshold
               </CardDescription>
             </div>
-            <Badge variant="primary" size="sm">
-              Term 2
-            </Badge>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block" />
+                <span>Attendance %</span>
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                <span className="w-2.5 h-0.5 bg-rose-500 inline-block" />
+                <span>80% Minimum</span>
+              </span>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="h-64 w-full pt-4">
+            <div className="h-68 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                  data={weeklyAttendanceData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  data={attendance_trend}
+                  margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
                 >
                   <defs>
-                    <linearGradient id="attGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
+                    <linearGradient id="attRateGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
                       <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#64748b' }} />
+                  <XAxis
+                    dataKey="period"
+                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tickLine={false}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                  />
                   <YAxis
-                    domain={[70, 100]}
+                    domain={[60, 100]}
                     tick={{ fontSize: 11, fill: '#64748b' }}
                     tickFormatter={(val) => `${val}%`}
+                    tickLine={false}
+                    axisLine={{ stroke: '#e2e8f0' }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -203,15 +425,30 @@ export const DashboardPage: React.FC = () => {
                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                       fontSize: '12px',
                     }}
-                    formatter={(val) => [`${val}%`, 'Attendance']}
+                    formatter={(val: any) => [
+                      `${Number(val || 0)}%`,
+                      'Attendance Rate',
+                    ]}
+                  />
+                  <ReferenceLine
+                    y={80}
+                    stroke="#ef4444"
+                    strokeDasharray="4 4"
+                    label={{
+                      value: '80% Benchmark',
+                      position: 'top',
+                      fill: '#ef4444',
+                      fontSize: 10,
+                      fontWeight: 600,
+                    }}
                   />
                   <Area
                     type="monotone"
-                    dataKey="attendance"
-                    stroke="#4f46e5"
+                    dataKey="attendance_rate"
+                    stroke="#4338ca"
                     strokeWidth={2.5}
                     fillOpacity={1}
-                    fill="url(#attGradient)"
+                    fill="url(#attRateGradient)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -219,29 +456,40 @@ export const DashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Risk Distribution Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Cohort Risk Segmentation</CardTitle>
-            <CardDescription>
-              Transparent tier allocation based on multi-factor signals
+        {/* Component 5: Student Distribution by Explainable Risk Category */}
+        <Card className="border-slate-200 flex flex-col justify-between">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-bold text-slate-900">
+                Explainable Risk Segmentation
+              </CardTitle>
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                N={summary.total_students}
+              </span>
+            </div>
+            <CardDescription className="text-xs text-slate-500">
+              Deterministic tier classification based on attendance, academic, and engagement indicators
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="h-64 w-full pt-2">
+          <CardContent className="space-y-3">
+            {/* Donut Chart */}
+            <div className="h-44 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={riskDistributionData}
-                  layout="vertical"
-                  margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <YAxis
-                    type="category"
-                    dataKey="tier"
-                    tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
-                  />
+                <PieChart>
+                  <Pie
+                    data={risk_distribution}
+                    dataKey="count"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={48}
+                    outerRadius={68}
+                    paddingAngle={4}
+                  >
+                    {risk_distribution.map((entry) => (
+                      <Cell key={`cell-${entry.tier}`} fill={entry.color} />
+                    ))}
+                  </Pie>
                   <Tooltip
                     contentStyle={{
                       backgroundColor: '#ffffff',
@@ -249,120 +497,526 @@ export const DashboardPage: React.FC = () => {
                       border: '1px solid #e2e8f0',
                       fontSize: '12px',
                     }}
+                    formatter={(val: any, name: any) => [
+                      `${Number(val || 0)} students`,
+                      String(name || ''),
+                    ]}
                   />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Tier Legend & Counts */}
+            <div className="space-y-2 pt-1 border-t border-slate-100">
+              {risk_distribution.map((tier) => (
+                <div
+                  key={tier.tier}
+                  className="flex items-center justify-between text-xs p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: tier.color }}
+                    />
+                    <span className="font-medium text-slate-700">{tier.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-slate-900">{tier.count}</span>
+                    <span className="text-[11px] text-slate-400 w-10 text-right">
+                      {tier.percentage}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Component 4: Assessment Performance Trend & Component 8: Intervention Status ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Component 4: Assessment Performance Trend Chart (2 Cols) */}
+        <Card className="lg:col-span-2 border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-base font-bold text-slate-900">
+                Assessment Performance Trajectory
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Subject evaluations and cycle performance benchmarks across semesters
+              </CardDescription>
+            </div>
+            <Badge variant="primary" size="sm">
+              Average: {summary.cohort_avg_score}%
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={assessment_trend}
+                  margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis
+                    dataKey="period"
+                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tickLine={false}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                  />
+                  <YAxis
+                    domain={[50, 100]}
+                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tickFormatter={(val) => `${val}%`}
+                    tickLine={false}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      fontSize: '12px',
+                    }}
+                    formatter={(val: any) => [
+                      `${Number(val || 0)}%`,
+                      'Average Score',
+                    ]}
+                  />
+                  <Bar
+                    dataKey="average_score"
+                    fill="#0f766e"
+                    radius={[4, 4, 0, 0]}
+                    name="Cohort Average"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
+
+        {/* Component 8: Intervention Status Summary */}
+        <Card className="border-slate-200 flex flex-col justify-between">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-bold text-slate-900">
+                Intervention Registry Overview
+              </CardTitle>
+              <Link
+                to="/interventions"
+                className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+              >
+                <span>View All</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <CardDescription className="text-xs text-slate-500">
+              Active support plans, scheduled reviews, and completion status
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Progress Segment */}
+            <div>
+              <div className="flex items-center justify-between text-xs text-slate-600 mb-1.5 font-medium">
+                <span>Support Plan Progression</span>
+                <span className="font-bold text-slate-900">
+                  {intervention_summary.completion_rate}% Concluded
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex">
+                <div
+                  className="bg-indigo-600 h-full"
+                  style={{
+                    width: `${(intervention_summary.in_progress / (intervention_summary.total || 1)) * 100}%`,
+                  }}
+                  title={`In Progress: ${intervention_summary.in_progress}`}
+                />
+                <div
+                  className="bg-amber-500 h-full"
+                  style={{
+                    width: `${(intervention_summary.planned / (intervention_summary.total || 1)) * 100}%`,
+                  }}
+                  title={`Planned: ${intervention_summary.planned}`}
+                />
+                <div
+                  className="bg-emerald-500 h-full"
+                  style={{
+                    width: `${(intervention_summary.completed / (intervention_summary.total || 1)) * 100}%`,
+                  }}
+                  title={`Completed: ${intervention_summary.completed}`}
+                />
+              </div>
+            </div>
+
+            {/* Status Breakdown Pills */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="text-[11px] text-slate-500">In Progress</div>
+                <div className="text-lg font-bold text-indigo-700">
+                  {intervention_summary.in_progress}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="text-[11px] text-slate-500">Planned</div>
+                <div className="text-lg font-bold text-amber-600">
+                  {intervention_summary.planned}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="text-[11px] text-slate-500">Under Review</div>
+                <div className="text-lg font-bold text-purple-600">
+                  {intervention_summary.under_review}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="text-[11px] text-slate-500">Completed</div>
+                <div className="text-lg font-bold text-emerald-600">
+                  {intervention_summary.completed}
+                </div>
+              </div>
+            </div>
+
+            {/* Upcoming Milestones Alert */}
+            <div className="p-3 rounded-lg bg-indigo-50/70 border border-indigo-100 flex items-center justify-between text-xs text-indigo-900">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>Follow-ups due in next 7 days</span>
+              </div>
+              <Badge variant="primary" size="sm">
+                {intervention_summary.upcoming_follow_ups} Due
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Recent Activity & Next Actions */}
+      {/* ── Component 7: Students Needing Follow-up (Priority Action Table) ── */}
+      <Card className="border-slate-200">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base font-bold text-slate-900">
+                Students Requiring Advisory Follow-Up
+              </CardTitle>
+              <Badge variant="warning" size="sm">
+                {filteredFollowUps.length} flagged
+              </Badge>
+            </div>
+            <CardDescription className="text-xs text-slate-500 mt-0.5">
+              Prioritized by composite risk score with observable signals to guide advisor intervention
+            </CardDescription>
+          </div>
+
+          {/* Table Filters & Search */}
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search name, ID or signal..."
+                value={followUpSearch}
+                onChange={(e) => setFollowUpSearch(e.target.value)}
+                className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-lg border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-full sm:w-56 transition-all"
+              />
+            </div>
+
+            {/* Tier Filters Tabs */}
+            <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setFollowUpFilter('all')}
+                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  followUpFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setFollowUpFilter('critical')}
+                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  followUpFilter === 'critical' ? 'bg-rose-600 text-white shadow-2xs font-bold' : 'text-rose-700 hover:bg-rose-50'
+                }`}
+              >
+                Critical
+              </button>
+              <button
+                type="button"
+                onClick={() => setFollowUpFilter('high')}
+                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  followUpFilter === 'high' ? 'bg-amber-600 text-white shadow-2xs font-bold' : 'text-amber-700 hover:bg-amber-50'
+                }`}
+              >
+                High
+              </button>
+              <button
+                type="button"
+                onClick={() => setFollowUpFilter('medium')}
+                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  followUpFilter === 'medium' ? 'bg-yellow-600 text-white shadow-2xs font-bold' : 'text-yellow-700 hover:bg-yellow-50'
+                }`}
+              >
+                Moderate
+              </button>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          {filteredFollowUps.length === 0 ? (
+            <div className="p-8">
+              <EmptyState
+                title="No Students Match Current Criteria"
+                description="Try expanding the risk tier filter or clearing your search keywords."
+                actionLabel="Clear Filters"
+                onAction={() => {
+                  setFollowUpFilter('all');
+                  setFollowUpSearch('');
+                }}
+              />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold">
+                    <th className="py-3 px-4">Student & ID</th>
+                    <th className="py-3 px-4">Cohort</th>
+                    <th className="py-3 px-4">Risk Tier</th>
+                    <th className="py-3 px-4">Primary Contributing Factor</th>
+                    <th className="py-3 px-4 text-center">Attendance</th>
+                    <th className="py-3 px-4 text-center">Avg Score</th>
+                    <th className="py-3 px-4">Last Check-in</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredFollowUps.map((student) => {
+                    const badgeVariant = {
+                      critical: 'danger',
+                      high: 'warning',
+                      medium: 'warning',
+                      low: 'success',
+                    }[student.risk_level] as 'danger' | 'warning' | 'success';
+
+                    return (
+                      <tr key={student.id} className="hover:bg-slate-50/80 transition-colors">
+                        {/* Student Name */}
+                        <td className="py-3 px-4">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenProfile(student)}
+                            className="font-bold text-slate-900 hover:text-indigo-600 text-left transition-colors"
+                          >
+                            {student.name}
+                          </button>
+                          <div className="font-mono text-[11px] text-slate-400">
+                            {student.student_id}
+                          </div>
+                        </td>
+
+                        {/* Grade & Section */}
+                        <td className="py-3 px-4 text-slate-600">
+                          {student.grade} <span className="text-slate-400">({student.section || 'A'})</span>
+                        </td>
+
+                        {/* Risk Level & Score */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant={badgeVariant} size="sm">
+                              {student.risk_level.toUpperCase()}
+                            </Badge>
+                            <span className="font-bold text-slate-700 text-[11px]">
+                              {student.risk_score}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Primary Factor */}
+                        <td className="py-3 px-4 max-w-xs text-slate-700">
+                          <div className="truncate text-xs font-medium" title={student.primary_risk_factor}>
+                            {student.primary_risk_factor}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            Status: {student.status}
+                          </div>
+                        </td>
+
+                        {/* Attendance Rate */}
+                        <td className="py-3 px-4 text-center">
+                          <span
+                            className={`font-semibold ${
+                              student.attendance_rate < 80 ? 'text-amber-600' : 'text-emerald-600'
+                            }`}
+                          >
+                            {student.attendance_rate}%
+                          </span>
+                        </td>
+
+                        {/* Avg Score */}
+                        <td className="py-3 px-4 text-center font-semibold text-slate-800">
+                          {student.avg_score}%
+                        </td>
+
+                        {/* Last Interaction */}
+                        <td className="py-3 px-4 text-slate-500 text-[11px]">
+                          {student.last_interaction}
+                        </td>
+
+                        {/* Quick Actions (Component 9) */}
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-slate-700 hover:text-slate-900 text-xs px-2"
+                              onClick={() => handleOpenProfile(student)}
+                              title="Open Student Dossier"
+                            >
+                              Profile
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 text-xs px-2 flex items-center gap-1"
+                              onClick={() => handleOpenIntervention(student)}
+                              title="Assign Intervention Support Plan"
+                            >
+                              <HeartHandshake className="w-3.5 h-3.5" />
+                              <span>Intervene</span>
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Component 6: Recent Student Activity Stream & Ethical AI Roadmap ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sample Journey Milestone Feed */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        {/* Component 6: Recent Activity Feed */}
+        <Card className="border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
-              <CardTitle>Recent Journey Milestones</CardTitle>
-              <CardDescription>
-                Chronological event stream from student activities
+              <CardTitle className="text-base font-bold text-slate-900">
+                Recent Student Activity Stream
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Chronological milestone events and automated threshold signals
               </CardDescription>
             </div>
-            <Link to="/journey" className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1">
-              <span>View full timeline</span>
+            <Link
+              to="/journey"
+              className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+            >
+              <span>View Timeline</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </CardHeader>
-          <CardContent className="space-y-3.5">
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-              <div className="flex-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900">Attendance Recovery Milestone</span>
-                  <span className="text-[11px] text-slate-400">Today, 09:30</span>
-                </div>
-                <p className="text-slate-600 mt-0.5">
-                  Aarav Sharma (STU-001) completed 10 consecutive attended days following peer mentorship session.
-                </p>
-              </div>
-            </div>
+          <CardContent className="space-y-3">
+            {recent_activity.map((act) => {
+              const dotColor = {
+                success: 'bg-emerald-500',
+                warning: 'bg-amber-500',
+                critical: 'bg-rose-500',
+                info: 'bg-indigo-500',
+              }[act.severity || 'info'];
 
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-              <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-              <div className="flex-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900">Midterm Mathematics Variance</span>
-                  <span className="text-[11px] text-slate-400">Yesterday</span>
+              return (
+                <div
+                  key={act.id}
+                  className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-start gap-3 hover:bg-slate-100/60 transition-colors"
+                >
+                  <span className={`w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0`} />
+                  <div className="flex-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900">{act.title}</span>
+                      <span className="text-[11px] text-slate-400">{act.timestamp}</span>
+                    </div>
+                    <p className="text-slate-600 mt-0.5 leading-relaxed">{act.description}</p>
+                    <div className="mt-1 text-[11px] text-slate-400 font-mono">
+                      Student: {act.student_name} ({act.student_id})
+                    </div>
+                  </div>
                 </div>
-                <p className="text-slate-600 mt-0.5">
-                  Diya Patel (STU-042) flagged for academic intervention: score variance of -18% vs baseline.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-              <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-              <div className="flex-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900">Parent Advisory Completed</span>
-                  <span className="text-[11px] text-slate-400">2 days ago</span>
-                </div>
-                <p className="text-slate-600 mt-0.5">
-                  Rohan Mehta (STU-019) counseling intervention status transitioned to &apos;In Progress&apos;.
-                </p>
-              </div>
-            </div>
+              );
+            })}
           </CardContent>
         </Card>
 
-        {/* Prototype Capabilities Card */}
-        <Card className="flex flex-col justify-between">
-          <CardHeader>
-            <CardTitle>Platform Capabilities & Stage Roadmap</CardTitle>
-            <CardDescription>
-              KPMG Challenge submission feature coverage
+        {/* Ethical AI Assurance & Challenge Submission Scope */}
+        <Card className="border-slate-200 flex flex-col justify-between">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-bold text-slate-900">
+              Ethical AI Principles & Platform Integrity
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500">
+              KPMG Challenge submission architecture guidelines
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span className="font-medium text-slate-800">Stage 1: Architecture & Foundation</span>
+            <div className="space-y-2.5 text-xs">
+              <div className="p-3 rounded-lg border border-teal-200 bg-teal-50/60 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-teal-900">Human-in-the-Loop Decision Support</div>
+                  <p className="text-[11px] text-teal-800 mt-0.5">
+                    Risk indices synthesize observable signals (attendance rates, assessment scores, LMS participation). No punitive decisions are executed automatically.
+                  </p>
                 </div>
-                <Badge variant="success" size="sm">Active</Badge>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center text-[9px] font-bold text-slate-500">2</span>
-                  <span className="text-slate-700">Stage 2: Supabase Schema & Row-Level Security</span>
+              <div className="p-3 rounded-lg border border-indigo-200 bg-indigo-50/60 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-indigo-900">Non-Causal Outcome Attribution</div>
+                  <p className="text-[11px] text-indigo-800 mt-0.5">
+                    Intervention outcomes compare pre- and post-metric variance with mandatory disclaimers. Platform does not claim unproven causal attribution without randomized controls.
+                  </p>
                 </div>
-                <span className="text-[11px] text-slate-400">Next Stage</span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center text-[9px] font-bold text-slate-500">3</span>
-                  <span className="text-slate-700">Stage 3: Explainable Risk Engine & CSV Pipeline</span>
+              <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+                <Layers className="w-4 h-4 text-slate-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900">Row Level Security & Minimal Client Keys</div>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Backend enforces service-role separation. Frontend executes with publishable keys and strict Supabase PostgreSQL RLS policies.
+                  </p>
                 </div>
-                <span className="text-[11px] text-slate-400">Queued</span>
               </div>
             </div>
 
-            <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-900 space-y-1">
-              <div className="font-semibold flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Senior Engineer Architecture Note</span>
-              </div>
-              <p className="text-[11px] text-indigo-700">
-                Frontend uses clean component contracts and typed data structures. Backend implements robust CORS, GET /health, and uniform error schemas.
-              </p>
+            <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-100 flex items-center justify-between">
+              <span>EduNexus AI • KPMG Challenge Prototype</span>
+              <span>Stage 3 Dashboard Complete</span>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Modals (Component 9) ──────────────────────────────────── */}
+      <CreateInterventionModal
+        isOpen={interventionModalOpen}
+        onClose={() => setInterventionModalOpen(false)}
+        preselectedStudent={selectedStudentForIntervention}
+        studentsList={data.follow_up_students}
+        onSubmit={createIntervention}
+      />
+
+      <StudentQuickProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        student={selectedStudentForProfile}
+        onOpenIntervention={handleOpenIntervention}
+      />
     </div>
   );
 };
