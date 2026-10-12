@@ -1,29 +1,46 @@
-# Dependencies
+# Dependencies & Virtual Environments
 node_modules/
 venv/
+.venv/
+env/
+ENV/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
 
-# Environment
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Environment & Secrets (NEVER commit credentials)
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+*.local
 
-# Build
+# Build & Distribution
 dist/
 build/
 *.egg-info/
+*.egg
 
-# IDE
+# IDE & Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS
+# OS artifacts
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs & Runtime
 *.log
+*.sqlite3
+
