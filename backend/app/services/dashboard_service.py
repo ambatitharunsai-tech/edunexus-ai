@@ -10,6 +10,9 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional
 from uuid import uuid4
 
+from fastapi import HTTPException
+from app.core.config import settings
+
 from app.services.database_service import database_service
 from app.schemas.dashboard import (
     DashboardOverviewResponse,
@@ -43,6 +46,14 @@ class DashboardService:
         """Loads and caches synthetic dataset from disk."""
         from app.db.client import is_database_configured
         from app.services.dataset_service import read_live_dataset
+        if settings.is_production and not is_database_configured():
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Production data source is not configured. "
+                    "Configure the hosted Supabase connection in the server environment."
+                ),
+            )
         if is_database_configured():
             data = read_live_dataset()
             self._hydrate_overrides(data)
