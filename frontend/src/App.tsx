@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context';
 import { AppShell } from './layouts/AppShell';
@@ -37,9 +37,33 @@ function StaffOnlyRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+type AppTheme = 'light' | 'dark';
+
 export function App() {
+  const [theme, setTheme] = useState<AppTheme>(() => {
+    try {
+      return localStorage.getItem('edunexus_theme') === 'light' ? 'light' : 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+
+  const handleThemeChange = (nextTheme: AppTheme) => {
+    setTheme(nextTheme);
+    try {
+      localStorage.setItem('edunexus_theme', nextTheme);
+    } catch {
+      // Keep the current theme in memory when browser storage is unavailable.
+    }
+  };
+
   return (
-    <div className="dark-app min-h-screen">
+    <div className={`${theme === 'dark' ? 'dark-app' : 'light-app'} min-h-screen`}>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
@@ -49,7 +73,7 @@ export function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <AppShell />
+                <AppShell theme={theme} onThemeChange={handleThemeChange} />
               </ProtectedRoute>
             }
           >
