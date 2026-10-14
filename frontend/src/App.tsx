@@ -10,6 +10,7 @@ import {
   LoginPage,
   NotFoundPage,
   StudentJourneyPage,
+  StudentDashboardPage,
   StudentsPage,
 } from './pages';
 
@@ -35,6 +36,27 @@ function StaffOnlyRoute({ children }: { children: ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, session } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (session?.role?.toLowerCase() === 'student') {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function RoleDashboard() {
+  const { session } = useAuth();
+  return session?.role?.toLowerCase() === 'student'
+    ? <StudentDashboardPage />
+    : <DashboardPage />;
 }
 
 type AppTheme = 'light' | 'dark';
@@ -77,11 +99,11 @@ export function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<DashboardPage />} />
+            <Route index element={<RoleDashboard />} />
             <Route path="students" element={<StaffOnlyRoute><StudentsPage /></StaffOnlyRoute>} />
             <Route path="students/:id" element={<StaffOnlyRoute><StudentJourneyPage /></StaffOnlyRoute>} />
-            <Route path="journey" element={<ProtectedRoute><StudentJourneyPage /></ProtectedRoute>} />
-            <Route path="journey/:id" element={<ProtectedRoute><StudentJourneyPage /></ProtectedRoute>} />
+            <Route path="journey" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
+            <Route path="journey/:id" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
             <Route path="interventions" element={<StaffOnlyRoute><InterventionsPage /></StaffOnlyRoute>} />
             <Route path="analytics" element={<StaffOnlyRoute><AnalyticsPage /></StaffOnlyRoute>} />
             <Route path="csv-hub" element={<StaffOnlyRoute><CsvHubPage /></StaffOnlyRoute>} />

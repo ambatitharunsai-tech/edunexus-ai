@@ -68,9 +68,19 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   const location = useLocation();
   const navigate = useNavigate();
   const { session, signOut, isStaff } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
 
   useEffect(() => {
     let isMounted = true;
+    if (isStudent) {
+      setHighRiskStudents([]);
+      setNotificationsError(false);
+      setNotificationsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
     const loadRiskNotifications = async () => {
       try {
         const dashboard = await api<DashboardOverviewResponse>('/api/v1/dashboard/overview');
@@ -98,7 +108,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
       isMounted = false;
       window.clearInterval(refreshId);
     };
-  }, []);
+  }, [isStudent]);
 
   const submitStudentSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && event.currentTarget.value.trim()) {
@@ -116,9 +126,11 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   };
 
   // Determine current page title
-  const visibleNavItems = isStaff
-    ? navItems
-    : navItems.filter((item) => item.to === '/' || item.to === '/journey');
+  const visibleNavItems = isStudent
+    ? navItems.filter((item) => item.to === '/')
+    : isStaff
+      ? navItems
+      : navItems.filter((item) => item.to === '/' || item.to === '/journey');
 
   const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
@@ -169,6 +181,8 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             </div>
           </div>
 
+          {!isStudent && (
+            <>
           {/* Global search */}
           <div className="hidden min-w-0 flex-1 justify-center md:absolute md:left-1/2 md:top-1/2 md:flex md:w-[min(42vw,36rem)] md:-translate-x-1/2 md:-translate-y-1/2">
             <div className="relative w-full max-w-xl">
@@ -183,11 +197,16 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             </div>
           </div>
 
+
+            </>
+          )}
           <div className="hidden xl:flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-medium text-slate-700">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
             <span>Human-reviewed support</span>
           </div>
 
+          {!isStudent && (
+            <>
           {/* Current high-risk student notifications from dashboard data */}
           <div className="relative ml-auto shrink-0">
             <button
@@ -259,6 +278,9 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             )}
           </div>
 
+
+            </>
+          )}
           {/* Profile and display settings */}
           <div className="flex shrink-0 items-center pl-2 border-l border-slate-200">
             <details className="group relative">
@@ -333,6 +355,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
           </div>
         </div>
 
+        {!isStudent && (
         <div className="px-3 pb-3 md:hidden">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -345,6 +368,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             />
           </div>
         </div>
+        )}
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">

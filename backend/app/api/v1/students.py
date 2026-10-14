@@ -37,6 +37,7 @@ from app.services.segmentation_engine import segmentation_engine
 from app.core.risk_config import default_risk_config
 from app.core.auth import (
     AuthenticatedUser,
+    get_current_user,
     require_staff_user,
     verify_read_authorization as verify_staff_authorization,
 )
@@ -63,6 +64,192 @@ class StudentListEnvelope(BaseModel):
 
 
 from app.services.student_analytics_service import _compute_student_metrics
+
+
+
+@router.get(
+    "/me/dashboard",
+    summary="Get the authenticated student's own dashboard",
+    description="Returns only the verified student's own academic and support summary. Students cannot select another student record.",
+)
+async def get_my_student_dashboard(
+    current_user: AuthenticatedUser = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """Return an intentionally narrow, student-owned view of the student's records."""
+    if current_user.role.lower() != "student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This dashboard is available only to student accounts.",
+        )
+
+    data = dashboard_service._load_synthetic_data()
+    students = data.get("students", [])
+    linked_id = (current_user.student_id or "").strip()
+
+    # Only a server-managed app_metadata link or server-side demo-token mapping
+    # can select a record. Do not guess from email or accept a client-supplied ID.
+    student = None
+    if linked_id:
+        student = next(
+            (
+                row for row in students
+                if linked_id in (str(row.get("id", "")), str(row.get("student_id", "")))
+            ),
+            None,
+        )
+
+    if student is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "No student record is linked to this account. Ask your institution "
+                "to link your verified login to a student record."
+            ),
+        )
+
+    student_uuid = str(student.get("id", ""))
+    student_code = str(student.get("student_id", ""))
+    owned_ids = {student_uuid, student_code}
+
+    def own_rows(table: str) -> List[Dict[str, Any]]:
+        return [
+            row for row in data.get(table, [])
+            if str(row.get("student_id", "")) in owned_ids
+        ]
+
+    attendance = own_rows("attendance")
+    assessments = own_rows("assessments")
+    engagements = own_rows("engagement_events")
+    interventions = own_rows("interventions")
+    # The in-memory supplemental demo plans are also filtered to this student.
+    interventions.extend(
+        row for row in dashboard_service._demo_interventions
+        if str(row.get("student_id", "")) in owned_ids
+    )
+    placements = own_rows("placement_records")
+    skills = own_rows("skills_records")
+    feedback = own_rows("feedback_records")
+    lms = own_rows("lms_activity_records")
+
+    def latest(rows: List[Dict[str, Any]], date_key: str) -> Dict[str, Any]:
+        if not rows:
+            return {}
+        return max(
+            rows,
+            key=lambda row: (str(row.get(date_key, "")), str(row.get("updated_at", ""))),
+        )
+
+    placement = latest(placements, "evaluated_at")
+    skill = latest(skills, "last_assessed_date")
+    feedback_record = latest(feedback, "recorded_at")
+    lms_record = latest(lms, "recorded_at")
+
+    metrics = _compute_student_metrics(
+        student,
+        {student_uuid: attendance},
+        {student_uuid: assessments},
+        {student_uuid: engagements},
+        {student_uuid: interventions},
+        0,
+        {student_uuid: placement} if placement else {},
+        {student_uuid: skill} if skill else {},
+        {student_uuid: feedback_record} if feedback_record else {},
+        {student_uuid: lms_record} if lms_record else {},
+    )
+    success_profile = metrics.get("success_profile") or {}
+    domain_breakdowns = success_profile.get("domain_breakdowns") or []
+
+    recent_assessments = []
+    for row in sorted(
+        assessments,
+        key=lambda item: str(item.get("assessment_date", item.get("date", ""))),
+        reverse=True,
+    )[:8]:
+        max_score = float(row.get("max_score") or 0)
+        score = float(row.get("score") or 0)
+        recent_assessments.append({
+            "subject": row.get("subject", "Assessment"),
+            "assessment_type": row.get("assessment_type", "Assessment"),
+            "score": score,
+            "max_score": max_score,
+            "percentage": round(score / max_score * 100, 1) if max_score > 0 else None,
+            "date": row.get("assessment_date", row.get("date")),
+        })
+
+    recent_attendance = [
+        {
+            "date": row.get("session_date", row.get("date")),
+            "status": row.get("status", "not recorded"),
+        }
+        for row in sorted(
+            attendance,
+            key=lambda item: str(item.get("session_date", item.get("date", ""))),
+            reverse=True,
+        )[:8]
+    ]
+
+    support_plans = [
+        {
+            "id": str(row.get("id", "")),
+            "title": row.get("title") or row.get("intervention_type") or "Student support plan",
+            "status": row.get("status", "planned"),
+            "priority": row.get("priority", "medium"),
+            "start_date": row.get("start_date"),
+            "follow_up_date": row.get("follow_up_date"),
+        }
+        for row in sorted(
+            interventions,
+            key=lambda item: str(item.get("created_at", "")),
+            reverse=True,
+        )[:8]
+    ]
+
+    from app.db.client import is_database_configured
+
+    # Intentionally return a limited, own-record projection. Do not expose
+    # cohort summaries, other students, private notes, or staff-only workflows.
+    return {
+        "data_source": "Supabase PostgreSQL" if is_database_configured() else "Synthetic demo data",
+        "student": {
+            "student_id": student_code,
+            "first_name": student.get("first_name", ""),
+            "last_name": student.get("last_name", ""),
+            "current_grade": student.get("current_grade"),
+            "academic_term": student.get("academic_term"),
+            "section": student.get("section"),
+            "department": student.get("department") or "Not recorded",
+            "status": student.get("status", "active"),
+        },
+        "metrics": {
+            "attendance_rate": metrics.get("attendance_rate"),
+            "average_score": metrics.get("average_score"),
+            "latest_assessment_percentage": metrics.get("latest_assessment_percentage"),
+            "trend": metrics.get("trend", "stable"),
+            "review_status": metrics.get("review_status", "Awaiting data review"),
+            "success_score": metrics.get("success_score"),
+            "success_tier": metrics.get("success_tier"),
+            "risk_tier": metrics.get("risk_tier"),
+            "academic_risk_tier": metrics.get("academic_risk_tier"),
+            "placement_risk_tier": metrics.get("placement_risk_tier"),
+            "active_interventions_count": metrics.get("active_interventions_count", 0),
+            "domain_coverage_pct": success_profile.get("data_coverage_pct", 0),
+            "available_domains_count": success_profile.get("available_domains_count", 0),
+            "missing_domains": success_profile.get("missing_domains", []),
+            "segment_label": (metrics.get("segment_profile") or {}).get("segment_label"),
+        },
+        "domains": [
+            {
+                "name": row.get("domain", "unknown"),
+                "score": row.get("raw_score"),
+                "is_missing": row.get("is_missing", False),
+                "normalized_weight": row.get("normalized_weight", 0),
+            }
+            for row in domain_breakdowns
+        ],
+        "recent_assessments": recent_assessments,
+        "recent_attendance": recent_attendance,
+        "support_plans": support_plans,
+    }
 
 
 @router.get(

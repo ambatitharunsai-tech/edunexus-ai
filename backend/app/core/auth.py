@@ -38,6 +38,7 @@ DEMO_TOKENS: Dict[str, Dict[str, Any]] = {
         "user_id": "demo-student-001",
         "email": "student@edunexus.ai",
         "role": "student",
+        "student_id": "STU-001",
     },
 }
 
@@ -50,6 +51,7 @@ class AuthenticatedUser(BaseModel):
     user_id: str = Field(..., description="Unique subject or user identifier")
     email: str = Field(..., description="Verified institutional email")
     role: str = Field(..., description="Role claim (e.g. advisor, admin, student)")
+    student_id: Optional[str] = Field(default=None, description="Server-verified student record link from demo configuration or app_metadata")
     is_demo_session: bool = Field(default=False, description="True if verified via evaluation demo token")
 
 
@@ -88,6 +90,7 @@ def get_current_user(
             user_id=token_info["user_id"],
             email=token_info["email"],
             role=token_info["role"],
+            student_id=token_info.get("student_id"),
             is_demo_session=True,
         )
 
@@ -108,11 +111,16 @@ def get_current_user(
         user_id = payload["sub"]
         email = payload.get("email") or user_id
         # app_metadata is server-managed; user_metadata and headers are untrusted.
-        role = payload.get("app_metadata", {}).get("role", "student")
+        app_metadata = payload.get("app_metadata", {})
+        if not isinstance(app_metadata, dict):
+            app_metadata = {}
+        role = app_metadata.get("role", "student")
+        linked_student_id = app_metadata.get("student_id")
         return AuthenticatedUser(
             user_id=str(user_id),
             email=str(email),
             role=str(role),
+            student_id=str(linked_student_id).strip() if linked_student_id else None,
             is_demo_session=False,
         )
     except Exception:
