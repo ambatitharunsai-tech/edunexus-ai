@@ -29,7 +29,8 @@ def test_method_not_allowed_error_format(client: TestClient):
 
 def test_cors_preflight_request(client: TestClient):
     """Verify CORS preflight handling for allowed origin."""
-    origin = "http://localhost:5173"
+    from app.core.config import settings
+    origin = settings.ALLOWED_ORIGINS[0]
     headers = {
         "Origin": origin,
         "Access-Control-Request-Method": "GET",
