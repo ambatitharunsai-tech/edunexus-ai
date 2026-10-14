@@ -68,9 +68,19 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   const location = useLocation();
   const navigate = useNavigate();
   const { session, signOut, isStaff } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
 
   useEffect(() => {
     let isMounted = true;
+    if (isStudent) {
+      setHighRiskStudents([]);
+      setNotificationsError(false);
+      setNotificationsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
     const loadRiskNotifications = async () => {
       try {
         const dashboard = await api<DashboardOverviewResponse>('/api/v1/dashboard/overview');
@@ -98,7 +108,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
       isMounted = false;
       window.clearInterval(refreshId);
     };
-  }, []);
+  }, [isStudent]);
 
   const submitStudentSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && event.currentTarget.value.trim()) {
@@ -116,9 +126,11 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   };
 
   // Determine current page title
-  const visibleNavItems = isStaff
-    ? navItems
-    : navItems.filter((item) => item.to === '/' || item.to === '/journey');
+  const visibleNavItems = isStudent
+    ? navItems.filter((item) => item.to === '/')
+    : isStaff
+      ? navItems
+      : navItems.filter((item) => item.to === '/' || item.to === '/journey');
 
   const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
@@ -188,6 +200,8 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             <span>Human-reviewed support</span>
           </div>
 
+          {!isStudent && (
+            <>
           {/* Current high-risk student notifications from dashboard data */}
           <div className="relative ml-auto shrink-0">
             <button
@@ -259,6 +273,9 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             )}
           </div>
 
+
+            </>
+          )}
           {/* Profile and display settings */}
           <div className="flex shrink-0 items-center pl-2 border-l border-slate-200">
             <details className="group relative">
