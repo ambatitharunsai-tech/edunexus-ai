@@ -181,6 +181,8 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             </div>
           </div>
 
+          {!isStudent && (
+            <>
           {/* Global search */}
           <div className="hidden min-w-0 flex-1 justify-center md:absolute md:left-1/2 md:top-1/2 md:flex md:w-[min(42vw,36rem)] md:-translate-x-1/2 md:-translate-y-1/2">
             <div className="relative w-full max-w-xl">
@@ -195,6 +197,9 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             </div>
           </div>
 
+
+            </>
+          )}
           <div className="hidden xl:flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-medium text-slate-700">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
             <span>Human-reviewed support</span>
@@ -350,6 +355,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
           </div>
         </div>
 
+        {!isStudent && (
         <div className="px-3 pb-3 md:hidden">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -362,6 +368,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             />
           </div>
         </div>
+        )}
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
