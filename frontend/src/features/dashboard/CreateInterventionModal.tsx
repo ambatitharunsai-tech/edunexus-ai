@@ -98,7 +98,7 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
     setTargetCompletionDate(target.toISOString().split('T')[0]);
     setSubmitError(null);
     setSuccess(false);
-  }, [isOpen, preselectedStudent, availableStudents]);
+  }, [isOpen, preselectedStudent, availableStudents, selectedStudentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

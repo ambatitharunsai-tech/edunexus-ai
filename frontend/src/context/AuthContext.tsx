@@ -1,7 +1,6 @@
 import {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -10,7 +9,7 @@ import {
 
 import { clearAuthSession, getStoredAuthSession, signInWithToken, type AuthSession, isStaffRole } from '../lib/auth';
 
-interface AuthContextValue {
+export interface AuthContextValue {
   session: AuthSession | null;
   isAuthenticated: boolean;
   isStaff: boolean;
@@ -19,7 +18,7 @@ interface AuthContextValue {
   refreshSession: () => AuthSession | null;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(() => getStoredAuthSession());
@@ -59,14 +58,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
-  return context;
 }
