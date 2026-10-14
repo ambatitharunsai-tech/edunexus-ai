@@ -85,24 +85,15 @@ async def get_my_student_dashboard(
     data = dashboard_service._load_synthetic_data()
     students = data.get("students", [])
     linked_id = (current_user.student_id or "").strip()
-    email = (current_user.email or "").strip().lower()
 
-    # student_id is accepted only from server-managed app_metadata or the
-    # server-side demo-token mapping. Never read a student selector from the URL.
+    # Only a server-managed app_metadata link or server-side demo-token mapping
+    # can select a record. Do not guess from email or accept a client-supplied ID.
     student = None
     if linked_id:
         student = next(
             (
                 row for row in students
                 if linked_id in (str(row.get("id", "")), str(row.get("student_id", "")))
-            ),
-            None,
-        )
-    if student is None and email:
-        student = next(
-            (
-                row for row in students
-                if str(row.get("email", "")).strip().lower() == email
             ),
             None,
         )
