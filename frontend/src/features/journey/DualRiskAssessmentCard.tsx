@@ -53,12 +53,12 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
         {academicRiskProfile && (
           <Card className="border-slate-200 shadow-2xs">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-100">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="p-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-100 shrink-0">
                     <BookOpen className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <CardTitle className="text-sm font-bold text-slate-900">
                       Academic Risk Signal
                     </CardTitle>
@@ -67,7 +67,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                     </CardDescription>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
                   <Badge variant={getTierVariant(academicRiskProfile.tier)} size="sm">
                     {academicRiskProfile.tier.toUpperCase()} RISK
                   </Badge>
@@ -131,12 +131,12 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
         {placementRiskProfile && (
           <Card className="border-slate-200 shadow-2xs">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-100">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="p-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-100 shrink-0">
                     <Briefcase className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <CardTitle className="text-sm font-bold text-slate-900">
                       Placement Risk Signal
                     </CardTitle>
@@ -145,7 +145,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                     </CardDescription>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
                   <Badge variant={getTierVariant(placementRiskProfile.tier)} size="sm">
                     {placementRiskProfile.tier.toUpperCase()} RISK
                   </Badge>

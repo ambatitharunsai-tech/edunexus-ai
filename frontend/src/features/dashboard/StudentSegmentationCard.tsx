@@ -31,12 +31,12 @@ export const StudentSegmentationCard: React.FC<StudentSegmentationCardProps> = (
   return (
     <Card className="border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-purple-50 text-purple-700">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="p-2 rounded-lg bg-purple-50 text-purple-700 shrink-0">
               <Users2 className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <CardTitle className="text-base font-semibold text-slate-900">
                 Actionable Student Segmentation
               </CardTitle>
@@ -45,31 +45,31 @@ export const StudentSegmentationCard: React.FC<StudentSegmentationCardProps> = (
               </CardDescription>
             </div>
           </div>
-          <Badge variant="neutral" className="bg-purple-50/50 text-purple-700 border-purple-200 text-xs">
+          <Badge variant="neutral" className="bg-purple-50/50 text-purple-700 border-purple-200 text-xs shrink-0 self-start sm:self-auto">
             Bonus Capability
           </Badge>
         </div>
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-1">
           {segmentDistribution.map((item) => {
             const style = colorMap[item.badge_color] || colorMap.purple;
             return (
               <div
                 key={item.segment_id}
-                className={`p-3 rounded-lg border ${style.border} ${style.bg} flex flex-col justify-between transition-all hover:shadow-xs`}
+                className={`p-3 rounded-lg border ${style.border} ${style.bg} flex flex-col justify-between transition-all hover:shadow-xs min-w-0`}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={`text-[11px] font-semibold uppercase tracking-wider ${style.text}`}>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-start justify-between gap-1 mb-1.5 min-w-0">
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${style.text} leading-tight`}>
                       {item.tagline}
                     </span>
-                    <span className="text-sm font-bold text-slate-900">
+                    <span className="text-xs font-bold text-slate-900 shrink-0">
                       {item.count} <span className="text-[10px] font-normal text-slate-500">({item.percentage}%)</span>
                     </span>
                   </div>
-                  <h4 className="text-xs font-semibold text-slate-800 mb-1 leading-tight">
+                  <h4 className="text-xs font-semibold text-slate-800 mb-1 leading-snug break-words">
                     {item.label}
                   </h4>
                 </div>

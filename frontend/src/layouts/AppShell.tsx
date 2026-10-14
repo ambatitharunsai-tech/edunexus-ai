@@ -184,16 +184,16 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
           {!isStudent && (
             <>
           {/* Global search */}
-          <div className="hidden min-w-0 flex-1 justify-center md:absolute md:left-1/2 md:top-1/2 md:flex md:w-[min(42vw,36rem)] md:-translate-x-1/2 md:-translate-y-1/2">
-            <div className="relative w-full max-w-xl">
-            <Search className="absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400 pointer-events-none" />
-            <input
-              type="search"
-              onKeyDown={submitStudentSearch}
-              placeholder="Search students by name or ID"
-              className="w-full border border-slate-200 bg-slate-100 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder:text-slate-500 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-colors"
-              aria-label="Quick search students"
-            />
+          <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex max-w-md mx-auto">
+            <div className="relative w-full">
+              <Search className="absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400 pointer-events-none" />
+              <input
+                type="search"
+                onKeyDown={submitStudentSearch}
+                placeholder="Search students by name or ID"
+                className="w-full border border-slate-200 bg-slate-100 py-1.5 pl-9 pr-4 text-xs text-slate-800 placeholder:text-slate-500 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+                aria-label="Quick search students"
+              />
             </div>
           </div>
 

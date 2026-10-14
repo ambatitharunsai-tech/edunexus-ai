@@ -10,6 +10,7 @@ from app.core.config import settings
 # Tests use explicit demo fixtures regardless of the hosting environment.
 # Individual production-security tests set this to production as needed.
 settings.ENVIRONMENT = "development"
+settings.SUPABASE_URL = ""
 
 
 @pytest.fixture(scope="session")

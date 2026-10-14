@@ -127,16 +127,16 @@ export const RecordOutcomeModal: React.FC<RecordOutcomeModalProps> = ({
     >
       <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3 bg-slate-50/70">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold shrink-0">
               <Scale className="w-4 h-4" />
             </div>
-            <div>
-              <h3 id="record-outcome-title" className="text-sm font-bold text-slate-900">
+            <div className="min-w-0">
+              <h3 id="record-outcome-title" className="text-sm font-bold text-slate-900 truncate">
                 Record Intervention Outcome
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 truncate">
                 {intervention.student_name || 'Student'} ({intervention.student_code || intervention.student_id})
               </p>
             </div>
@@ -144,7 +144,7 @@ export const RecordOutcomeModal: React.FC<RecordOutcomeModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />

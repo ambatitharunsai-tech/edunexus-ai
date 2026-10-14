@@ -196,8 +196,8 @@ export const StudentDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-8">
-      <section className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-indigo-50 p-5 sm:flex-row sm:items-center sm:p-7">
-        <div className="space-y-2">
+      <section className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 dark:bg-slate-900/60 p-5 sm:flex-row sm:items-center sm:p-7">
+        <div className="space-y-2 min-w-0 flex-1">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-600">Student overview</p>
           <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
             Welcome back, {student.first_name}
@@ -206,7 +206,7 @@ export const StudentDashboardPage: React.FC = () => {
             Your personal progress across attendance, assessments, learning activity, skills, placement preparation, engagement and feedback.
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-semibold">{student.student_id}</span>
+            <span className="rounded-full border border-slate-200 bg-white dark:bg-slate-800/80 px-3 py-1 font-semibold">{student.student_id}</span>
             {student.current_grade && <span>{student.current_grade}</span>}
             {student.academic_term && <span>· {student.academic_term}</span>}
             {student.section && <span>· Section {student.section}</span>}
@@ -216,7 +216,7 @@ export const StudentDashboardPage: React.FC = () => {
           type="button"
           onClick={() => void loadDashboard()}
           disabled={loading}
-          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -226,7 +226,7 @@ export const StudentDashboardPage: React.FC = () => {
       {data_source.toLowerCase().includes('synthetic') && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-bold">Synthetic demo data</p>
             <p className="mt-1 text-xs leading-5">This account shows fictional evaluation data, not your institution’s live student record.</p>
           </div>
@@ -237,13 +237,13 @@ export const StudentDashboardPage: React.FC = () => {
         {scoreCards.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.label} className="border-slate-200 bg-white shadow-sm">
+            <Card key={item.label} className="border-slate-200 bg-white shadow-xs">
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-slate-500">{item.label}</p>
                     <p className="mt-3 text-2xl font-black tracking-tight text-slate-900">{item.value}</p>
-                    <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
+                    <p className="mt-1 text-xs text-slate-500 break-words">{item.detail}</p>
                   </div>
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.iconTone}`}>
                     <Icon className="h-5 w-5" />
@@ -301,13 +301,13 @@ export const StudentDashboardPage: React.FC = () => {
       <Card className="border-slate-200 bg-white">
         <CardHeader className="pb-3">
           <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-            <div>
+            <div className="min-w-0 flex-1">
               <CardTitle className="text-base text-slate-900">Your seven-domain progress</CardTitle>
               <CardDescription className="mt-1 text-xs text-slate-500">
                 {metrics.available_domains_count} of 7 domains have recorded evidence · {Number(metrics.domain_coverage_pct ?? 0).toFixed(0)}% coverage
               </CardDescription>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600 shrink-0 self-start sm:self-auto">
               <Activity className="h-3.5 w-3.5" /> {prettyLabel(metrics.trend)} trend
             </span>
           </div>

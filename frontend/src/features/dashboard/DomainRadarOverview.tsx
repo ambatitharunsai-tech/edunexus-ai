@@ -32,12 +32,12 @@ export const DomainRadarOverview: React.FC<DomainRadarOverviewProps> = ({ domain
   return (
     <Card className="border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-teal-50 text-teal-700">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="p-2 rounded-lg bg-teal-50 text-teal-700 shrink-0">
               <Compass className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <CardTitle className="text-base font-semibold text-slate-900">
                 7-Domain Campus Health Fingerprint
               </CardTitle>
@@ -46,7 +46,7 @@ export const DomainRadarOverview: React.FC<DomainRadarOverviewProps> = ({ domain
               </CardDescription>
             </div>
           </div>
-          <Badge variant="neutral" className="bg-teal-50/50 text-teal-800 border-teal-200 text-xs">
+          <Badge variant="neutral" className="bg-teal-50/50 text-teal-800 border-teal-200 text-xs shrink-0 self-start sm:self-auto">
             Available domain averages
           </Badge>
         </div>

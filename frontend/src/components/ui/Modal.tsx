@@ -61,13 +61,13 @@ export const Modal: React.FC<ModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-slate-100 bg-slate-50/50">
-          <div>
-            <h3 id="modal-title" className="text-base font-bold text-slate-900">
+        <div className="flex items-start justify-between p-5 border-b border-slate-100 bg-slate-50/50 gap-3">
+          <div className="min-w-0 flex-1 pr-2">
+            <h3 id="modal-title" className="text-base font-bold text-slate-900 leading-snug">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed break-words">
                 {description}
               </p>
             )}
@@ -75,7 +75,7 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />

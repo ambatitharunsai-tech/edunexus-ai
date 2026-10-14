@@ -52,30 +52,30 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
     >
       <div className="space-y-5">
         {/* Student Banner */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-xs">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-wrap sm:flex-nowrap items-start justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
               {student.name
                 .split(' ')
                 .map((n) => n[0])
                 .join('')}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-base font-bold text-slate-900">{student.name}</h4>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-base font-bold text-slate-900 truncate">{student.name}</h4>
                 <Badge variant={riskBadgeVariant} size="sm">
                   {student.risk_level.toUpperCase()} PRIORITY
                 </Badge>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5 truncate">
                 ID: <span className="font-mono font-semibold text-slate-700">{student.student_id}</span> • {student.grade} Section {student.section || 'Not recorded'}
               </p>
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-left sm:text-right shrink-0">
             <div className="text-xs text-slate-400 font-medium">Composite Risk Index</div>
-            <div className="text-xl font-black text-slate-900 mt-0.5 flex items-center justify-end gap-1">
+            <div className="text-xl font-black text-slate-900 mt-0.5 flex items-center sm:justify-end gap-1">
               <span>{student.risk_score}</span>
               <span className="text-xs text-slate-400 font-normal">/ 100</span>
             </div>

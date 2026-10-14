@@ -189,9 +189,9 @@ export const DashboardPage: React.FC = () => {
   ];
 
   const insightTone = {
-    amber: 'from-amber-50 via-amber-100 to-white text-amber-700 border-amber-200',
-    indigo: 'from-indigo-50 via-indigo-100 to-white text-indigo-700 border-indigo-200',
-    emerald: 'from-emerald-50 via-emerald-100 to-white text-emerald-700 border-emerald-200',
+    amber: 'border-amber-200/80 bg-amber-50/60 text-amber-800 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-300',
+    indigo: 'border-indigo-200/80 bg-indigo-50/60 text-indigo-800 dark:border-indigo-800/60 dark:bg-indigo-950/20 dark:text-indigo-300',
+    emerald: 'border-emerald-200/80 bg-emerald-50/60 text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/20 dark:text-emerald-300',
   } as const;
 
   const activityTone = {
@@ -332,7 +332,7 @@ export const DashboardPage: React.FC = () => {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">{item.label}</p>
                 <p className="mt-3 text-3xl font-black tracking-tight">{item.value}</p>
               </div>
-              <div className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider shadow-sm border border-current/10">
+              <div className="rounded-full bg-white/80 dark:bg-slate-900/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider shadow-xs border border-current/15 shrink-0">
                 Live
               </div>
             </div>
@@ -342,14 +342,14 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_0.9fr] gap-6">
-        <Card className="border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50">
+        <Card className="border-slate-200 bg-slate-50/50 dark:bg-slate-900/60">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between gap-3">
-              <div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-base font-bold text-slate-900">Live Activity Feed</CardTitle>
                 <CardDescription className="text-xs text-slate-500">Recent student events and advisor actions across the cohort.</CardDescription>
               </div>
-              <Link to="/students" className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700">
+              <Link to="/students" className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 shrink-0">
                 View directory
               </Link>
             </div>
@@ -619,8 +619,8 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Component 3: Attendance Trajectory Area Chart (2 Cols) */}
         <Card className="lg:col-span-2 border-slate-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+            <div className="min-w-0 flex-1">
               <CardTitle className="text-base font-bold text-slate-900">
                 Institutional Attendance Trajectory
               </CardTitle>
@@ -628,7 +628,7 @@ export const DashboardPage: React.FC = () => {
                 Recorded daily attendance. Time windows end at the latest recorded date. Prototype benchmark: 80%.
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                 <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block" />
                 <span>Attendance %</span>
@@ -801,8 +801,8 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Component 4: Assessment Performance Trend Chart (2 Cols) */}
         <Card className="lg:col-span-2 border-slate-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+            <div className="min-w-0 flex-1">
               <CardTitle className="text-base font-bold text-slate-900">
                 Assessment Performance Trajectory
               </CardTitle>
@@ -810,7 +810,7 @@ export const DashboardPage: React.FC = () => {
                 Recorded assessment dates. Time windows end at the latest recorded assessment.
               </CardDescription>
             </div>
-            <Badge variant="primary" size="sm">
+            <Badge variant="primary" size="sm" className="shrink-0 self-start sm:self-auto">
               Average: {summary.cohort_avg_score}%
             </Badge>
           </CardHeader>
@@ -863,13 +863,13 @@ export const DashboardPage: React.FC = () => {
         {/* Component 8: Intervention Status Summary */}
         <Card className="border-slate-200 flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-base font-bold text-slate-900">
                 Intervention Registry Overview
               </CardTitle>
               <Link
                 to="/interventions"
-                className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+                className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1 shrink-0"
               >
                 <span>View All</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
