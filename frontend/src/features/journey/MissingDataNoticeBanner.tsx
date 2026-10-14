@@ -11,9 +11,9 @@ export const MissingDataNoticeBanner: React.FC<MissingDataNoticeBannerProps> = (
 
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-2.5">
-      <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
-        <AlertCircle className="w-4 h-4 text-amber-600" />
-        <span>Telemetry Transparency & Missing Data Disclosures ({notices.length})</span>
+      <div className="flex items-start gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider leading-relaxed">
+        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+        <span className="min-w-0">Telemetry Transparency & Missing Data Disclosures ({notices.length})</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

@@ -17,11 +17,19 @@ from app.db.repositories import (
     EngagementRepository,
     InterventionRepository,
     AuditRepository,
+    PlacementRepository,
+    SkillsRepository,
+    FeedbackRepository,
+    LMSRepository,
 )
 from app.schemas.student import StudentCreate, StudentUpdate, StudentInDB, StudentResponse
 from app.schemas.attendance import AttendanceCreate, AttendanceInDB, AttendanceSummary
 from app.schemas.assessment import AssessmentCreate, AssessmentInDB
 from app.schemas.engagement import EngagementEventCreate, EngagementEventInDB
+from app.schemas.placement import PlacementCreate, PlacementInDB
+from app.schemas.skills import SkillsCreate, SkillsInDB
+from app.schemas.feedback import FeedbackCreate, FeedbackInDB
+from app.schemas.lms import LMSActivityCreate, LMSActivityInDB
 from app.schemas.intervention import (
     InterventionCreate,
     InterventionUpdate,
@@ -43,6 +51,10 @@ class DatabaseService:
         engagement_repo: Optional[EngagementRepository] = None,
         intervention_repo: Optional[InterventionRepository] = None,
         audit_repo: Optional[AuditRepository] = None,
+        placement_repo: Optional[PlacementRepository] = None,
+        skills_repo: Optional[SkillsRepository] = None,
+        feedback_repo: Optional[FeedbackRepository] = None,
+        lms_repo: Optional[LMSRepository] = None,
     ):
         self.students = student_repo or StudentRepository()
         self.attendance = attendance_repo or AttendanceRepository()
@@ -50,6 +62,11 @@ class DatabaseService:
         self.engagements = engagement_repo or EngagementRepository()
         self.interventions = intervention_repo or InterventionRepository()
         self.audits = audit_repo or AuditRepository()
+        self.placement = placement_repo or PlacementRepository()
+        self.skills = skills_repo or SkillsRepository()
+        self.feedback = feedback_repo or FeedbackRepository()
+        self.lms = lms_repo or LMSRepository()
+
 
     @staticmethod
     def get_connection_status() -> Dict[str, Any]:

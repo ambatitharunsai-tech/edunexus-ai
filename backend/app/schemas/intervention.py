@@ -50,6 +50,8 @@ class InterventionBase(BaseModel):
             raise ValueError(
                 f"Actual completion date ({self.actual_completion_date}) cannot precede start date ({self.start_date})."
             )
+        if self.follow_up_date and self.follow_up_date < self.start_date:
+            raise ValueError("Follow-up date cannot precede start date")
         return self
 
 
@@ -80,4 +82,8 @@ class InterventionInDB(InterventionBase):
 
 
 class InterventionWithOutcomes(InterventionInDB):
+    student_name: Optional[str] = None
+    student_code: Optional[str] = None
+    is_overdue: bool = False
+    updated_by: Optional[str] = None
     outcomes: List[OutcomeInDB] = Field(default_factory=list)

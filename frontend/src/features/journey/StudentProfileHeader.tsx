@@ -23,17 +23,19 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({
   const { student, department, risk_profile } = profile;
   const initials = `${student.first_name[0] || ''}${student.last_name[0] || ''}`.toUpperCase();
 
-  const riskVariant = {
+  const riskVariant = ({
+    insufficient_data: 'neutral',
     critical: 'danger',
     high: 'warning',
+    moderate: 'warning',
     medium: 'warning',
     low: 'success',
-  }[risk_profile.overall_risk] as 'danger' | 'warning' | 'success';
+  }[risk_profile.overall_risk] || 'warning') as 'danger' | 'warning' | 'success';
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md border border-slate-800 space-y-4">
+      <div className="min-w-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-md border border-slate-800 space-y-4">
       {/* Navigation & Controls */}
-      <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           to="/students"
           className="inline-flex items-center gap-1.5 text-xs text-indigo-200 hover:text-white transition-colors"
@@ -53,17 +55,17 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({
       </div>
 
       {/* Main Profile Info Row */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pt-1">
-        <div className="flex items-start gap-4">
+      <div className="flex min-w-0 flex-col justify-between gap-5 pt-1 md:flex-row md:items-center">
+      <div className="flex min-w-0 items-start gap-3 sm:gap-4">
           <div className="w-16 h-16 rounded-2xl bg-indigo-600/60 border border-indigo-400/40 flex items-center justify-center text-white text-xl font-black shadow-inner select-none shrink-0">
             {initials}
           </div>
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="text-xl font-bold tracking-tight text-white">
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+              <h2 className="min-w-0 break-words text-xl font-bold tracking-tight text-white">
                 {student.first_name} {student.last_name}
               </h2>
-              <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-white/10 text-indigo-200 border border-white/15">
+              <span className="shrink-0 font-mono text-xs px-2.5 py-0.5 rounded-md bg-white/10 text-indigo-200 border border-white/15">
                 {student.student_id}
               </span>
               <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -71,28 +73,28 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="flex items-center gap-1">
-                <GraduationCap className="w-3.5 h-3.5 text-indigo-400" />
-                <span>{department}</span>
+            <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-300">
+              <span className="flex min-w-0 items-start gap-1">
+                <GraduationCap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                <span className="min-w-0 break-words">{department}</span>
               </span>
-              <span>•</span>
-              <span>
+              <span className="hidden sm:inline">•</span>
+              <span className="min-w-0 break-words">
                 {student.current_grade || student.grade || 'Current Cohort'} {student.academic_term ? `(${student.academic_term})` : ''}
               </span>
-              <span>•</span>
-              <span>Section {student.section || 'A'}</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="min-w-0">Section {student.section || 'A'}</span>
             </p>
 
-            <div className="text-[11px] text-slate-400 flex items-center gap-3 pt-0.5">
-              <span className="flex items-center gap-1">
-                <Mail className="w-3 h-3 text-slate-400" />
-                <span>{student.email || `${student.student_id.toLowerCase()}@edunexus-demo.example`}</span>
+            <div className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1 pt-0.5 text-[11px] text-slate-400">
+              <span className="flex min-w-0 items-start gap-1">
+                <Mail className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+                <span className="min-w-0 break-all">{student.email || `${student.student_id.toLowerCase()}@edunexus-demo.example`}</span>
               </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-slate-400" />
-                <span>Enrolled: {student.enrollment_date}</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="flex min-w-0 items-start gap-1">
+                <Calendar className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+                <span className="min-w-0 break-words">Enrolled: {student.enrollment_date}</span>
               </span>
             </div>
           </div>

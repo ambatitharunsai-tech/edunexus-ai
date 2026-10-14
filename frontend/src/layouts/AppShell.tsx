@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
+  AlertTriangle,
+  Bell,
+  Check,
+  ChevronRight,
   LayoutDashboard,
   Users,
   Milestone,
@@ -11,10 +15,15 @@ import {
   Search,
   GraduationCap,
   Sparkles,
+  FileSpreadsheet,
+  LogOut,
+  ChevronDown,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { Badge } from '../components/ui/Badge';
-import { useHealth } from '../hooks/useHealth';
+import { useAuth } from '../context';
+import { api } from '../lib/api';
+import type { DashboardOverviewResponse, FollowUpStudentItem } from '../types';
 
 interface NavItem {
   name: string;
@@ -29,21 +38,91 @@ const navItems: NavItem[] = [
   { name: 'Student Journey', to: '/journey', icon: Milestone, badge: 'Intelligence' },
   { name: 'Interventions', to: '/interventions', icon: ShieldAlert },
   { name: 'Analytics & Trends', to: '/analytics', icon: BarChart3 },
+  { name: 'Data & CSV Hub', to: '/csv-hub', icon: FileSpreadsheet, badge: 'Ingest' },
 ];
 
 export const AppShell: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [highRiskStudents, setHighRiskStudents] = useState<FollowUpStudentItem[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [notificationsError, setNotificationsError] = useState(false);
+  const [compactNavigation, setCompactNavigation] = useState(() => {
+    try {
+      return localStorage.getItem('edunexus_compact_navigation') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [reduceMotion, setReduceMotion] = useState(() => {
+    try {
+      return localStorage.getItem('edunexus_reduce_motion') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const location = useLocation();
-  const { health } = useHealth();
+  const navigate = useNavigate();
+  const { session, signOut, isStaff } = useAuth();
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadRiskNotifications = async () => {
+      try {
+        const dashboard = await api<DashboardOverviewResponse>('/api/v1/dashboard/overview');
+        const highRisk = dashboard.follow_up_students
+          .filter((student) => student.risk_level === 'high' || student.risk_level === 'critical')
+          .sort((left, right) => {
+            const tierOrder = (tier: string) => tier === 'critical' ? 0 : 1;
+            return tierOrder(left.risk_level) - tierOrder(right.risk_level) ||
+              (right.risk_score ?? -1) - (left.risk_score ?? -1);
+          });
+        if (isMounted) {
+          setHighRiskStudents(highRisk);
+          setNotificationsError(false);
+        }
+      } catch {
+        if (isMounted) setNotificationsError(true);
+      } finally {
+        if (isMounted) setNotificationsLoading(false);
+      }
+    };
+
+    void loadRiskNotifications();
+    const refreshId = window.setInterval(() => void loadRiskNotifications(), 60_000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(refreshId);
+    };
+  }, []);
+
+  const submitStudentSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && event.currentTarget.value.trim()) {
+      navigate(`/students?search=${encodeURIComponent(event.currentTarget.value.trim())}`);
+      event.currentTarget.blur();
+    }
+  };
+
+  const storePreference = (key: string, value: boolean) => {
+    try {
+      localStorage.setItem(key, String(value));
+    } catch {
+      // Keep the in-memory setting when browser storage is unavailable.
+    }
+  };
 
   // Determine current page title
-  const currentNav = navItems.find((item) =>
+  const visibleNavItems = isStaff
+    ? navItems
+    : navItems.filter((item) => item.to === '/' || item.to === '/journey');
+
+  const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
   );
   const pageTitle = currentNav?.name || 'Overview';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+    <div className={cn('app-shell h-screen overflow-hidden bg-slate-50 text-slate-900 flex flex-col antialiased', compactNavigation && 'compact-navigation', reduceMotion && 'reduce-motion')}>
       {/* Skip to Main Content Link for A11y */}
       <a
         href="#main-content"
@@ -53,8 +132,8 @@ export const AppShell: React.FC = () => {
       </a>
 
       {/* Top Header */}
-      <header className="sticky top-0 z-30 h-16 border-b border-slate-200 bg-white/95 backdrop-blur-xs flex items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-3">
+      <header className="app-shell-header relative z-30 shrink-0 border-b border-slate-200 bg-white/95 backdrop-blur-xs">
+        <div className="flex min-h-16 items-center gap-3 px-3 sm:px-6">
           {/* Mobile hamburger menu toggle */}
           <button
             type="button"
@@ -67,7 +146,7 @@ export const AppShell: React.FC = () => {
           </button>
 
           {/* Brand Logo & Title */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex min-w-0 shrink-0 items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs">
               <GraduationCap className="w-5 h-5" aria-hidden="true" />
             </div>
@@ -76,78 +155,191 @@ export const AppShell: React.FC = () => {
                 <span className="font-bold text-base tracking-tight text-slate-900">
                   EduNexus <span className="text-indigo-600">AI</span>
                 </span>
-                <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span className="hidden lg:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                   Prototype
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 hidden md:block">
-                KPMG Student Analytics Challenge
+              <p className="text-[10px] text-slate-500 hidden xl:block">
+                Student Journey Intelligence
               </p>
             </div>
           </div>
-        </div>
 
-        {/* Global Search & System Meta */}
-        <div className="flex items-center gap-3">
-          {/* Search bar simulation */}
-          <div className="hidden lg:flex items-center relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          {/* Global search */}
+          <div className="hidden min-w-0 flex-1 justify-center md:absolute md:left-1/2 md:top-1/2 md:flex md:w-[min(42vw,36rem)] md:-translate-x-1/2 md:-translate-y-1/2">
+            <div className="relative w-full max-w-xl">
+            <Search className="absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400 pointer-events-none" />
             <input
               type="search"
-              placeholder="Search student or ID (e.g. STU-001)..."
-              className="pl-9 pr-4 py-1.5 text-xs bg-slate-100 rounded-lg border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-64 transition-all"
+              onKeyDown={submitStudentSearch}
+              placeholder="Search students by name or ID"
+              className="w-full border border-slate-200 bg-slate-100 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder:text-slate-500 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-colors"
               aria-label="Quick search students"
             />
+            </div>
           </div>
 
-          {/* Academic Term Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-medium text-slate-700">
+          <div className="hidden xl:flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-medium text-slate-700">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
-            <span>AY 2025-26 • Term 2</span>
+            <span>Human-reviewed support</span>
           </div>
 
-          {/* API Health Status Pill */}
-          <div className="flex items-center">
-            {health.status === 'online' ? (
-              <Badge variant="success" size="sm" dot>
-                API v{health.version || '0.1.0'}
-              </Badge>
-            ) : health.status === 'checking' ? (
-              <Badge variant="warning" size="sm" dot>
-                API Connecting
-              </Badge>
-            ) : (
-              <Badge variant="danger" size="sm" dot>
-                API Offline
-              </Badge>
+          {/* Current high-risk student notifications from dashboard data */}
+          <div className="relative ml-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => setNotificationsOpen((open) => !open)}
+              className="relative flex h-10 w-10 items-center justify-center text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              aria-label={`High-risk student notifications${highRiskStudents.length ? `, ${highRiskStudents.length} students` : ''}`}
+              aria-expanded={notificationsOpen}
+              aria-controls="high-risk-notifications"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+              {highRiskStudents.length > 0 && (
+                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center bg-rose-600 px-1 text-[10px] font-bold leading-none text-white">
+                  {highRiskStudents.length > 99 ? '99+' : highRiskStudents.length}
+                </span>
+              )}
+            </button>
+            {notificationsOpen && (
+              <section
+                id="high-risk-notifications"
+                className="fixed right-3 top-[7.5rem] z-50 w-[min(22rem,calc(100vw-1.5rem))] border border-slate-200 bg-white text-slate-800 shadow-xl md:absolute md:right-0 md:top-full md:mt-2"
+                aria-label="High-risk student notifications"
+              >
+                <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-slate-900">High-risk students</h2>
+                    <p className="mt-0.5 text-xs text-slate-500">Current high and critical review flags</p>
+                  </div>
+                  <span className="flex h-7 min-w-7 items-center justify-center bg-rose-50 px-2 text-xs font-bold text-rose-700">
+                    {highRiskStudents.length}
+                  </span>
+                </div>
+                {notificationsLoading ? (
+                  <p className="px-4 py-5 text-sm text-slate-500" role="status">Loading current risk flags…</p>
+                ) : notificationsError ? (
+                  <p className="px-4 py-5 text-sm text-amber-700" role="alert">Risk notifications are unavailable right now.</p>
+                ) : highRiskStudents.length === 0 ? (
+                  <div className="flex items-start gap-2.5 px-4 py-5 text-sm text-slate-600">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <p>No students currently have a high or critical baseline risk flag.</p>
+                  </div>
+                ) : (
+                  <ul className="max-h-[min(60vh,28rem)] overflow-y-auto">
+                    {highRiskStudents.map((student) => (
+                      <li key={student.id} className="border-b border-slate-100 last:border-b-0">
+                        <Link
+                          to={`/journey?student_id=${encodeURIComponent(student.id)}`}
+                          onClick={() => setNotificationsOpen(false)}
+                          className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none"
+                        >
+                          <AlertTriangle className={cn('mt-0.5 h-4 w-4 shrink-0', student.risk_level === 'critical' ? 'text-rose-600' : 'text-orange-600')} />
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-start justify-between gap-2">
+                              <span className="truncate text-sm font-semibold text-slate-900">{student.name}</span>
+                              <span className={cn('shrink-0 text-[10px] font-bold uppercase', student.risk_level === 'critical' ? 'text-rose-700' : 'text-orange-700')}>
+                                {student.risk_level}
+                              </span>
+                            </span>
+                            <span className="mt-0.5 block text-xs text-slate-500">{student.student_id} · {student.risk_score == null ? 'Score unavailable' : `${student.risk_score.toFixed(1)} risk score`}</span>
+                            <span className="mt-1 block text-xs leading-relaxed text-slate-600">{student.primary_risk_factor}</span>
+                          </span>
+                          <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
             )}
           </div>
 
-          {/* Evaluator User Avatar */}
-          <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-            <div
-              className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-semibold select-none ring-2 ring-slate-100"
-              title="KPMG Evaluator Profile"
-            >
-              KP
-            </div>
+          {/* Profile and display settings */}
+          <div className="flex shrink-0 items-center pl-2 border-l border-slate-200">
+            <details className="group relative">
+              <summary className="flex cursor-pointer list-none items-center gap-2 p-1.5 text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <span className="flex h-8 w-8 items-center justify-center bg-slate-800 text-xs font-semibold text-white">
+                  {session?.role ? session.role.slice(0, 2).toUpperCase() : 'NA'}
+                </span>
+                <span className="hidden text-xs font-medium sm:block">{session?.role || 'Profile'}</span>
+                <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="absolute right-0 top-full z-50 mt-2 w-[min(19rem,calc(100vw-1.5rem))] border border-slate-200 bg-white p-4 text-slate-800 shadow-xl">
+                <div className="border-b border-slate-200 pb-3">
+                  <p className="text-sm font-semibold text-slate-900">Profile</p>
+                  <p className="mt-1 break-all text-xs text-slate-600">{session?.email || 'Email not provided'}</p>
+                  <p className="mt-1 text-xs text-slate-500">Role: {session?.role || 'Unknown'}</p>
+                  {session?.isDemoSession && <p className="mt-1 text-[11px] text-indigo-700">Local demo session</p>}
+                </div>
+                <div className="space-y-3 py-3">
+                  <p className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <SlidersHorizontal className="h-3.5 w-3.5" /> Display settings
+                  </p>
+                  <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-slate-700">
+                    <span>Compact navigation</span>
+                    <input
+                      type="checkbox"
+                      checked={compactNavigation}
+                      onChange={(event) => {
+                        setCompactNavigation(event.target.checked);
+                        storePreference('edunexus_compact_navigation', event.target.checked);
+                      }}
+                      className="h-4 w-4 accent-indigo-600"
+                    />
+                  </label>
+                  <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-slate-700">
+                    <span>Reduce motion</span>
+                    <input
+                      type="checkbox"
+                      checked={reduceMotion}
+                      onChange={(event) => {
+                        setReduceMotion(event.target.checked);
+                        storePreference('edunexus_reduce_motion', event.target.checked);
+                      }}
+                      className="h-4 w-4 accent-indigo-600"
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="flex min-h-9 w-full items-center gap-2 border-t border-slate-200 pt-3 text-left text-xs font-semibold text-slate-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <LogOut className="h-3.5 w-3.5" /> Sign out
+                </button>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div className="px-3 pb-3 md:hidden">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              onKeyDown={submitStudentSearch}
+              placeholder="Search students by name or ID"
+              className="w-full border border-slate-200 bg-slate-100 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-500 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              aria-label="Quick search students"
+            />
           </div>
         </div>
       </header>
 
-      <div className="flex-1 flex">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Desktop Sidebar Navigation */}
         <aside
-          className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 shrink-0"
+          className="hidden h-full w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white md:flex"
           aria-label="Main sidebar navigation"
         >
           {/* Main Navigation Links */}
-          <div className="p-4 flex-1 space-y-1">
+          <div className="flex-1 space-y-1 p-4">
             <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Platform Modules
             </div>
             <nav className="space-y-1">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <NavLink
@@ -198,11 +390,11 @@ export const AppShell: React.FC = () => {
             <div className="flex items-center justify-between text-[11px] text-slate-500">
               <span>Data Mode:</span>
               <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                Synthetic Seed
+                See dashboard source
               </span>
             </div>
             <div className="mt-2 text-[10px] text-slate-400">
-              EduNexus AI Platform • Stage 1
+              EduNexus AI Prototype
             </div>
           </div>
         </aside>
@@ -255,14 +447,14 @@ export const AppShell: React.FC = () => {
               </nav>
 
               <div className="p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200">
-                KPMG Student Analytics Challenge Prototype
+                EduNexus AI Prototype
               </div>
             </div>
           </div>
         )}
 
         {/* Main Content Viewport */}
-        <main id="main-content" className="flex-1 overflow-y-auto">
+        <main id="main-content" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {/* Breadcrumb / Section Banner */}
           <div className="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between">
             <div>
@@ -278,7 +470,7 @@ export const AppShell: React.FC = () => {
           </div>
 
           {/* Page Outlet */}
-          <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+          <div key={location.pathname} className="page-enter p-4 sm:p-8 max-w-7xl mx-auto">
             <Outlet />
           </div>
         </main>

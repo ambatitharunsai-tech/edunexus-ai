@@ -20,10 +20,20 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
   studentsList,
   onSubmit,
 }) => {
-  const targetStudent = preselectedStudent || (studentsList.length > 0 ? studentsList[0] : null);
+  const availableStudents = React.useMemo(() => {
+    const list = [...studentsList];
+    if (preselectedStudent && !list.some((s) => s.id === preselectedStudent.id)) {
+      list.unshift(preselectedStudent);
+    }
+    return list;
+  }, [studentsList, preselectedStudent]);
+
+  const targetStudent = preselectedStudent || (availableStudents.length > 0 ? availableStudents[0] : null);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(targetStudent?.id || '');
-  const [title, setTitle] = useState<string>(targetStudent ? `Support Plan: ${targetStudent.name}` : '');
+  const [title, setTitle] = useState<string>(
+    targetStudent ? `Support Plan: ${targetStudent.name} (${targetStudent.student_id})` : ''
+  );
   const [interventionType, setInterventionType] = useState<string>('academic_tutoring');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>(
     targetStudent?.risk_level === 'critical' ? 'urgent' : targetStudent?.risk_level === 'high' ? 'high' : 'medium'
@@ -33,33 +43,62 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
     target.setDate(target.getDate() + 30);
     return target.toISOString().split('T')[0];
   });
-  const [assignedStaff, setAssignedStaff] = useState<string>('Academic Support Team');
-  const [description, setDescription] = useState<string>(
-    targetStudent ? `Personalized support plan addressing primary signal: ${targetStudent.primary_risk_factor}.` : ''
+  const [assignedStaff, setAssignedStaff] = useState<string>(
+    targetStudent?.assigned_advisor || 'Academic Support Team'
   );
-  const [notes, setNotes] = useState<string>('');
+  const [description, setDescription] = useState<string>(
+    targetStudent
+      ? `Targeted intervention strategy addressing primary signal: ${targetStudent.primary_risk_factor}. Bi-weekly progress check-ins scheduled.`
+      : ''
+  );
+  const [notes, setNotes] = useState<string>(
+    targetStudent
+      ? `Baseline evaluation: Attendance ${targetStudent.attendance_rate != null ? targetStudent.attendance_rate.toFixed(1) + '%' : 'Under review'}, Avg Score ${targetStudent.avg_score != null ? targetStudent.avg_score.toFixed(1) + '%' : 'Under review'}. Target improvement: +10% within 30 days.`
+      : ''
+  );
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
-  // Sync state if preselected student changes
+  // Sync state whenever modal opens or student context updates
   useEffect(() => {
     if (!isOpen) return;
-    if (preselectedStudent) {
-      setSelectedStudentId(preselectedStudent.id);
-      setTitle(`Targeted Support: ${preselectedStudent.name}`);
+
+    const currentMatch =
+      preselectedStudent ||
+      availableStudents.find((s) => s.id === selectedStudentId) ||
+      (availableStudents.length > 0 ? availableStudents[0] : null);
+
+    if (currentMatch) {
+      setSelectedStudentId(currentMatch.id);
+      setTitle(`Support Plan: ${currentMatch.name} (${currentMatch.student_id})`);
       setDescription(
-        `Personalized support plan addressing primary signal: ${preselectedStudent.primary_risk_factor}.`
+        `Targeted intervention strategy addressing primary signal: ${currentMatch.primary_risk_factor}. Bi-weekly progress check-ins scheduled.`
       );
       setPriority(
-        preselectedStudent.risk_level === 'critical'
+        currentMatch.risk_level === 'critical'
           ? 'urgent'
-          : preselectedStudent.risk_level === 'high'
+          : currentMatch.risk_level === 'high'
           ? 'high'
           : 'medium'
       );
+      setAssignedStaff(currentMatch.assigned_advisor || 'Academic Support Team');
+      setNotes(
+        `Baseline evaluation: Attendance ${currentMatch.attendance_rate != null ? currentMatch.attendance_rate.toFixed(1) + '%' : 'Under review'}, Avg Score ${currentMatch.avg_score != null ? currentMatch.avg_score.toFixed(1) + '%' : 'Under review'}. Target improvement: +10% within 30 days.`
+      );
+    } else {
+      setTitle('Institutional Student Support Plan');
+      setDescription('Targeted academic mentorship and skill recovery program with regular milestone evaluations.');
+      setAssignedStaff('Academic Support Team');
+      setNotes('Baseline telemetry reviewed; scheduled for 30-day follow-up review.');
     }
-  }, [preselectedStudent, isOpen]);
+
+    const target = new Date();
+    target.setDate(target.getDate() + 30);
+    setTargetCompletionDate(target.toISOString().split('T')[0]);
+    setSubmitError(null);
+    setSuccess(false);
+  }, [isOpen, preselectedStudent, availableStudents]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,16 +183,29 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
               onChange={(e) => {
                 const sId = e.target.value;
                 setSelectedStudentId(sId);
-                const match = studentsList.find((s) => s.id === sId);
+                const match = availableStudents.find((s) => s.id === sId);
                 if (match) {
-                  setTitle(`Support Plan: ${match.name}`);
-                  setDescription(`Intervention addressing: ${match.primary_risk_factor}`);
+                  setTitle(`Support Plan: ${match.name} (${match.student_id})`);
+                  setDescription(
+                    `Targeted intervention strategy addressing primary signal: ${match.primary_risk_factor}. Bi-weekly progress check-ins scheduled.`
+                  );
+                  setPriority(
+                    match.risk_level === 'critical'
+                      ? 'urgent'
+                      : match.risk_level === 'high'
+                      ? 'high'
+                      : 'medium'
+                  );
+                  setAssignedStaff(match.assigned_advisor || 'Academic Support Team');
+                  setNotes(
+                    `Baseline evaluation: Attendance ${match.attendance_rate != null ? match.attendance_rate.toFixed(1) + '%' : 'Under review'}, Avg Score ${match.avg_score != null ? match.avg_score.toFixed(1) + '%' : 'Under review'}. Target improvement: +10% within 30 days.`
+                  );
                 }
               }}
               className="w-full px-3 py-2 text-xs bg-white rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               required
             >
-              {studentsList.map((s) => (
+              {availableStudents.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name} ({s.student_id}) — {s.grade} [{s.risk_level.toUpperCase()} RISK: {s.risk_score}]
                 </option>

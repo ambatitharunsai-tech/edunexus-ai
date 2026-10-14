@@ -42,13 +42,13 @@ export const StudentMetricsSummary: React.FC<StudentMetricsSummaryProps> = ({ pr
             </p>
             <h3
               className={`text-2xl font-black ${
-                attendance_rate < 80.0 ? 'text-amber-600' : 'text-slate-900'
+                attendance_rate != null && attendance_rate < 80.0 ? 'text-amber-600' : 'text-slate-900'
               }`}
             >
-              {attendance_rate.toFixed(1)}%
+              {attendance_rate == null ? "Not recorded" : `${attendance_rate.toFixed(1)}%`}
             </h3>
             <div className="flex items-center gap-1 text-xs font-medium">
-              {attendance_rate >= 80.0 ? (
+              {attendance_rate == null ? <span>Awaiting records</span> : attendance_rate >= 80.0 ? (
                 <span className="text-emerald-600 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Above 80% Institutional Min</span>
@@ -75,12 +75,12 @@ export const StudentMetricsSummary: React.FC<StudentMetricsSummaryProps> = ({ pr
               Academic Average
             </p>
             <h3 className="text-2xl font-black text-slate-900">
-              {average_score.toFixed(1)}%
+              {average_score == null ? "Not recorded" : `${average_score.toFixed(1)}%`}
             </h3>
             <p className="text-xs text-slate-500">
               Latest Cycle Eval:{' '}
               <strong className="text-slate-800">
-                {latest_assessment_percentage !== undefined
+                {latest_assessment_percentage != null
                   ? `${latest_assessment_percentage.toFixed(1)}%`
                   : 'N/A'}
               </strong>

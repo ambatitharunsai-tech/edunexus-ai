@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+client.headers["Authorization"] = "Bearer edunexus-demo-advisor-token"
 
 
 def test_list_students_directory_with_filters_and_pagination():

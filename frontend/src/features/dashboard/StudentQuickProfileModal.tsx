@@ -30,15 +30,17 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
   if (!student) return null;
 
   const riskBadgeVariant = {
+    insufficient_data: 'neutral',
     critical: 'danger',
     high: 'warning',
+    moderate: 'warning',
     medium: 'warning',
     low: 'success',
   }[student.risk_level] as 'danger' | 'warning' | 'success';
 
   // Compute factor weights for transparent visual display
-  const attDelta = roundNumber(80.0 - student.attendance_rate);
-  const scoreDelta = roundNumber(75.0 - student.avg_score);
+  const attDelta = roundNumber(80.0 - (student.attendance_rate ?? 80));
+  const scoreDelta = roundNumber(75.0 - (student.avg_score ?? 75));
 
   return (
     <Modal
@@ -66,7 +68,7 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
                 </Badge>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                ID: <span className="font-mono font-semibold text-slate-700">{student.student_id}</span> • {student.grade} Section {student.section || 'A'}
+                ID: <span className="font-mono font-semibold text-slate-700">{student.student_id}</span> • {student.grade} Section {student.section || 'Not recorded'}
               </p>
             </div>
           </div>
@@ -87,7 +89,7 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
             <span className="font-bold text-amber-900">Primary Observable Signal:</span>{' '}
             <span className="text-amber-800">{student.primary_risk_factor}</span>
             <div className="text-[11px] text-amber-700 mt-1">
-              Last advisor contact: <span className="font-medium">{student.last_interaction}</span> • Workflow State: <span className="font-medium">{student.status}</span>
+              Last recorded event: <span className="font-medium">{student.last_interaction}</span> • Workflow State: <span className="font-medium">{student.status}</span>
             </div>
           </div>
         </div>
@@ -105,20 +107,20 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
                 <CalendarCheck className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Attendance Signal (35% Weight)</span>
               </div>
-              <span className="font-bold text-slate-900">{student.attendance_rate}%</span>
+              <span className="font-bold text-slate-900">{student.attendance_rate == null ? "Not recorded" : `${student.attendance_rate}%`}</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  student.attendance_rate < 80 ? 'bg-amber-500' : 'bg-emerald-500'
+                  student.attendance_rate != null && student.attendance_rate < 80 ? 'bg-amber-500' : 'bg-emerald-500'
                 }`}
-                style={{ width: `${Math.min(100, student.attendance_rate)}%` }}
+                style={{ width: `${Math.min(100, student.attendance_rate ?? 0)}%` }}
               />
             </div>
             <p className="text-[11px] text-slate-500">
-              {student.attendance_rate < 80.0
-                ? `${attDelta}% below the 80% institutional threshold. Pattern shows recurring mid-week absences.`
-                : 'Consistently above the 80% institutional attendance threshold.'}
+              {student.attendance_rate != null && student.attendance_rate < 80.0
+                ? `${attDelta}% below the 80% institutional threshold.`
+                : 'See the full journey for recorded attendance and missing-data details.'}
             </p>
           </div>
 
@@ -129,20 +131,20 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
                 <GraduationCap className="w-3.5 h-3.5 text-teal-600" />
                 <span>Academic Evaluation (40% Weight)</span>
               </div>
-              <span className="font-bold text-slate-900">{student.avg_score}%</span>
+              <span className="font-bold text-slate-900">{student.avg_score == null ? "Not recorded" : `${student.avg_score}%`}</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  student.avg_score < 60 ? 'bg-rose-500' : student.avg_score < 75 ? 'bg-amber-500' : 'bg-teal-500'
+                  student.avg_score != null && student.avg_score < 60 ? 'bg-rose-500' : student.avg_score != null && student.avg_score < 75 ? 'bg-amber-500' : 'bg-teal-500'
                 }`}
-                style={{ width: `${Math.min(100, student.avg_score)}%` }}
+                style={{ width: `${Math.min(100, student.avg_score ?? 0)}%` }}
               />
             </div>
             <p className="text-[11px] text-slate-500">
-              {student.avg_score < 75.0
-                ? `${scoreDelta}% variance vs cohort baseline. Core struggle observed in foundational STEM coursework.`
-                : 'Performance is aligned with cohort average.'}
+              {student.avg_score != null && student.avg_score < 75.0
+                ? `${scoreDelta}% below the prototype assessment benchmark.`
+                : 'See the full journey for available academic evaluations.'}
             </p>
           </div>
 
@@ -172,7 +174,7 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
         {/* Footer Actions */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-100">
           <Link
-            to="/journey"
+            to={`/journey?student_id=${student.id}`}
             className="text-xs text-indigo-600 font-semibold hover:underline flex items-center gap-1"
             onClick={onClose}
           >

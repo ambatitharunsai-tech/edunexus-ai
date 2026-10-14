@@ -10,14 +10,15 @@ from pydantic import BaseModel, Field, ConfigDict
 class KPISummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     total_students: int = Field(..., description="Total enrolled student count")
+    average_success_score: Optional[float] = None
     active_students: int = Field(..., description="Currently active students")
     requiring_review_count: int = Field(..., description="Students flagged for advisory review")
     review_percentage: float = Field(..., description="Percentage of students needing review")
-    average_attendance: float = Field(..., description="Overall cohort attendance percentage")
+    average_attendance: Optional[float] = Field(..., description="Overall cohort attendance percentage")
     attendance_status: str = Field(..., description="Comparison against institutional benchmark")
     active_interventions_count: int = Field(..., description="Number of underway student support interventions")
     follow_ups_due_count: int = Field(..., description="Interventions due for check-in this week")
-    cohort_avg_score: float = Field(..., description="Aggregated academic evaluation average")
+    cohort_avg_score: Optional[float] = Field(..., description="Aggregated academic evaluation average")
 
 
 class AttendanceTrendPoint(BaseModel):
@@ -66,10 +67,10 @@ class FollowUpStudentItem(BaseModel):
     grade: str = Field(..., description="Current grade level")
     section: Optional[str] = Field(default=None, description="Class section")
     risk_level: str = Field(..., description="Risk category: low, medium, high, critical")
-    risk_score: float = Field(..., description="Composite risk index (0-100)")
+    risk_score: Optional[float] = Field(..., description="Composite risk index (0-100)")
     primary_risk_factor: str = Field(..., description="Primary observable contributing signal")
-    attendance_rate: float = Field(..., description="Individual attendance percentage")
-    avg_score: float = Field(..., description="Individual academic average percentage")
+    attendance_rate: Optional[float] = Field(None, description="Individual attendance percentage")
+    avg_score: Optional[float] = Field(..., description="Individual academic average percentage")
     last_interaction: str = Field(..., description="Last recorded contact or activity")
     assigned_advisor: Optional[str] = Field(default="Academic Support Team", description="Designated case officer")
     status: str = Field(default="Needs Review", description="Intervention workflow state")
@@ -99,6 +100,11 @@ class DashboardMetadata(BaseModel):
 
 class DashboardOverviewResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    domain_coverage: Dict[str, int] = Field(default_factory=dict)
+    academic_risk_distribution: List[RiskDistributionTier] = Field(default_factory=list)
+    placement_risk_distribution: List[RiskDistributionTier] = Field(default_factory=list)
+    cohort_comparisons: List[Dict[str, Any]] = Field(default_factory=list)
+    success_distribution: List[Dict[str, Any]] = Field(default_factory=list)
     summary: KPISummary
     attendance_trend: List[AttendanceTrendPoint]
     assessment_trend: List[AssessmentTrendPoint]
@@ -107,3 +113,21 @@ class DashboardOverviewResponse(BaseModel):
     follow_up_students: List[FollowUpStudentItem]
     intervention_summary: InterventionStatusBreakdown
     metadata: DashboardMetadata
+    # KPMG 7-Domain Analytics & Insights
+    domain_averages: Optional[Dict[str, Optional[float]]] = Field(
+        default=None,
+        description="Cohort averages across the 7 domains: academic, attendance, placement, lms, engagement, skills, feedback"
+    )
+    placement_readiness_summary: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Summary of placement metrics: aptitude avg, coding avg, mock interview avg, and tier counts"
+    )
+    segmentation_distribution: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Distribution of students across the 5 actionable strategic cohorts"
+    )
+    dual_risk_matrix: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Contingency counts of Academic Risk (Low, Moderate, High, Critical) vs Placement Risk"
+    )
+

@@ -39,7 +39,7 @@ Open your terminal (macOS/Linux) or PowerShell/Git Bash (Windows) and run:
 
 ```bash
 # Clone the repository to your local computer
-git clone <REPOSITORY_URL>
+git clone https://github.com/ambatitharunsai-tech/edunexus-ai.git
 
 # Navigate into the project folder
 cd edunexus-ai

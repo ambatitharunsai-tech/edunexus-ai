@@ -21,7 +21,7 @@ export function useHealth(pollIntervalMs = 30000) {
         version: string;
         environment: string;
         timestamp: string;
-      }>('/health');
+      }>('/api/v1/health');
 
       setHealth({
         status: data.status === 'healthy' ? 'online' : 'offline',

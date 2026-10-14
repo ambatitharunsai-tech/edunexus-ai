@@ -44,7 +44,7 @@ Before writing code, understand the core tenets that govern the platform:
 
 ### 1. Clone the Repository
 ```bash
-git clone <REPOSITORY_URL>
+git clone https://github.com/ambatitharunsai-tech/edunexus-ai.git
 cd edunexus-ai
 ```
 

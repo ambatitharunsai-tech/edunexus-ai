@@ -3,11 +3,12 @@ EduNexus AI — Dashboard API Router
 Endpoints providing holistic analytics overview, trends, risk tiers, and follow-ups.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.core.auth import verify_read_authorization
 from app.schemas.dashboard import DashboardOverviewResponse
 from app.services.dashboard_service import dashboard_service
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_read_authorization)])
 
 
 @router.get(

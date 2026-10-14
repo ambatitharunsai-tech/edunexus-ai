@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Users,
   CalendarCheck,
@@ -15,6 +15,8 @@ import {
   Database,
   PlusCircle,
   Layers,
+  Award,
+  Briefcase,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -45,14 +47,19 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
 import { StudentQuickProfileModal } from '../features/dashboard/StudentQuickProfileModal';
+import { DomainRadarOverview } from '../features/dashboard/DomainRadarOverview';
+import { PlacementReadinessCard } from '../features/dashboard/PlacementReadinessCard';
+import { StudentSegmentationCard } from '../features/dashboard/StudentSegmentationCard';
+import { DualRiskMatrixCard } from '../features/dashboard/DualRiskMatrixCard';
+import { TelemetryGovernanceCard } from '../features/dashboard/TelemetryGovernanceCard';
 import type { FollowUpStudentItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const { data, loading, error, refetch, createIntervention } = useDashboardData();
 
   // Local state for interactive controls
-  const [academicTerm, setAcademicTerm] = useState<string>('AY 2025-26 Term 2');
-  const [dateRange, setDateRange] = useState<string>('30d');
+  const [dateRange, setDateRange] = useState<string>('all');
   const [followUpFilter, setFollowUpFilter] = useState<'all' | 'critical' | 'high' | 'medium'>('all');
   const [followUpSearch, setFollowUpSearch] = useState<string>('');
 
@@ -63,13 +70,21 @@ export const DashboardPage: React.FC = () => {
   const [profileModalOpen, setProfileModalOpen] = useState<boolean>(false);
   const [selectedStudentForProfile, setSelectedStudentForProfile] = useState<FollowUpStudentItem | null>(null);
 
+  const placementSupportCount = useMemo(() => {
+    return (
+      data?.placement_risk_distribution
+        ?.filter((d) => d.tier === 'high' || d.tier === 'medium')
+        ?.reduce((sum, d) => sum + d.count, 0) ?? 0
+    );
+  }, [data?.placement_risk_distribution]);
+
   // Filtered follow-up students
   const followUpStudents = data?.follow_up_students;
   const filteredFollowUps = useMemo(() => {
     if (!followUpStudents) return [];
     return followUpStudents.filter((student) => {
       // Risk tier filter
-      if (followUpFilter !== 'all' && student.risk_level !== followUpFilter) {
+      if (followUpFilter !== 'all' && (student.risk_level === 'moderate' ? 'medium' : student.risk_level) !== followUpFilter) {
         return false;
       }
       // Search filter
@@ -85,6 +100,13 @@ export const DashboardPage: React.FC = () => {
       return true;
     });
   }, [followUpStudents, followUpFilter, followUpSearch]);
+
+  const chartRange = <T extends {period: string}>(points: T[]): T[] => {
+    if (dateRange === 'all' || !points.length) return points;
+    const latest = Math.max(...points.map(p => Date.parse(p.period)));
+    const cutoff = latest - (dateRange === '30d' ? 30 : 365) * 86400000;
+    return points.filter(p => Date.parse(p.period) >= cutoff);
+  };
 
   const handleOpenIntervention = (student?: FollowUpStudentItem) => {
     setSelectedStudentForIntervention(student || null);
@@ -131,10 +153,58 @@ export const DashboardPage: React.FC = () => {
 
   if (!data) return null;
 
-  const { summary, attendance_trend, assessment_trend, risk_distribution, recent_activity, intervention_summary, metadata } = data;
+  const {
+    summary,
+    attendance_trend,
+    assessment_trend,
+    risk_distribution,
+    recent_activity,
+    intervention_summary,
+    metadata,
+    domain_averages,
+    placement_readiness_summary,
+    segmentation_distribution,
+    dual_risk_matrix,
+  } = data;
+
+  const insightCards = [
+    {
+      label: 'Students needing review',
+      value: `${summary.requiring_review_count}`,
+      note: `${summary.review_percentage}% of the cohort`,
+      accent: 'amber',
+    },
+    {
+      label: 'Intervention coverage',
+      value: `${summary.active_interventions_count}`,
+      note: `${intervention_summary.total} plans tracked`,
+      accent: 'indigo',
+    },
+    {
+      label: 'Average attendance',
+      value: `${summary.average_attendance}%`,
+      note: summary.attendance_status,
+      accent: 'emerald',
+    },
+  ];
+
+  const insightTone = {
+    amber: 'from-amber-50 via-amber-100 to-white text-amber-700 border-amber-200',
+    indigo: 'from-indigo-50 via-indigo-100 to-white text-indigo-700 border-indigo-200',
+    emerald: 'from-emerald-50 via-emerald-100 to-white text-emerald-700 border-emerald-200',
+  } as const;
+
+  const activityTone = {
+    info: 'bg-sky-100 text-sky-700 border-sky-200',
+    success: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    warning: 'bg-amber-100 text-amber-700 border-amber-200',
+    critical: 'bg-rose-100 text-rose-700 border-rose-200',
+  } as const;
+
+  const recentHighlights = recent_activity.slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-float-up">
       {/* ── Context & Date Controls Header ─────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
         <div>
@@ -160,17 +230,6 @@ export const DashboardPage: React.FC = () => {
         {/* Date / Term / Action Controls */}
         <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           {/* Term Selector */}
-          <select
-            value={academicTerm}
-            onChange={(e) => setAcademicTerm(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-white rounded-lg border border-slate-200 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-            aria-label="Select Academic Term"
-          >
-            <option value="AY 2025-26 Term 2">AY 2025-26 Term 2 (Current)</option>
-            <option value="AY 2025-26 Term 1">AY 2025-26 Term 1</option>
-            <option value="AY 2024-25 Term 2">AY 2024-25 Term 2</option>
-          </select>
-
           {/* Time Window Selector */}
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
             <button
@@ -184,12 +243,12 @@ export const DashboardPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setDateRange('term')}
+              onClick={() => setDateRange('all')}
               className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
-                dateRange === 'term' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                dateRange === 'all' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Term
+              All records
             </button>
             <button
               type="button"
@@ -243,7 +302,7 @@ export const DashboardPage: React.FC = () => {
               Operating in Verified Prototype Mode
             </h3>
             <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">
-              Live Supabase database credentials are placeholder or disconnected. Metrics, attendance rates, and risk factors are derived dynamically from the 36-student synthetic dataset generated in Stage 2.
+              Synthetic records are held in this backend process. Changes reset when the process restarts or you reset demo data.
             </p>
           </div>
 
@@ -262,108 +321,298 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {insightCards.map((item) => (
+          <div
+            key={item.label}
+            className={`feature-tile border ${insightTone[item.accent as keyof typeof insightTone]} animate-pulse-glow`}
+          >
+            <div className="relative z-10 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">{item.label}</p>
+                <p className="mt-3 text-3xl font-black tracking-tight">{item.value}</p>
+              </div>
+              <div className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider shadow-sm border border-current/10">
+                Live
+              </div>
+            </div>
+            <p className="relative z-10 mt-4 text-xs font-medium opacity-80">{item.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_0.9fr] gap-6">
+        <Card className="border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base font-bold text-slate-900">Live Activity Feed</CardTitle>
+                <CardDescription className="text-xs text-slate-500">Recent student events and advisor actions across the cohort.</CardDescription>
+              </div>
+              <Link to="/students" className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700">
+                View directory
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recentHighlights.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-xs text-slate-500">
+                No recent activity is available yet.
+              </div>
+            ) : (
+              recentHighlights.map((item) => (
+                <div key={item.id} className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-indigo-200 hover:shadow-md">
+                  <div className={`mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full border text-[10px] font-bold uppercase ${activityTone[item.severity]}`}>
+                    {item.activity_type.slice(0, 2)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-slate-900 truncate">{item.title}</p>
+                      <span className="text-[10px] font-medium text-slate-400">{new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-600">{item.student_name} • {item.student_id}</p>
+                    <p className="mt-1 text-[11px] leading-5 text-slate-500">{item.description}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-800 text-white">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-bold text-white">Action Center</CardTitle>
+              <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-100">Focus</span>
+            </div>
+            <CardDescription className="text-xs text-slate-300">Next actions for advisory and support teams.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                <div className="text-slate-300">Review queue</div>
+                <div className="mt-2 text-2xl font-black text-white">{summary.requiring_review_count}</div>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                <div className="text-slate-300">Due follow-up</div>
+                <div className="mt-2 text-2xl font-black text-white">{summary.follow_ups_due_count}</div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-slate-200">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-100">Intervention coverage</span>
+                <span className="font-bold text-indigo-200">{intervention_summary.completion_rate}%</span>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="h-full rounded-full bg-indigo-400" style={{ width: `${intervention_summary.completion_rate}%` }} />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-1">
+              <Link to="/students" className="inline-flex items-center justify-center rounded-lg bg-white text-slate-900 px-3 py-2 text-xs font-semibold transition hover:bg-slate-100">
+                Review student roster
+              </Link>
+              <Link to="/interventions" className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10">
+                Open intervention queue
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* ── KPI Cards Grid (Components 1 & 2 & Metric summaries) ───── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1: Total Students */}
-        <Card hoverable className="border-slate-200">
-          <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Enrolled Cohort
-              </p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
-                  {summary.total_students}
-                </h3>
-                <span className="text-xs font-medium text-slate-500">
-                  ({summary.active_students} active)
-                </span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* KPI 1: Total Students -> Students Directory */}
+        <Link to="/students" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-indigo-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-indigo-600 transition-colors">
+                  Total Enrolled Cohort
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {summary.total_students}
+                  </h3>
+                  <span className="text-xs font-medium text-slate-500">
+                    ({summary.active_students} active)
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>{summary.total_students ? ((summary.active_students / summary.total_students) * 100).toFixed(1) : '0'}% Active enrollment</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>98.2% Active Retention</span>
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <Users className="w-5 h-5" />
               </div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-              <Users className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        {/* KPI 2: Students Requiring Review */}
-        <Card hoverable className="border-slate-200">
-          <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Students Requiring Review
-              </p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
-                  {summary.requiring_review_count}
-                </h3>
-                <span className="text-xs font-semibold text-amber-600">
-                  {summary.review_percentage}% of cohort
-                </span>
+        {/* KPI 2: Average Student Success Score -> Campus Analytics */}
+        <Link to="/analytics" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-teal-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-teal-700 transition-colors">
+                  Average Success Score
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {summary.average_success_score ?? 'Under Review'}
+                  </h3>
+                  {summary.average_success_score != null && (
+                    <span className="text-xs font-medium text-slate-500">
+                      / 100
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-teal-600 font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>KPMG 7-Domain holistic composite</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Advisor Check-in Needed</span>
+              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <Award className="w-5 h-5" />
               </div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        {/* KPI 3: Cohort Attendance Average */}
-        <Card hoverable className="border-slate-200">
-          <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Cohort Attendance Rate
-              </p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
-                  {summary.average_attendance}%
-                </h3>
+        {/* KPI 3: Cohort Attendance Average -> Students Directory sorted by attendance */}
+        <Link to="/students?sortBy=attendance_rate&sortDir=asc" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-emerald-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-emerald-700 transition-colors">
+                  Cohort Attendance Rate
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {summary.average_attendance}%
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{summary.attendance_status}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{summary.attendance_status}</span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <CalendarCheck className="w-5 h-5" />
               </div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 shadow-2xs">
-              <CalendarCheck className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        {/* KPI 4: Underway Interventions */}
-        <Card hoverable className="border-slate-200">
-          <CardContent className="p-5 flex items-start justify-between">
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Active Support Plans
-              </p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
-                  {summary.active_interventions_count}
-                </h3>
-                <span className="text-xs font-medium text-slate-500">
-                  of {intervention_summary.total} total
-                </span>
+        {/* KPI 4: Students Requiring Academic Review -> Students filtered by review need */}
+        <Link to="/students?risk_tier=critical" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-amber-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-amber-700 transition-colors">
+                  Academic Review Required
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {summary.requiring_review_count}
+                  </h3>
+                  <span className="text-xs font-semibold text-amber-600">
+                    {summary.review_percentage}% of cohort
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-amber-600 font-medium">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Advisor Check-in Needed</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs text-indigo-600 font-medium">
-                <Clock className="w-3.5 h-3.5" />
-                <span>{summary.follow_ups_due_count} Follow-ups Due This Week</span>
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <AlertTriangle className="w-5 h-5" />
               </div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-2xs">
-              <HeartHandshake className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* KPI 5: Placement Support Needed -> Students filtered by placement risk */}
+        <Link to="/students?placement_risk=high" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-sky-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-sky-700 transition-colors">
+                  Placement Support Needed
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {placementSupportCount}
+                  </h3>
+                  <span className="text-xs font-semibold text-sky-600">
+                    {summary.total_students ? ((placementSupportCount / summary.total_students) * 100).toFixed(1) : '0'}% of cohort
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-sky-600 font-medium">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>High or Moderate Career Risk</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <Briefcase className="w-5 h-5" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* KPI 6: Underway Interventions -> Interventions Hub */}
+        <Link to="/interventions" className="block group">
+          <Card hoverable className="border-slate-200 group-hover:border-purple-300 transition-colors h-full">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-purple-700 transition-colors">
+                  Active Support Plans
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {summary.active_interventions_count}
+                  </h3>
+                  <span className="text-xs font-medium text-slate-500">
+                    of {intervention_summary.total} total
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-indigo-600 font-medium">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{summary.follow_ups_due_count} Overdue or due within 7 days</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+                <HeartHandshake className="w-5 h-5" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
+      {/* ── KPMG 7-Domain Intelligence & Placement Readiness ────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DomainRadarOverview domainAverages={domain_averages} />
+        <PlacementReadinessCard placementSummary={placement_readiness_summary} />
+      </div>
+
+      {/* ── 7-Domain Telemetry Ingestion & Risk Governance ──────────── */}
+      <TelemetryGovernanceCard
+        domainCoverage={data.domain_coverage}
+        totalStudents={summary.total_students}
+        academicRiskDistribution={data.academic_risk_distribution}
+        placementRiskDistribution={data.placement_risk_distribution}
+      />
+
+      {/* ── Dual Risk Matrix & Strategic Student Segmentation ────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <DualRiskMatrixCard dualRiskMatrix={dual_risk_matrix} />
+        </div>
+        <div className="lg:col-span-2">
+          <StudentSegmentationCard segmentDistribution={segmentation_distribution} />
+        </div>
       </div>
 
       {/* ── Main Charts Row (Components 3 & 5) ──────────────────────── */}
@@ -376,7 +625,7 @@ export const DashboardPage: React.FC = () => {
                 Institutional Attendance Trajectory
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Weekly aggregated attendance percentage tracked against the 80% institutional threshold
+                Recorded daily attendance. Time windows end at the latest recorded date. Prototype benchmark: 80%.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -394,7 +643,7 @@ export const DashboardPage: React.FC = () => {
             <div className="h-68 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                  data={attendance_trend}
+                  data={chartRange(attendance_trend)}
                   margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
                 >
                   <defs>
@@ -485,9 +734,19 @@ export const DashboardPage: React.FC = () => {
                     innerRadius={48}
                     outerRadius={68}
                     paddingAngle={4}
+                    className="cursor-pointer"
+                    onClick={(entry: any) => {
+                      if (entry && entry.tier) {
+                        navigate(`/students?risk_tier=${entry.tier}`);
+                      }
+                    }}
                   >
                     {risk_distribution.map((entry) => (
-                      <Cell key={`cell-${entry.tier}`} fill={entry.color} />
+                      <Cell
+                        key={`cell-${entry.tier}`}
+                        fill={entry.color}
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                      />
                     ))}
                   </Pie>
                   <Tooltip
@@ -507,26 +766,31 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Tier Legend & Counts */}
-            <div className="space-y-2 pt-1 border-t border-slate-100">
+            <div className="space-y-1.5 pt-1 border-t border-slate-100">
               {risk_distribution.map((tier) => (
-                <div
+                <Link
                   key={tier.tier}
-                  className="flex items-center justify-between text-xs p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  to={`/students?risk_tier=${tier.tier}`}
+                  className="flex items-center justify-between text-xs p-1.5 rounded-lg hover:bg-slate-100/80 transition-colors group"
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: tier.color }}
                     />
-                    <span className="font-medium text-slate-700">{tier.label}</span>
+                    <span className="font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+                      {tier.label}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{tier.count}</span>
+                    <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      {tier.count}
+                    </span>
                     <span className="text-[11px] text-slate-400 w-10 text-right">
                       {tier.percentage}%
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>
@@ -543,7 +807,7 @@ export const DashboardPage: React.FC = () => {
                 Assessment Performance Trajectory
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Subject evaluations and cycle performance benchmarks across semesters
+                Recorded assessment dates. Time windows end at the latest recorded assessment.
               </CardDescription>
             </div>
             <Badge variant="primary" size="sm">
@@ -554,7 +818,7 @@ export const DashboardPage: React.FC = () => {
             <div className="h-64 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={assessment_trend}
+                  data={chartRange(assessment_trend)}
                   margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -681,7 +945,7 @@ export const DashboardPage: React.FC = () => {
             <div className="p-3 rounded-lg bg-indigo-50/70 border border-indigo-100 flex items-center justify-between text-xs text-indigo-900">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>Follow-ups due in next 7 days</span>
+                <span>Overdue or due in next 7 days</span>
               </div>
               <Badge variant="primary" size="sm">
                 {intervention_summary.upcoming_follow_ups} Due
@@ -788,15 +1052,17 @@ export const DashboardPage: React.FC = () => {
                     <th className="py-3 px-4">Primary Contributing Factor</th>
                     <th className="py-3 px-4 text-center">Attendance</th>
                     <th className="py-3 px-4 text-center">Avg Score</th>
-                    <th className="py-3 px-4">Last Check-in</th>
+                    <th className="py-3 px-4">Last recorded event</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredFollowUps.map((student) => {
                     const badgeVariant = {
-                      critical: 'danger',
+                      insufficient_data: 'neutral',
+    critical: 'danger',
                       high: 'warning',
+                      moderate: 'warning',
                       medium: 'warning',
                       low: 'success',
                     }[student.risk_level] as 'danger' | 'warning' | 'success';
@@ -848,7 +1114,7 @@ export const DashboardPage: React.FC = () => {
                         <td className="py-3 px-4 text-center">
                           <span
                             className={`font-semibold ${
-                              student.attendance_rate < 80 ? 'text-amber-600' : 'text-emerald-600'
+                              student.attendance_rate != null && student.attendance_rate < 80 ? 'text-amber-600' : 'text-emerald-600'
                             }`}
                           >
                             {student.attendance_rate}%
@@ -988,7 +1254,7 @@ export const DashboardPage: React.FC = () => {
                 <div>
                   <div className="font-bold text-slate-900">Row Level Security & Minimal Client Keys</div>
                   <p className="text-[11px] text-slate-600 mt-0.5">
-                    Backend enforces service-role separation. Frontend executes with publishable keys and strict Supabase PostgreSQL RLS policies.
+                    The frontend calls the authorized backend. Database policies require deployment verification; no privileged keys belong in the browser.
                   </p>
                 </div>
               </div>

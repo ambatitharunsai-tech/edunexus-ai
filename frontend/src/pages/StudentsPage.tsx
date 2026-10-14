@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Download, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/Button';
@@ -15,15 +16,23 @@ import type {
 } from '../types';
 
 export const StudentsPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSegment = searchParams.get('segment') || 'all';
+
   const [data, setData] = useState<StudentDirectoryResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filters state
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>(searchParams.get('search') || '');
   const [department, setDepartment] = useState<string>('all');
   const [semester, setSemester] = useState<string>('all');
+  const [segment, setSegment] = useState<string>(initialSegment);
   const [riskTier, setRiskTier] = useState<string>('all');
+  const [academicRisk, setAcademicRisk] = useState('all');
+  const [placementRisk, setPlacementRisk] = useState('all');
+  const [successMin, setSuccessMin] = useState('');
+  const [successMax, setSuccessMax] = useState('');
   const [sortBy, setSortBy] = useState<string>('risk_score');
   const [sortDir, setSortDir] = useState<string>('desc');
   const [page, setPage] = useState<number>(1);
@@ -44,9 +53,14 @@ export const StudentsPage: React.FC = () => {
         sort_dir: sortDir,
       });
 
+      if (academicRisk !== 'all') params.set('academic_risk', academicRisk);
+      if (placementRisk !== 'all') params.set('placement_risk', placementRisk);
+      if (successMin !== '') params.set('success_min', successMin);
+      if (successMax !== '') params.set('success_max', successMax);
       if (search.trim()) params.append('search', search.trim());
       if (department !== 'all') params.append('department', department);
       if (semester !== 'all') params.append('semester', semester);
+      if (segment !== 'all') params.append('segment', segment);
       if (riskTier !== 'all') params.append('risk_tier', riskTier);
 
       const res = await api<StudentDirectoryResponse>(`/api/v1/students?${params.toString()}`);
@@ -57,20 +71,23 @@ export const StudentsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, sortBy, sortDir, search, department, semester, riskTier]);
+  }, [page, pageSize, sortBy, sortDir, search, department, semester, segment, riskTier, academicRisk, placementRisk, successMin, successMax]);
 
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
 
   const handleResetFilters = () => {
+    setAcademicRisk('all'); setPlacementRisk('all'); setSuccessMin(''); setSuccessMax('');
     setSearch('');
     setDepartment('all');
     setSemester('all');
+    setSegment('all');
     setRiskTier('all');
     setSortBy('risk_score');
     setSortDir('desc');
     setPage(1);
+    setSearchParams({});
   };
 
   const handleOpenIntervention = (student: StudentListItem) => {
@@ -158,7 +175,7 @@ export const StudentsPage: React.FC = () => {
             className="flex items-center gap-1.5 text-xs"
           >
             <Download className="w-3.5 h-3.5 text-slate-600" />
-            <span>Export CSV</span>
+            <span>Export displayed page</span>
           </Button>
         </div>
       </div>
@@ -182,9 +199,40 @@ export const StudentsPage: React.FC = () => {
           setPage(1);
         }}
         semestersList={data?.semesters || []}
+        segment={segment}
+        onSegmentChange={(val) => {
+          setSegment(val);
+          setPage(1);
+          if (val === 'all') {
+            searchParams.delete('segment');
+          } else {
+            searchParams.set('segment', val);
+          }
+          setSearchParams(searchParams);
+        }}
         riskTier={riskTier}
         onRiskTierChange={(val) => {
           setRiskTier(val);
+          setPage(1);
+        }}
+        academicRisk={academicRisk}
+        onAcademicRiskChange={(val) => {
+          setAcademicRisk(val);
+          setPage(1);
+        }}
+        placementRisk={placementRisk}
+        onPlacementRiskChange={(val) => {
+          setPlacementRisk(val);
+          setPage(1);
+        }}
+        successMin={successMin}
+        onSuccessMinChange={(val) => {
+          setSuccessMin(val);
+          setPage(1);
+        }}
+        successMax={successMax}
+        onSuccessMaxChange={(val) => {
+          setSuccessMax(val);
           setPage(1);
         }}
         sortBy={sortBy}
@@ -197,7 +245,6 @@ export const StudentsPage: React.FC = () => {
         onResetFilters={handleResetFilters}
         totalFilteredCount={data?.total || 0}
       />
-
       {/* Content State Handling */}
       {loading && !data ? (
         <div className="py-20 flex flex-col items-center justify-center space-y-3">
@@ -206,7 +253,7 @@ export const StudentsPage: React.FC = () => {
             Querying student directory with attendance telemetry...
           </p>
         </div>
-      ) : error && !data ? (
+      ) : error ? (
         <div className="p-8 text-center bg-white rounded-xl border border-rose-200">
           <p className="text-sm text-rose-700">{error}</p>
           <Button size="sm" onClick={fetchStudents} className="mt-3">
@@ -243,7 +290,20 @@ export const StudentsPage: React.FC = () => {
         isOpen={interventionModalOpen}
         onClose={() => setInterventionModalOpen(false)}
         preselectedStudent={selectedStudentForIntervention}
-        studentsList={[]}
+        studentsList={(data?.students || []).map((s) => ({
+          id: s.id,
+          student_id: s.student_id,
+          name: `${s.first_name} ${s.last_name}`,
+          grade: s.current_grade || 'Current Cohort',
+          section: s.section || undefined,
+          risk_level: s.risk_tier || 'low',
+          risk_score: s.risk_score || 0,
+          primary_risk_factor: `Review flag: Attendance ${s.attendance_rate != null ? s.attendance_rate.toFixed(1) : 0}%`,
+          attendance_rate: s.attendance_rate ?? null,
+          avg_score: s.average_score ?? null,
+          last_interaction: 'Recent',
+          status: s.review_status || 'Under Observation',
+        }))}
         onSubmit={handleCreateIntervention}
       />
     </div>

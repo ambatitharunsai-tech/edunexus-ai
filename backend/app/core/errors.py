@@ -33,7 +33,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 message=str(exc.detail) if exc.detail else "An HTTP error occurred",
             )
         )
-        return JSONResponse(status_code=exc.status_code, content=payload.model_dump())
+        return JSONResponse(status_code=exc.status_code, content=payload.model_dump(), headers=exc.headers)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
@@ -69,7 +69,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
             error=ErrorDetail(
                 code="INTERNAL_SERVER_ERROR",
                 message="An unexpected server error occurred. Please contact support.",
-                details=str(exc) if not getattr(request.app.state, "is_production", False) else None,
+                details=None,
             )
         )
         return JSONResponse(

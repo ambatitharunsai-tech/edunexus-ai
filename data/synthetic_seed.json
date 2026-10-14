@@ -10,12 +10,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-21",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 7",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.849323+00:00",
-      "updated_at": "2026-10-11 05:59:46.849631+00:00"
+      "updated_at": "2026-10-11 05:59:46.849631+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 8.8,
+      "backlogs": 0
     },
     {
       "id": "edd5c0e8-986a-4275-b213-362f1d2e2a5e",
@@ -27,12 +30,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-13",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 7",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.850551+00:00",
-      "updated_at": "2026-10-11 05:59:46.850555+00:00"
+      "updated_at": "2026-10-11 05:59:46.850555+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 6.1,
+      "backlogs": 1
     },
     {
       "id": "06088341-1830-40a1-b648-869368a12a82",
@@ -44,12 +50,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-20",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 7",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.851384+00:00",
-      "updated_at": "2026-10-11 05:59:46.851392+00:00"
+      "updated_at": "2026-10-11 05:59:46.851392+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 9.2,
+      "backlogs": 0
     },
     {
       "id": "d8bcb8d5-c15c-421a-bc22-29148cd4eefc",
@@ -61,12 +70,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-04",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 5",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.852107+00:00",
-      "updated_at": "2026-10-11 05:59:46.852109+00:00"
+      "updated_at": "2026-10-11 05:59:46.852109+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 5.1,
+      "backlogs": 2
     },
     {
       "id": "3f043811-1641-4ea6-a8b5-c0da39193232",
@@ -78,12 +90,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-19",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 5",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.852792+00:00",
-      "updated_at": "2026-10-11 05:59:46.852795+00:00"
+      "updated_at": "2026-10-11 05:59:46.852795+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 7.4,
+      "backlogs": 0
     },
     {
       "id": "b208e78a-2f96-4e70-bc46-99e51f4d6543",
@@ -95,12 +110,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-04",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 5",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: high_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.853412+00:00",
-      "updated_at": "2026-10-11 05:59:46.853415+00:00"
+      "updated_at": "2026-10-11 05:59:46.853415+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 7.8,
+      "backlogs": 0
     },
     {
       "id": "bef6289e-41de-428e-b7bf-13a855d6e54e",
@@ -112,12 +130,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-04",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 7",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.854059+00:00",
-      "updated_at": "2026-10-11 05:59:46.854062+00:00"
+      "updated_at": "2026-10-11 05:59:46.854062+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 5.4,
+      "backlogs": 2
     },
     {
       "id": "fef234a8-0c9c-468f-9383-f850a6082dc6",
@@ -129,12 +150,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-29",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 3",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.854685+00:00",
-      "updated_at": "2026-10-11 05:59:46.854687+00:00"
+      "updated_at": "2026-10-11 05:59:46.854687+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 8.9,
+      "backlogs": 0
     },
     {
       "id": "b7263fba-7dd1-48ee-99f4-be591aab11ad",
@@ -146,12 +170,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-09",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 7",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.855294+00:00",
-      "updated_at": "2026-10-11 05:59:46.855297+00:00"
+      "updated_at": "2026-10-11 05:59:46.855297+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 7.6,
+      "backlogs": 0
     },
     {
       "id": "f76a0ab1-57e1-482c-a611-f09c0932d6b8",
@@ -163,12 +190,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-26",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 5",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.855892+00:00",
-      "updated_at": "2026-10-11 05:59:46.855895+00:00"
+      "updated_at": "2026-10-11 05:59:46.855895+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 7.2,
+      "backlogs": 0
     },
     {
       "id": "eca115ce-9ee0-4d3c-965d-e0a3a33b40c7",
@@ -180,12 +210,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-14",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 3",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.856484+00:00",
-      "updated_at": "2026-10-11 05:59:46.856487+00:00"
+      "updated_at": "2026-10-11 05:59:46.856487+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 7.1,
+      "backlogs": 0
     },
     {
       "id": "06024d12-eb44-4417-8688-5eb60d3cff12",
@@ -197,12 +230,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-20",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 4",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.857084+00:00",
-      "updated_at": "2026-10-11 05:59:46.857087+00:00"
+      "updated_at": "2026-10-11 05:59:46.857087+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 7.8,
+      "backlogs": 0
     },
     {
       "id": "0ed0d835-d441-45ea-98da-efe44480ad7a",
@@ -214,12 +250,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-19",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 5",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.857817+00:00",
-      "updated_at": "2026-10-11 05:59:46.857820+00:00"
+      "updated_at": "2026-10-11 05:59:46.857820+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 8.5,
+      "backlogs": 1
     },
     {
       "id": "23c7c2fc-8dec-42bf-b8c2-a1b7a497a8e6",
@@ -231,12 +270,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-28",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 6",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: moderate_risk trajectory persona.",
       "created_at": "2026-10-11 05:59:46.858969+00:00",
-      "updated_at": "2026-10-11 05:59:46.858971+00:00"
+      "updated_at": "2026-10-11 05:59:46.858971+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 9.2,
+      "backlogs": 0
     },
     {
       "id": "91ce6ee5-9509-461e-ae83-f443631a3016",
@@ -248,12 +290,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-14",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 7",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.859574+00:00",
-      "updated_at": "2026-10-11 05:59:46.859576+00:00"
+      "updated_at": "2026-10-11 05:59:46.859576+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 6.7,
+      "backlogs": 0
     },
     {
       "id": "689593b4-7c6c-42a3-a041-16f1ac029f06",
@@ -265,12 +310,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-21",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 3",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.860553+00:00",
-      "updated_at": "2026-10-11 05:59:46.860555+00:00"
+      "updated_at": "2026-10-11 05:59:46.860555+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 7.4,
+      "backlogs": 0
     },
     {
       "id": "20d07c0c-ac56-4b30-8e9c-f79cad701de3",
@@ -282,12 +330,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-12",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 4",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.861526+00:00",
-      "updated_at": "2026-10-11 05:59:46.861528+00:00"
+      "updated_at": "2026-10-11 05:59:46.861528+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 8.1,
+      "backlogs": 0
     },
     {
       "id": "04bdc67a-42d0-4872-b096-afdd8e4549db",
@@ -299,12 +350,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-24",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 5",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.862613+00:00",
-      "updated_at": "2026-10-11 05:59:46.862615+00:00"
+      "updated_at": "2026-10-11 05:59:46.862615+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 8.8,
+      "backlogs": 0
     },
     {
       "id": "e89ca679-ca93-4c30-9621-450664c5b826",
@@ -316,12 +370,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-14",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 6",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.863304+00:00",
-      "updated_at": "2026-10-11 05:59:46.863307+00:00"
+      "updated_at": "2026-10-11 05:59:46.863307+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 9.5,
+      "backlogs": 1
     },
     {
       "id": "23bae913-0d5d-498a-88c5-5bd5bfcc2901",
@@ -333,12 +390,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-07",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 7",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.864522+00:00",
-      "updated_at": "2026-10-11 05:59:46.864525+00:00"
+      "updated_at": "2026-10-11 05:59:46.864525+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 7.0,
+      "backlogs": 0
     },
     {
       "id": "05089772-5251-4ee4-83ce-87f21ae73662",
@@ -350,12 +410,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-07",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 3",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.865934+00:00",
-      "updated_at": "2026-10-11 05:59:46.865937+00:00"
+      "updated_at": "2026-10-11 05:59:46.865937+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 7.7,
+      "backlogs": 0
     },
     {
       "id": "78e7fd7b-5932-428e-9786-3195e157ae0e",
@@ -367,12 +430,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-04",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 4",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.866626+00:00",
-      "updated_at": "2026-10-11 05:59:46.866628+00:00"
+      "updated_at": "2026-10-11 05:59:46.866628+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 8.4,
+      "backlogs": 0
     },
     {
       "id": "f45c2d18-420f-4a52-98a6-f8f5b8211c51",
@@ -384,12 +450,15 @@
       "gender": "Male",
       "enrollment_date": "2025-07-01",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 5",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.867232+00:00",
-      "updated_at": "2026-10-11 05:59:46.867235+00:00"
+      "updated_at": "2026-10-11 05:59:46.867235+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 9.1,
+      "backlogs": 0
     },
     {
       "id": "a5859586-17fe-40e2-89df-e2adbaeb7e3f",
@@ -401,12 +470,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-08",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 6",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.867833+00:00",
-      "updated_at": "2026-10-11 05:59:46.867836+00:00"
+      "updated_at": "2026-10-11 05:59:46.867836+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 6.6,
+      "backlogs": 0
     },
     {
       "id": "4a0b911a-abfd-4139-b18d-eb21fb120991",
@@ -418,12 +490,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-28",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 7",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.868437+00:00",
-      "updated_at": "2026-10-11 05:59:46.868440+00:00"
+      "updated_at": "2026-10-11 05:59:46.868440+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 7.3,
+      "backlogs": 1
     },
     {
       "id": "d7bb4c48-ee9b-41d9-b303-68427673dd14",
@@ -435,12 +510,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-16",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 3",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.869037+00:00",
-      "updated_at": "2026-10-11 05:59:46.869039+00:00"
+      "updated_at": "2026-10-11 05:59:46.869039+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 8.0,
+      "backlogs": 0
     },
     {
       "id": "c6518feb-e30e-4c60-992b-7b67af2efe1a",
@@ -452,12 +530,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-06",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 4",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.869636+00:00",
-      "updated_at": "2026-10-11 05:59:46.869639+00:00"
+      "updated_at": "2026-10-11 05:59:46.869639+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 8.7,
+      "backlogs": 0
     },
     {
       "id": "e3f1d90f-85ed-4367-a618-8604c886458e",
@@ -469,12 +550,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-04",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 5",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.870243+00:00",
-      "updated_at": "2026-10-11 05:59:46.870245+00:00"
+      "updated_at": "2026-10-11 05:59:46.870245+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 9.4,
+      "backlogs": 0
     },
     {
       "id": "b0d23702-e1d5-4b0a-9bdb-13a4c496dfba",
@@ -486,12 +570,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-05",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 6",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.871063+00:00",
-      "updated_at": "2026-10-11 05:59:46.871080+00:00"
+      "updated_at": "2026-10-11 05:59:46.871080+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 6.9,
+      "backlogs": 0
     },
     {
       "id": "82bf37fc-0077-4756-b27a-b23dd1d6ceaa",
@@ -503,12 +590,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-18",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 7",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.871924+00:00",
-      "updated_at": "2026-10-11 05:59:46.871927+00:00"
+      "updated_at": "2026-10-11 05:59:46.871927+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 7.6,
+      "backlogs": 0
     },
     {
       "id": "cc13ac1f-cca4-4600-8dd7-f49f124c855d",
@@ -520,12 +610,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-11",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 3",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.872545+00:00",
-      "updated_at": "2026-10-11 05:59:46.872548+00:00"
+      "updated_at": "2026-10-11 05:59:46.872548+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 8.3,
+      "backlogs": 1
     },
     {
       "id": "338719c7-39d7-4471-919b-13bd4ab61261",
@@ -537,12 +630,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-23",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 4",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.873150+00:00",
-      "updated_at": "2026-10-11 05:59:46.873153+00:00"
+      "updated_at": "2026-10-11 05:59:46.873153+00:00",
+      "department": "Electronics & Communication",
+      "cgpa": 9.0,
+      "backlogs": 0
     },
     {
       "id": "6c1c4728-a4f1-4c03-bebb-a55afe559ac5",
@@ -554,12 +650,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-12",
       "current_grade": "Grade 9",
-      "academic_term": "AY 2024-25 Term 1",
+      "academic_term": "Semester 5",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.873859+00:00",
-      "updated_at": "2026-10-11 05:59:46.873861+00:00"
+      "updated_at": "2026-10-11 05:59:46.873861+00:00",
+      "department": "Commerce & Economics",
+      "cgpa": 6.5,
+      "backlogs": 0
     },
     {
       "id": "71149234-66ac-4fba-be76-07ea55d85ae9",
@@ -571,12 +670,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-19",
       "current_grade": "Grade 10",
-      "academic_term": "AY 2024-25 Term 2",
+      "academic_term": "Semester 6",
       "section": "A",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.874617+00:00",
-      "updated_at": "2026-10-11 05:59:46.874619+00:00"
+      "updated_at": "2026-10-11 05:59:46.874619+00:00",
+      "department": "Mechanical Engineering",
+      "cgpa": 7.2,
+      "backlogs": 0
     },
     {
       "id": "b2b2a424-b2a2-4cd8-8261-fa53cd7c6397",
@@ -588,12 +690,15 @@
       "gender": "Male",
       "enrollment_date": "2025-06-13",
       "current_grade": "Grade 11",
-      "academic_term": "AY 2025-26 Term 1",
+      "academic_term": "Semester 7",
       "section": "B",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.875659+00:00",
-      "updated_at": "2026-10-11 05:59:46.875661+00:00"
+      "updated_at": "2026-10-11 05:59:46.875661+00:00",
+      "department": "Civil Engineering",
+      "cgpa": 7.9,
+      "backlogs": 0
     },
     {
       "id": "4e57e01c-8466-4ce3-b1f6-95cc2c119c64",
@@ -605,12 +710,15 @@
       "gender": "Female",
       "enrollment_date": "2025-06-22",
       "current_grade": "Grade 12",
-      "academic_term": "AY 2025-26 Term 2",
+      "academic_term": "Semester 3",
       "section": "C",
       "status": "active",
       "notes": "Synthetic demo profile: standard trajectory persona.",
       "created_at": "2026-10-11 05:59:46.876569+00:00",
-      "updated_at": "2026-10-11 05:59:46.876572+00:00"
+      "updated_at": "2026-10-11 05:59:46.876572+00:00",
+      "department": "Computer Science & Engineering",
+      "cgpa": 8.6,
+      "backlogs": 0
     }
   ],
   "attendance": [
@@ -20267,6 +20375,1871 @@
         "mode": "synthetic_seed"
       },
       "created_at": "2026-10-11 05:59:46.877714+00:00"
+    }
+  ],
+  "placement_records": [
+    {
+      "id": "d19d6bc8-0d76-4a24-a299-a03c80485916",
+      "student_id": "0411a66b-943d-46d5-895d-28026b071aab",
+      "aptitude_score": 68.0,
+      "coding_score": 42.0,
+      "mock_interview_score": 48.0,
+      "resume_score": 72.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-001",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "2629e5d7-f48e-4d5f-a722-d1e1014406e6",
+      "student_id": "edd5c0e8-986a-4275-b213-362f1d2e2a5e",
+      "aptitude_score": 85.0,
+      "coding_score": 94.0,
+      "mock_interview_score": 90.0,
+      "resume_score": 92.0,
+      "readiness_tier": "advanced_hire",
+      "mock_interviews_attended": 3,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-002",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "7781d687-542c-4c8e-9835-2aa0463603cf",
+      "student_id": "06088341-1830-40a1-b648-869368a12a82",
+      "aptitude_score": 90.0,
+      "coding_score": 88.0,
+      "mock_interview_score": 92.0,
+      "resume_score": 95.0,
+      "readiness_tier": "advanced_hire",
+      "mock_interviews_attended": 4,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-003",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b106b293-cb20-4c77-aaf4-c11fb98e4be2",
+      "student_id": "d8bcb8d5-c15c-421a-bc22-29148cd4eefc",
+      "aptitude_score": 42.0,
+      "coding_score": 38.0,
+      "mock_interview_score": 40.0,
+      "resume_score": 50.0,
+      "readiness_tier": "not_ready",
+      "mock_interviews_attended": 0,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-004",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4501a341-9b8f-4632-9f71-902b3c669ea2",
+      "student_id": "3f043811-1641-4ea6-a8b5-c0da39193232",
+      "aptitude_score": 70.0,
+      "coding_score": 62.0,
+      "mock_interview_score": 68.0,
+      "resume_score": 74.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-005",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "3d9dc2ce-92f2-4cd4-97c6-c8aa6eb31a9f",
+      "student_id": "b208e78a-2f96-4e70-bc46-99e51f4d6543",
+      "aptitude_score": 92.0,
+      "coding_score": 58.0,
+      "mock_interview_score": 90.0,
+      "resume_score": 88.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-006",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ec4098ce-2597-4fad-9d46-1cd15ed8a747",
+      "student_id": "bef6289e-41de-428e-b7bf-13a855d6e54e",
+      "aptitude_score": 52.0,
+      "coding_score": 40.0,
+      "mock_interview_score": 48.0,
+      "resume_score": 55.0,
+      "readiness_tier": "not_ready",
+      "mock_interviews_attended": 0,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-007",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4552a33d-ca0d-4ac6-bafc-851dc834888f",
+      "student_id": "fef234a8-0c9c-468f-9383-f850a6082dc6",
+      "aptitude_score": 80.0,
+      "coding_score": 78.0,
+      "mock_interview_score": 75.0,
+      "resume_score": 78.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-008",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d4aeb691-4bf3-4dc9-91ad-a76a3b520a8b",
+      "student_id": "b7263fba-7dd1-48ee-99f4-be591aab11ad",
+      "aptitude_score": 78.0,
+      "coding_score": 82.0,
+      "mock_interview_score": 76.0,
+      "resume_score": 80.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Placement evaluation for STU-009",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "19f36389-d48e-43c8-9307-ace2d34fb823",
+      "student_id": "eca115ce-9ee0-4d3c-965d-e0a3a33b40c7",
+      "aptitude_score": 85.0,
+      "coding_score": 90.0,
+      "mock_interview_score": 62.0,
+      "resume_score": 75.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "cfe4f6ab-dbda-4ea1-8c24-bf7a7ca36fc3",
+      "student_id": "06024d12-eb44-4417-8688-5eb60d3cff12",
+      "aptitude_score": 56.0,
+      "coding_score": 58.0,
+      "mock_interview_score": 71.0,
+      "resume_score": 76.0,
+      "readiness_tier": "not_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a44c727c-58d9-4a81-9aa0-8ab03428eb18",
+      "student_id": "0ed0d835-d441-45ea-98da-efe44480ad7a",
+      "aptitude_score": 67.0,
+      "coding_score": 71.0,
+      "mock_interview_score": 80.0,
+      "resume_score": 77.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "aa8bf5fb-2269-4383-9c73-80b1193c68aa",
+      "student_id": "23c7c2fc-8dec-42bf-b8c2-a1b7a497a8e6",
+      "aptitude_score": 78.0,
+      "coding_score": 84.0,
+      "mock_interview_score": 89.0,
+      "resume_score": 78.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d676faf0-46ad-4de3-b814-18e755fe8a49",
+      "student_id": "91ce6ee5-9509-461e-ae83-f443631a3016",
+      "aptitude_score": 89.0,
+      "coding_score": 52.0,
+      "mock_interview_score": 58.0,
+      "resume_score": 79.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "5586b99b-b133-4aa0-93d6-e9b979525c44",
+      "student_id": "689593b4-7c6c-42a3-a041-16f1ac029f06",
+      "aptitude_score": 60.0,
+      "coding_score": 65.0,
+      "mock_interview_score": 67.0,
+      "resume_score": 80.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "35664b1a-b5f5-435d-9523-ae0ab79893de",
+      "student_id": "20d07c0c-ac56-4b30-8e9c-f79cad701de3",
+      "aptitude_score": 71.0,
+      "coding_score": 78.0,
+      "mock_interview_score": 76.0,
+      "resume_score": 81.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a555e12e-4f43-4a76-922b-7c02bab68350",
+      "student_id": "04bdc67a-42d0-4872-b096-afdd8e4549db",
+      "aptitude_score": 82.0,
+      "coding_score": 91.0,
+      "mock_interview_score": 85.0,
+      "resume_score": 82.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "11851fec-068d-4517-b453-81bbd0418925",
+      "student_id": "e89ca679-ca93-4c30-9621-450664c5b826",
+      "aptitude_score": 93.0,
+      "coding_score": 59.0,
+      "mock_interview_score": 54.0,
+      "resume_score": 83.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "db30bd6e-0412-4679-8c3c-73d8e0d22301",
+      "student_id": "23bae913-0d5d-498a-88c5-5bd5bfcc2901",
+      "aptitude_score": 64.0,
+      "coding_score": 72.0,
+      "mock_interview_score": 63.0,
+      "resume_score": 84.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a18a8ca9-1ff9-4a1a-bd5d-0a94dc3094f9",
+      "student_id": "05089772-5251-4ee4-83ce-87f21ae73662",
+      "aptitude_score": 75.0,
+      "coding_score": 85.0,
+      "mock_interview_score": 72.0,
+      "resume_score": 85.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "96be86be-df38-4dda-97ea-baf5f2418811",
+      "student_id": "78e7fd7b-5932-428e-9786-3195e157ae0e",
+      "aptitude_score": 86.0,
+      "coding_score": 53.0,
+      "mock_interview_score": 81.0,
+      "resume_score": 86.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "9bc5b65c-a278-4772-bb60-928a8a14740e",
+      "student_id": "f45c2d18-420f-4a52-98a6-f8f5b8211c51",
+      "aptitude_score": 57.0,
+      "coding_score": 66.0,
+      "mock_interview_score": 90.0,
+      "resume_score": 87.0,
+      "readiness_tier": "not_ready",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "cc0a0e5c-9a11-474f-bdf9-59991d3d0152",
+      "student_id": "a5859586-17fe-40e2-89df-e2adbaeb7e3f",
+      "aptitude_score": 68.0,
+      "coding_score": 79.0,
+      "mock_interview_score": 59.0,
+      "resume_score": 88.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "797197e6-cc34-4776-9d4f-13173b6949a9",
+      "student_id": "4a0b911a-abfd-4139-b18d-eb21fb120991",
+      "aptitude_score": 79.0,
+      "coding_score": 92.0,
+      "mock_interview_score": 68.0,
+      "resume_score": 89.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4b28b39b-803c-4f31-a646-82be510da519",
+      "student_id": "d7bb4c48-ee9b-41d9-b303-68427673dd14",
+      "aptitude_score": 90.0,
+      "coding_score": 60.0,
+      "mock_interview_score": 77.0,
+      "resume_score": 90.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "347c058f-4f8b-42ad-be81-962e1bdbe5c7",
+      "student_id": "c6518feb-e30e-4c60-992b-7b67af2efe1a",
+      "aptitude_score": 61.0,
+      "coding_score": 73.0,
+      "mock_interview_score": 86.0,
+      "resume_score": 91.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "305bf173-3e80-4bc1-8ca4-1014429cc62e",
+      "student_id": "e3f1d90f-85ed-4367-a618-8604c886458e",
+      "aptitude_score": 72.0,
+      "coding_score": 86.0,
+      "mock_interview_score": 55.0,
+      "resume_score": 92.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b739648d-9adf-4cc4-afc6-279e2d6482f1",
+      "student_id": "b0d23702-e1d5-4b0a-9bdb-13a4c496dfba",
+      "aptitude_score": 83.0,
+      "coding_score": 54.0,
+      "mock_interview_score": 64.0,
+      "resume_score": 93.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "f9ef81f7-1a62-49f5-bc1c-ceb73b9b686d",
+      "student_id": "82bf37fc-0077-4756-b27a-b23dd1d6ceaa",
+      "aptitude_score": 94.0,
+      "coding_score": 67.0,
+      "mock_interview_score": 73.0,
+      "resume_score": 94.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b53c389a-f9fa-4697-a502-2f12e543b611",
+      "student_id": "cc13ac1f-cca4-4600-8dd7-f49f124c855d",
+      "aptitude_score": 65.0,
+      "coding_score": 80.0,
+      "mock_interview_score": 82.0,
+      "resume_score": 65.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4ad1627a-de12-4b4a-bb8a-96d16e6d9fc1",
+      "student_id": "338719c7-39d7-4471-919b-13bd4ab61261",
+      "aptitude_score": 76.0,
+      "coding_score": 93.0,
+      "mock_interview_score": 91.0,
+      "resume_score": 66.0,
+      "readiness_tier": "placement_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "5a1bb352-2bec-49f3-b9cb-435fb9fc1df8",
+      "student_id": "6c1c4728-a4f1-4c03-bebb-a55afe559ac5",
+      "aptitude_score": 87.0,
+      "coding_score": 61.0,
+      "mock_interview_score": 60.0,
+      "resume_score": 67.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "fe9a3a18-e674-4fbb-bde7-9738b8539689",
+      "student_id": "71149234-66ac-4fba-be76-07ea55d85ae9",
+      "aptitude_score": 58.0,
+      "coding_score": 74.0,
+      "mock_interview_score": 69.0,
+      "resume_score": 68.0,
+      "readiness_tier": "not_ready",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "092c64cc-ef3a-4462-abb6-6e40f141c191",
+      "student_id": "b2b2a424-b2a2-4cd8-8261-fa53cd7c6397",
+      "aptitude_score": 69.0,
+      "coding_score": 87.0,
+      "mock_interview_score": 78.0,
+      "resume_score": 69.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 1,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "26f7be66-7574-4f79-be9c-39a4e8201eb8",
+      "student_id": "4e57e01c-8466-4ce3-b1f6-95cc2c119c64",
+      "aptitude_score": 80.0,
+      "coding_score": 55.0,
+      "mock_interview_score": 87.0,
+      "resume_score": 70.0,
+      "readiness_tier": "developing",
+      "mock_interviews_attended": 2,
+      "evaluated_at": "2026-10-12",
+      "notes": "Standard cohort placement diagnostic",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    }
+  ],
+  "skills_records": [
+    {
+      "id": "54db45ef-630a-4d55-a31f-27108e25de9c",
+      "student_id": "0411a66b-943d-46d5-895d-28026b071aab",
+      "technical_score": 62.0,
+      "soft_skills_score": 58.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Python",
+        "Algorithms",
+        "SQL"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-001",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "8f1ac9b7-ce4a-42db-a8a4-29a26a210ad1",
+      "student_id": "edd5c0e8-986a-4275-b213-362f1d2e2a5e",
+      "technical_score": 95.0,
+      "soft_skills_score": 88.0,
+      "certifications_count": 3,
+      "verified_skills": [
+        "React",
+        "FastAPI",
+        "Docker",
+        "AWS",
+        "Go"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-002",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "773f8c7c-60eb-474d-b764-6a6045447ebe",
+      "student_id": "06088341-1830-40a1-b648-869368a12a82",
+      "technical_score": 92.0,
+      "soft_skills_score": 94.0,
+      "certifications_count": 4,
+      "verified_skills": [
+        "Embedded C",
+        "Python",
+        "Robotics",
+        "System Design"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-003",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b51a8436-2d09-47bf-a34f-3276ab50e9a4",
+      "student_id": "d8bcb8d5-c15c-421a-bc22-29148cd4eefc",
+      "technical_score": 44.0,
+      "soft_skills_score": 50.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Basic C"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-004",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ac70e608-f310-4d12-9972-39d33bb2ab8e",
+      "student_id": "3f043811-1641-4ea6-a8b5-c0da39193232",
+      "technical_score": 72.0,
+      "soft_skills_score": 70.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "CAD/CAM",
+        "MATLAB",
+        "Python Basics"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-005",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ef69140b-37ee-49a0-8e94-c32a74b77613",
+      "student_id": "b208e78a-2f96-4e70-bc46-99e51f4d6543",
+      "technical_score": 68.0,
+      "soft_skills_score": 92.0,
+      "certifications_count": 2,
+      "verified_skills": [
+        "Financial Modeling",
+        "Excel",
+        "Data Analysis",
+        "Communication"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-006",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "def596d7-1f81-4d89-a97a-c90b614f253b",
+      "student_id": "bef6289e-41de-428e-b7bf-13a855d6e54e",
+      "technical_score": 50.0,
+      "soft_skills_score": 55.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "AutoCAD Basics"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-007",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ff477f07-4580-4505-b42f-8901213eeb0f",
+      "student_id": "fef234a8-0c9c-468f-9383-f850a6082dc6",
+      "technical_score": 80.0,
+      "soft_skills_score": 84.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Java",
+        "Data Structures",
+        "Web Basics"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-008",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c31a8d7c-21e7-41de-ae62-818e4c9b46c0",
+      "student_id": "b7263fba-7dd1-48ee-99f4-be591aab11ad",
+      "technical_score": 82.0,
+      "soft_skills_score": 75.0,
+      "certifications_count": 2,
+      "verified_skills": [
+        "Python",
+        "PLC Programming",
+        "SolidWorks",
+        "SQL"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-009",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "df766c30-d469-4f16-9575-2796cf91ef88",
+      "student_id": "f76a0ab1-57e1-482c-a611-f09c0932d6b8",
+      "technical_score": 70.0,
+      "soft_skills_score": 72.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Python",
+        "Flask"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Competency audit for STU-010",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "21363ca2-167a-4cdd-840f-d724182a85cf",
+      "student_id": "eca115ce-9ee0-4d3c-965d-e0a3a33b40c7",
+      "technical_score": 90.0,
+      "soft_skills_score": 62.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "da459963-3be2-4148-9dea-904ac53e450a",
+      "student_id": "06024d12-eb44-4417-8688-5eb60d3cff12",
+      "technical_score": 58.0,
+      "soft_skills_score": 71.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "e3b0fe56-bfab-4739-bb57-ed3ba16c2ef5",
+      "student_id": "0ed0d835-d441-45ea-98da-efe44480ad7a",
+      "technical_score": 71.0,
+      "soft_skills_score": 80.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d1dc5983-48c3-4795-b9f8-aba65afb4db4",
+      "student_id": "23c7c2fc-8dec-42bf-b8c2-a1b7a497a8e6",
+      "technical_score": 84.0,
+      "soft_skills_score": 89.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b644796f-7d90-4f9f-b92d-8b570ac34b96",
+      "student_id": "91ce6ee5-9509-461e-ae83-f443631a3016",
+      "technical_score": 52.0,
+      "soft_skills_score": 58.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "8b6f1b63-2114-4199-a3d2-04db133baf8d",
+      "student_id": "689593b4-7c6c-42a3-a041-16f1ac029f06",
+      "technical_score": 65.0,
+      "soft_skills_score": 67.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "491527f3-4723-41e7-ad79-ee59b347dd9f",
+      "student_id": "20d07c0c-ac56-4b30-8e9c-f79cad701de3",
+      "technical_score": 78.0,
+      "soft_skills_score": 76.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "45c984cf-0d96-4109-a404-2590db9cd8cf",
+      "student_id": "04bdc67a-42d0-4872-b096-afdd8e4549db",
+      "technical_score": 91.0,
+      "soft_skills_score": 85.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "bd9c0f0e-f4fa-4a67-9b09-36fb6340da49",
+      "student_id": "e89ca679-ca93-4c30-9621-450664c5b826",
+      "technical_score": 59.0,
+      "soft_skills_score": 54.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "e7b7c3cd-6d90-4bee-9f26-107186d392c4",
+      "student_id": "23bae913-0d5d-498a-88c5-5bd5bfcc2901",
+      "technical_score": 72.0,
+      "soft_skills_score": 63.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "fc99da5f-90e3-474b-b843-a25b889131c7",
+      "student_id": "05089772-5251-4ee4-83ce-87f21ae73662",
+      "technical_score": 85.0,
+      "soft_skills_score": 72.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "dbf1ec60-0ab2-402f-90c1-c188dc629018",
+      "student_id": "78e7fd7b-5932-428e-9786-3195e157ae0e",
+      "technical_score": 53.0,
+      "soft_skills_score": 81.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a22ee3a2-762c-4125-8236-9b7df9550973",
+      "student_id": "f45c2d18-420f-4a52-98a6-f8f5b8211c51",
+      "technical_score": 66.0,
+      "soft_skills_score": 90.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "f55e72c4-6953-4537-965d-b3c63133abb8",
+      "student_id": "a5859586-17fe-40e2-89df-e2adbaeb7e3f",
+      "technical_score": 79.0,
+      "soft_skills_score": 59.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c58f6724-05c2-440f-a3a5-69124e1c223d",
+      "student_id": "4a0b911a-abfd-4139-b18d-eb21fb120991",
+      "technical_score": 92.0,
+      "soft_skills_score": 68.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "8a923181-17bf-42aa-a8c8-6db62497b70c",
+      "student_id": "d7bb4c48-ee9b-41d9-b303-68427673dd14",
+      "technical_score": 60.0,
+      "soft_skills_score": 77.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "40d42c73-8361-484e-8c55-ad2def8769fc",
+      "student_id": "c6518feb-e30e-4c60-992b-7b67af2efe1a",
+      "technical_score": 73.0,
+      "soft_skills_score": 86.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ee03a27c-627f-4689-a514-a930d5cd1c09",
+      "student_id": "e3f1d90f-85ed-4367-a618-8604c886458e",
+      "technical_score": 86.0,
+      "soft_skills_score": 55.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "1ece1dcd-483c-4f1b-9cf3-3e422048ddec",
+      "student_id": "b0d23702-e1d5-4b0a-9bdb-13a4c496dfba",
+      "technical_score": 54.0,
+      "soft_skills_score": 64.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ea2a0b1c-ec94-4a0b-81f2-5bddd1adfb23",
+      "student_id": "82bf37fc-0077-4756-b27a-b23dd1d6ceaa",
+      "technical_score": 67.0,
+      "soft_skills_score": 73.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "33715b38-b6a0-4f60-976d-e706ad0ece88",
+      "student_id": "cc13ac1f-cca4-4600-8dd7-f49f124c855d",
+      "technical_score": 80.0,
+      "soft_skills_score": 82.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c6be3153-5ed4-487f-b4bd-213f0964c070",
+      "student_id": "338719c7-39d7-4471-919b-13bd4ab61261",
+      "technical_score": 93.0,
+      "soft_skills_score": 91.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "05435f97-55a2-4be7-84f8-2406c2d07974",
+      "student_id": "6c1c4728-a4f1-4c03-bebb-a55afe559ac5",
+      "technical_score": 61.0,
+      "soft_skills_score": 60.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "deeb2c83-e997-4b23-ad0c-db31119f1995",
+      "student_id": "71149234-66ac-4fba-be76-07ea55d85ae9",
+      "technical_score": 74.0,
+      "soft_skills_score": 69.0,
+      "certifications_count": 1,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c2b57539-9c6a-4609-a9ea-1c57609ed036",
+      "student_id": "b2b2a424-b2a2-4cd8-8261-fa53cd7c6397",
+      "technical_score": 87.0,
+      "soft_skills_score": 78.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "721baab9-9890-4ce7-a449-e074b8ea94df",
+      "student_id": "4e57e01c-8466-4ce3-b1f6-95cc2c119c64",
+      "technical_score": 55.0,
+      "soft_skills_score": 87.0,
+      "certifications_count": 0,
+      "verified_skills": [
+        "Core Engineering",
+        "Problem Solving"
+      ],
+      "last_assessed_date": "2026-10-12",
+      "notes": "Standard skill rubric",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    }
+  ],
+  "feedback_records": [
+    {
+      "id": "129fd315-15b4-475b-8b47-29c5f61a4998",
+      "student_id": "0411a66b-943d-46d5-895d-28026b071aab",
+      "faculty_sentiment": 85.0,
+      "student_satisfaction": 78.0,
+      "mentor_notes": "Strong in classroom theory, but demonstrates high hesitation in live coding and technical interviews.",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "7249d0f2-4f85-4ed2-868e-0fe648f4ebac",
+      "student_id": "edd5c0e8-986a-4275-b213-362f1d2e2a5e",
+      "faculty_sentiment": 68.0,
+      "student_satisfaction": 82.0,
+      "mentor_notes": "Exceptional practical developer; attendance and mid-term exam performance require remediation.",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "49a17386-26ad-4a64-bbf1-a3af7a99bb42",
+      "student_id": "06088341-1830-40a1-b648-869368a12a82",
+      "faculty_sentiment": 95.0,
+      "student_satisfaction": 92.0,
+      "mentor_notes": "Role model student across academic excellence and placement readiness.",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "994bbe79-7598-4396-a2b7-4b3fae47c11c",
+      "student_id": "d8bcb8d5-c15c-421a-bc22-29148cd4eefc",
+      "faculty_sentiment": 52.0,
+      "student_satisfaction": 45.0,
+      "mentor_notes": "Severe burnout reported. Requires faculty mentorship and academic tutoring.",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "1e9b5c22-3cc9-4240-9671-7c4b007a0555",
+      "student_id": "3f043811-1641-4ea6-a8b5-c0da39193232",
+      "faculty_sentiment": 75.0,
+      "student_satisfaction": 78.0,
+      "mentor_notes": "Steady contributor with growing interest in automation.",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "1fecaf84-3380-4c84-982e-e9e913c6363a",
+      "student_id": "b208e78a-2f96-4e70-bc46-99e51f4d6543",
+      "faculty_sentiment": 88.0,
+      "student_satisfaction": 85.0,
+      "mentor_notes": "Strong aptitude and analytical presentation skills.",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "259ebe9e-1ca4-4083-bd49-d825dfc6e143",
+      "student_id": "bef6289e-41de-428e-b7bf-13a855d6e54e",
+      "faculty_sentiment": 58.0,
+      "student_satisfaction": 60.0,
+      "mentor_notes": "Struggles with core structural analysis coursework.",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a972c66a-1d37-445a-8cc6-cdd8a2606341",
+      "student_id": "fef234a8-0c9c-468f-9383-f850a6082dc6",
+      "faculty_sentiment": 90.0,
+      "student_satisfaction": 88.0,
+      "mentor_notes": "High potential early learner, actively participates in hackathons.",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "6ab5530d-7cf6-4f0c-8c52-ec633548e6d2",
+      "student_id": "b7263fba-7dd1-48ee-99f4-be591aab11ad",
+      "faculty_sentiment": 80.0,
+      "student_satisfaction": 80.0,
+      "mentor_notes": "Successfully crossed into software-driven engineering tracks.",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "778c7caa-e8de-40e9-b2f9-d368db54adbb",
+      "student_id": "eca115ce-9ee0-4d3c-965d-e0a3a33b40c7",
+      "faculty_sentiment": 80.0,
+      "student_satisfaction": 78.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d66c6ac8-b41e-43f6-95fd-e48e8d8bb13c",
+      "student_id": "06024d12-eb44-4417-8688-5eb60d3cff12",
+      "faculty_sentiment": 81.0,
+      "student_satisfaction": 79.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 4",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "13c9811a-128b-4e80-aa8d-60bbadc40fc4",
+      "student_id": "0ed0d835-d441-45ea-98da-efe44480ad7a",
+      "faculty_sentiment": 82.0,
+      "student_satisfaction": 80.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "289720dd-bb19-4a13-aa5f-8d6812ec5266",
+      "student_id": "23c7c2fc-8dec-42bf-b8c2-a1b7a497a8e6",
+      "faculty_sentiment": 83.0,
+      "student_satisfaction": 81.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 6",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "e66fbb46-f9b8-4203-8176-2dc97d4915ea",
+      "student_id": "91ce6ee5-9509-461e-ae83-f443631a3016",
+      "faculty_sentiment": 84.0,
+      "student_satisfaction": 82.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c60911c6-6243-41d9-bec2-77ec7e87ee0d",
+      "student_id": "689593b4-7c6c-42a3-a041-16f1ac029f06",
+      "faculty_sentiment": 85.0,
+      "student_satisfaction": 83.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "0f9f6243-970d-4968-8f2e-700d65f62c4a",
+      "student_id": "20d07c0c-ac56-4b30-8e9c-f79cad701de3",
+      "faculty_sentiment": 86.0,
+      "student_satisfaction": 84.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 4",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a523d28e-5366-4085-8a91-51c3fc07950b",
+      "student_id": "04bdc67a-42d0-4872-b096-afdd8e4549db",
+      "faculty_sentiment": 87.0,
+      "student_satisfaction": 85.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "95cdd7de-87ab-40d2-85ee-a63d40c29ffe",
+      "student_id": "e89ca679-ca93-4c30-9621-450664c5b826",
+      "faculty_sentiment": 88.0,
+      "student_satisfaction": 86.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 6",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d37ed18a-6fa7-4915-92a4-0541325a7dd2",
+      "student_id": "23bae913-0d5d-498a-88c5-5bd5bfcc2901",
+      "faculty_sentiment": 89.0,
+      "student_satisfaction": 87.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "585c9b93-69ce-42b2-b885-4da292772ba3",
+      "student_id": "05089772-5251-4ee4-83ce-87f21ae73662",
+      "faculty_sentiment": 90.0,
+      "student_satisfaction": 88.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "88aec01a-8d70-48b5-a66b-74b7377ba237",
+      "student_id": "78e7fd7b-5932-428e-9786-3195e157ae0e",
+      "faculty_sentiment": 91.0,
+      "student_satisfaction": 89.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 4",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "62ef6a55-a46a-40dc-8379-14664007a595",
+      "student_id": "f45c2d18-420f-4a52-98a6-f8f5b8211c51",
+      "faculty_sentiment": 92.0,
+      "student_satisfaction": 90.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c467448c-2f90-4f87-a84e-812ed70fe0fa",
+      "student_id": "a5859586-17fe-40e2-89df-e2adbaeb7e3f",
+      "faculty_sentiment": 93.0,
+      "student_satisfaction": 91.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 6",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "959d4618-2af8-4a4f-85e8-509cfdae5bb5",
+      "student_id": "4a0b911a-abfd-4139-b18d-eb21fb120991",
+      "faculty_sentiment": 94.0,
+      "student_satisfaction": 92.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "f46082c4-1ef8-4fa1-81d2-db130eaaddf0",
+      "student_id": "d7bb4c48-ee9b-41d9-b303-68427673dd14",
+      "faculty_sentiment": 70.0,
+      "student_satisfaction": 93.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "3aea2d2f-bd0d-4707-8d9b-f0606166e502",
+      "student_id": "c6518feb-e30e-4c60-992b-7b67af2efe1a",
+      "faculty_sentiment": 71.0,
+      "student_satisfaction": 94.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 4",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "6538b5cd-d76b-47ed-8e49-28aba6452fc3",
+      "student_id": "e3f1d90f-85ed-4367-a618-8604c886458e",
+      "faculty_sentiment": 72.0,
+      "student_satisfaction": 95.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "9200dc1e-3959-4b21-8ee3-f940b0f7ca22",
+      "student_id": "b0d23702-e1d5-4b0a-9bdb-13a4c496dfba",
+      "faculty_sentiment": 73.0,
+      "student_satisfaction": 68.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 6",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "23cdb184-ac67-4627-9bb1-5738be67a3de",
+      "student_id": "82bf37fc-0077-4756-b27a-b23dd1d6ceaa",
+      "faculty_sentiment": 74.0,
+      "student_satisfaction": 69.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "37f7fa01-f42a-407f-b9b6-25fb795e0267",
+      "student_id": "cc13ac1f-cca4-4600-8dd7-f49f124c855d",
+      "faculty_sentiment": 75.0,
+      "student_satisfaction": 70.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "3434debb-405d-4383-8435-7e75efc36dd3",
+      "student_id": "338719c7-39d7-4471-919b-13bd4ab61261",
+      "faculty_sentiment": 76.0,
+      "student_satisfaction": 71.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 4",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c4e86e0b-90f1-4715-80ef-72f5843ad3ca",
+      "student_id": "6c1c4728-a4f1-4c03-bebb-a55afe559ac5",
+      "faculty_sentiment": 77.0,
+      "student_satisfaction": 72.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 5",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "e90b353e-e003-4852-8913-d4caddedb0ed",
+      "student_id": "71149234-66ac-4fba-be76-07ea55d85ae9",
+      "faculty_sentiment": 78.0,
+      "student_satisfaction": 73.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 6",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "0322ffe6-c9f5-4df8-b014-cd9776706fd3",
+      "student_id": "b2b2a424-b2a2-4cd8-8261-fa53cd7c6397",
+      "faculty_sentiment": 79.0,
+      "student_satisfaction": 74.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 7",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a1dc912c-c989-4eed-86c4-8fbe6c4c9a2e",
+      "student_id": "4e57e01c-8466-4ce3-b1f6-95cc2c119c64",
+      "faculty_sentiment": 80.0,
+      "student_satisfaction": 75.0,
+      "mentor_notes": "Consistent academic participation",
+      "academic_term": "Semester 3",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    }
+  ],
+  "lms_activity_records": [
+    {
+      "id": "4a750eda-123b-4d28-b38d-5b26c8189dc5",
+      "student_id": "0411a66b-943d-46d5-895d-28026b071aab",
+      "weekly_login_count": 9,
+      "module_completion_pct": 85.0,
+      "assignments_submitted_pct": 92.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "825b6300-94a0-4d97-8ce4-d94af500190c",
+      "student_id": "edd5c0e8-986a-4275-b213-362f1d2e2a5e",
+      "weekly_login_count": 12,
+      "module_completion_pct": 92.0,
+      "assignments_submitted_pct": 70.0,
+      "forum_posts_count": 14,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "bb77cba0-4a72-4ebc-9984-6923b5e1838e",
+      "student_id": "06088341-1830-40a1-b648-869368a12a82",
+      "weekly_login_count": 15,
+      "module_completion_pct": 98.0,
+      "assignments_submitted_pct": 98.0,
+      "forum_posts_count": 18,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "18739632-da3d-4131-ac2f-c7d8237b7909",
+      "student_id": "d8bcb8d5-c15c-421a-bc22-29148cd4eefc",
+      "weekly_login_count": 2,
+      "module_completion_pct": 45.0,
+      "assignments_submitted_pct": 50.0,
+      "forum_posts_count": 1,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "46d6ddf4-4531-46a1-b5cb-5f494f56aa85",
+      "student_id": "3f043811-1641-4ea6-a8b5-c0da39193232",
+      "weekly_login_count": 6,
+      "module_completion_pct": 78.0,
+      "assignments_submitted_pct": 80.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "0c0c82b9-adf0-4fcb-8073-261576260e60",
+      "student_id": "b208e78a-2f96-4e70-bc46-99e51f4d6543",
+      "weekly_login_count": 8,
+      "module_completion_pct": 84.0,
+      "assignments_submitted_pct": 88.0,
+      "forum_posts_count": 7,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4b358f32-a15c-4ae6-bc1f-b88868374664",
+      "student_id": "bef6289e-41de-428e-b7bf-13a855d6e54e",
+      "weekly_login_count": 3,
+      "module_completion_pct": 52.0,
+      "assignments_submitted_pct": 58.0,
+      "forum_posts_count": 2,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "33b10ac0-a7e6-48ab-8b78-c0224acae54e",
+      "student_id": "fef234a8-0c9c-468f-9383-f850a6082dc6",
+      "weekly_login_count": 11,
+      "module_completion_pct": 90.0,
+      "assignments_submitted_pct": 92.0,
+      "forum_posts_count": 8,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "8e6f90b0-33c8-436e-8b70-989c90f7b8e4",
+      "student_id": "b7263fba-7dd1-48ee-99f4-be591aab11ad",
+      "weekly_login_count": 7,
+      "module_completion_pct": 80.0,
+      "assignments_submitted_pct": 82.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "5e075ba7-916c-4b95-b761-350c59b33c9b",
+      "student_id": "f76a0ab1-57e1-482c-a611-f09c0932d6b8",
+      "weekly_login_count": 5,
+      "module_completion_pct": 70.0,
+      "assignments_submitted_pct": 75.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "68320c4c-a809-4140-84e8-e9fc4a14be82",
+      "student_id": "eca115ce-9ee0-4d3c-965d-e0a3a33b40c7",
+      "weekly_login_count": 6,
+      "module_completion_pct": 70.0,
+      "assignments_submitted_pct": 75.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "6c458c0d-c976-40a6-84d6-e67540e3ff28",
+      "student_id": "06024d12-eb44-4417-8688-5eb60d3cff12",
+      "weekly_login_count": 7,
+      "module_completion_pct": 71.0,
+      "assignments_submitted_pct": 76.0,
+      "forum_posts_count": 5,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b49ce414-67ae-4153-a68b-18ec701fba6f",
+      "student_id": "0ed0d835-d441-45ea-98da-efe44480ad7a",
+      "weekly_login_count": 8,
+      "module_completion_pct": 72.0,
+      "assignments_submitted_pct": 77.0,
+      "forum_posts_count": 0,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "511c09ac-d6ec-415d-9452-509a082d230e",
+      "student_id": "23c7c2fc-8dec-42bf-b8c2-a1b7a497a8e6",
+      "weekly_login_count": 9,
+      "module_completion_pct": 73.0,
+      "assignments_submitted_pct": 78.0,
+      "forum_posts_count": 1,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "0c275f8a-0870-4557-b253-c0b3259b4c3f",
+      "student_id": "91ce6ee5-9509-461e-ae83-f443631a3016",
+      "weekly_login_count": 10,
+      "module_completion_pct": 74.0,
+      "assignments_submitted_pct": 79.0,
+      "forum_posts_count": 2,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "ff52088f-cb49-432b-86c8-2fae939de0b7",
+      "student_id": "689593b4-7c6c-42a3-a041-16f1ac029f06",
+      "weekly_login_count": 11,
+      "module_completion_pct": 75.0,
+      "assignments_submitted_pct": 80.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "4d4777b7-45ef-40a7-9532-835f207ecfa5",
+      "student_id": "20d07c0c-ac56-4b30-8e9c-f79cad701de3",
+      "weekly_login_count": 4,
+      "module_completion_pct": 76.0,
+      "assignments_submitted_pct": 81.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d4b767e6-ba85-48b7-b461-b433046505b6",
+      "student_id": "04bdc67a-42d0-4872-b096-afdd8e4549db",
+      "weekly_login_count": 5,
+      "module_completion_pct": 77.0,
+      "assignments_submitted_pct": 82.0,
+      "forum_posts_count": 5,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d700321f-1d8c-4654-847c-7ff88d5f121e",
+      "student_id": "e89ca679-ca93-4c30-9621-450664c5b826",
+      "weekly_login_count": 6,
+      "module_completion_pct": 78.0,
+      "assignments_submitted_pct": 83.0,
+      "forum_posts_count": 0,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "b4ba6c7d-9448-4f66-b9e6-d60782f50cb9",
+      "student_id": "23bae913-0d5d-498a-88c5-5bd5bfcc2901",
+      "weekly_login_count": 7,
+      "module_completion_pct": 79.0,
+      "assignments_submitted_pct": 84.0,
+      "forum_posts_count": 1,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "cb82a4d9-22fb-4bd5-ab0f-64f4c4ee18cc",
+      "student_id": "05089772-5251-4ee4-83ce-87f21ae73662",
+      "weekly_login_count": 8,
+      "module_completion_pct": 80.0,
+      "assignments_submitted_pct": 85.0,
+      "forum_posts_count": 2,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "8766dc5a-9c17-4ef7-a79a-aea4dcafa08f",
+      "student_id": "78e7fd7b-5932-428e-9786-3195e157ae0e",
+      "weekly_login_count": 9,
+      "module_completion_pct": 81.0,
+      "assignments_submitted_pct": 86.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "e8c2b690-55eb-4667-a8b8-a6550946d923",
+      "student_id": "f45c2d18-420f-4a52-98a6-f8f5b8211c51",
+      "weekly_login_count": 10,
+      "module_completion_pct": 82.0,
+      "assignments_submitted_pct": 87.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "351a8ef5-c2a3-41be-91dc-22e13f827da6",
+      "student_id": "a5859586-17fe-40e2-89df-e2adbaeb7e3f",
+      "weekly_login_count": 11,
+      "module_completion_pct": 83.0,
+      "assignments_submitted_pct": 88.0,
+      "forum_posts_count": 5,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "aec93b2c-e153-4f5f-849d-e60db8dd8939",
+      "student_id": "4a0b911a-abfd-4139-b18d-eb21fb120991",
+      "weekly_login_count": 4,
+      "module_completion_pct": 84.0,
+      "assignments_submitted_pct": 89.0,
+      "forum_posts_count": 0,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "2f04fe5f-5a95-4e7c-acf8-d9ad5b22eb05",
+      "student_id": "d7bb4c48-ee9b-41d9-b303-68427673dd14",
+      "weekly_login_count": 5,
+      "module_completion_pct": 85.0,
+      "assignments_submitted_pct": 90.0,
+      "forum_posts_count": 1,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "3ecaf495-4460-4681-8da5-bd37f7386c8c",
+      "student_id": "c6518feb-e30e-4c60-992b-7b67af2efe1a",
+      "weekly_login_count": 6,
+      "module_completion_pct": 86.0,
+      "assignments_submitted_pct": 91.0,
+      "forum_posts_count": 2,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c2ffceff-990d-431b-bf80-f8d1fd401954",
+      "student_id": "e3f1d90f-85ed-4367-a618-8604c886458e",
+      "weekly_login_count": 7,
+      "module_completion_pct": 87.0,
+      "assignments_submitted_pct": 92.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "081a71c3-e606-4a1d-bd8d-99e304e82f31",
+      "student_id": "b0d23702-e1d5-4b0a-9bdb-13a4c496dfba",
+      "weekly_login_count": 8,
+      "module_completion_pct": 88.0,
+      "assignments_submitted_pct": 93.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "0367b940-ff22-4381-b911-0f6e72c4d27f",
+      "student_id": "82bf37fc-0077-4756-b27a-b23dd1d6ceaa",
+      "weekly_login_count": 9,
+      "module_completion_pct": 89.0,
+      "assignments_submitted_pct": 94.0,
+      "forum_posts_count": 5,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "aea8ba43-50cf-4239-88c6-017b25d79d8d",
+      "student_id": "cc13ac1f-cca4-4600-8dd7-f49f124c855d",
+      "weekly_login_count": 10,
+      "module_completion_pct": 90.0,
+      "assignments_submitted_pct": 95.0,
+      "forum_posts_count": 0,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "c31439a2-6f4d-4c9b-9b82-b57e3241f92a",
+      "student_id": "338719c7-39d7-4471-919b-13bd4ab61261",
+      "weekly_login_count": 11,
+      "module_completion_pct": 91.0,
+      "assignments_submitted_pct": 96.0,
+      "forum_posts_count": 1,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "d8494017-9bc5-4b86-9569-a095671863b5",
+      "student_id": "6c1c4728-a4f1-4c03-bebb-a55afe559ac5",
+      "weekly_login_count": 4,
+      "module_completion_pct": 92.0,
+      "assignments_submitted_pct": 65.0,
+      "forum_posts_count": 2,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "a57ec87b-ef90-4418-9b1c-72f6ec0dd7c1",
+      "student_id": "71149234-66ac-4fba-be76-07ea55d85ae9",
+      "weekly_login_count": 5,
+      "module_completion_pct": 93.0,
+      "assignments_submitted_pct": 66.0,
+      "forum_posts_count": 3,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "9e73f7ba-c3d6-45ae-bf94-a599759a12c1",
+      "student_id": "b2b2a424-b2a2-4cd8-8261-fa53cd7c6397",
+      "weekly_login_count": 6,
+      "module_completion_pct": 94.0,
+      "assignments_submitted_pct": 67.0,
+      "forum_posts_count": 4,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
+    },
+    {
+      "id": "06221f0f-a431-4ee5-a564-8af78691aa98",
+      "student_id": "4e57e01c-8466-4ce3-b1f6-95cc2c119c64",
+      "weekly_login_count": 7,
+      "module_completion_pct": 60.0,
+      "assignments_submitted_pct": 68.0,
+      "forum_posts_count": 5,
+      "last_login_date": "2026-10-12",
+      "recorded_at": "2026-10-12",
+      "created_at": "2026-10-12T05:10:07.645977+00:00",
+      "updated_at": "2026-10-12T05:10:07.645977+00:00"
     }
   ]
 }

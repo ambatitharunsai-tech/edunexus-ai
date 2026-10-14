@@ -30,7 +30,9 @@ export function formatRelative(dateStr: string): string {
 /** Get a color class for a risk level */
 export function getRiskColor(level: RiskLevel): string {
   const colors: Record<RiskLevel, string> = {
+    insufficient_data: 'text-slate-600 bg-slate-50',
     low: 'text-green-600 bg-green-50',
+    moderate: 'text-amber-600 bg-amber-50',
     medium: 'text-yellow-600 bg-yellow-50',
     high: 'text-orange-600 bg-orange-50',
     critical: 'text-red-600 bg-red-50',
@@ -41,7 +43,9 @@ export function getRiskColor(level: RiskLevel): string {
 /** Get badge class for a risk level */
 export function getRiskBadgeClass(level: RiskLevel): string {
   const classes: Record<RiskLevel, string> = {
+    insufficient_data: 'bg-slate-100 text-slate-600',
     low: 'badge-low',
+    moderate: 'badge-medium',
     medium: 'badge-medium',
     high: 'badge-high',
     critical: 'badge-critical',

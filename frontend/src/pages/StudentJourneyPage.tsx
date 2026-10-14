@@ -7,6 +7,16 @@ import {
   RefreshCw,
   HeartHandshake,
   Shield,
+  UserCheck,
+  Briefcase,
+  Award,
+  BookOpen,
+  MessageSquare,
+  Scale,
+  CheckCircle2,
+  GraduationCap,
+  CalendarCheck,
+  Activity,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -19,11 +29,19 @@ import { MissingDataNoticeBanner } from '../features/journey/MissingDataNoticeBa
 import { StudentMetricTrendsChart } from '../features/journey/StudentMetricTrendsChart';
 import { JourneyTimeline } from '../features/journey/JourneyTimeline';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
+import { RecordOutcomeModal } from '../features/interventions/RecordOutcomeModal';
+import { RiskOverrideModal } from '../features/journey/RiskOverrideModal';
+import { StudentSuccessScoreCard } from '../features/journey/StudentSuccessScoreCard';
+import { DualRiskAssessmentCard } from '../features/journey/DualRiskAssessmentCard';
+import { CohortSegmentCard } from '../features/journey/CohortSegmentCard';
+import { StudentRadarFingerprint } from '../features/journey/StudentRadarFingerprint';
 import type {
   StudentJourneyProfileResponse,
   StudentListItem,
   StudentDirectoryResponse,
   CreateInterventionPayload,
+  RiskExplanationResponse,
+  Intervention,
 } from '../types';
 
 export const StudentJourneyPage: React.FC = () => {
@@ -39,11 +57,19 @@ export const StudentJourneyPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Active records tab
-  const [activeTab, setActiveTab] = useState<'assessments' | 'attendance' | 'interventions' | 'engagements'>('assessments');
+  // Active records tab across all 7 domains + support plans
+  const [activeTab, setActiveTab] = useState<
+    'assessments' | 'attendance' | 'placement' | 'skills' | 'lms' | 'feedback' | 'interventions' | 'engagements'
+  >('assessments');
 
   // Intervention modal
   const [interventionModalOpen, setInterventionModalOpen] = useState<boolean>(false);
+  const [outcomeModalOpen, setOutcomeModalOpen] = useState<boolean>(false);
+  const [selectedInterventionForOutcome, setSelectedInterventionForOutcome] = useState<Intervention | null>(null);
+
+  // Risk explanation and human override state
+  const [riskExplanation, setRiskExplanation] = useState<RiskExplanationResponse | null>(null);
+  const [overrideModalOpen, setOverrideModalOpen] = useState<boolean>(false);
 
   // 1. Fetch directory for student quick-switcher
   useEffect(() => {
@@ -73,14 +99,21 @@ export const StudentJourneyPage: React.FC = () => {
     }
   }, [studentIdParam]);
 
-  // 2. Fetch full student dossier
+  // 2. Fetch full student dossier & risk explanation
   const fetchStudentDossier = useCallback(async (id: string) => {
     if (!id) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await api<StudentJourneyProfileResponse>(`/api/v1/students/${id}`);
-      setProfile(res);
+      const [profileRes, riskRes] = await Promise.all([
+        api<StudentJourneyProfileResponse>(`/api/v1/students/${id}`),
+        api<RiskExplanationResponse>(`/api/v1/students/${id}/risk-explanation`).catch((err) => {
+          console.warn('Could not fetch risk explanation for student:', err);
+          return null;
+        }),
+      ]);
+      setProfile(profileRes);
+      setRiskExplanation(riskRes);
     } catch (err: unknown) {
       console.error('Failed to load student journey profile:', err);
       setError(
@@ -119,6 +152,17 @@ export const StudentJourneyPage: React.FC = () => {
       return false;
     }
   };
+
+  // Human advisor override data normalization (resolves nested human_override or legacy properties)
+  const humanOverride = riskExplanation?.human_override;
+  const isOverridden = Boolean(humanOverride?.is_overridden || riskExplanation?.is_overridden);
+  const activeEffectiveTier = (humanOverride?.is_overridden && humanOverride.override_tier)
+    ? humanOverride.override_tier
+    : (riskExplanation?.effective_priority_tier || profile?.risk_profile.overall_risk || 'moderate');
+  const baselineComputedTier = humanOverride?.original_tier || riskExplanation?.support_priority_tier || profile?.risk_profile.overall_risk || 'moderate';
+  const overrideReason = humanOverride?.override_reason || riskExplanation?.override_details?.reason;
+  const reviewerName = humanOverride?.reviewed_by || riskExplanation?.override_details?.staff_name;
+  const reviewTimestamp = humanOverride?.reviewed_at || riskExplanation?.override_details?.recorded_at;
 
   return (
     <div className="space-y-6">
@@ -229,6 +273,23 @@ export const StudentJourneyPage: React.FC = () => {
           {/* 3. 4-Card Metrics Summary */}
           <StudentMetricsSummary profile={profile} />
 
+          {/* 3b. KPMG 7-Domain Success Score (Positive Composite Index) */}
+          {profile.success_profile && (
+            <StudentSuccessScoreCard successProfile={profile.success_profile} />
+          )}
+
+          {/* 3c. Decoupled Dual-Risk Assessment & Strategic Cohort Classification */}
+          <div className="grid grid-cols-1 gap-6 2xl:grid-cols-2">
+            <DualRiskAssessmentCard
+              academicRiskProfile={profile.academic_risk_profile}
+              placementRiskProfile={profile.placement_risk_profile}
+              onOpenIntervention={() => setInterventionModalOpen(true)}
+            />
+            {profile.segment_profile && (
+              <CohortSegmentCard segmentProfile={profile.segment_profile} />
+            )}
+          </div>
+
           {/* 4. Analytics & Trajectory Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left 2 Cols: Metric Trajectories Recharts Chart */}
@@ -245,24 +306,75 @@ export const StudentJourneyPage: React.FC = () => {
                         Explainable Risk Scoring Decomposition
                       </CardTitle>
                     </div>
-                    <Badge
-                      variant={
-                        profile.risk_profile.overall_risk === 'critical'
-                          ? 'danger'
-                          : profile.risk_profile.overall_risk === 'high'
-                          ? 'warning'
-                          : 'neutral'
-                      }
-                      size="sm"
-                    >
-                      {profile.risk_profile.requires_review ? 'Human Review Advised' : 'System Monitored'}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setOverrideModalOpen(true)}
+                        className="text-xs h-7 px-2.5 flex items-center gap-1.5 text-indigo-700 border-indigo-200 hover:bg-indigo-50"
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                        <span>{isOverridden ? 'Modify Human Override' : 'Adjust Review Tier'}</span>
+                      </Button>
+                      <Badge
+                        variant={
+                          activeEffectiveTier === 'critical'
+                            ? 'danger'
+                            : activeEffectiveTier === 'high'
+                            ? 'warning'
+                            : 'neutral'
+                        }
+                        size="sm"
+                      >
+                        {isOverridden
+                          ? `Advisor Overridden: ${activeEffectiveTier.toUpperCase()}`
+                          : profile.risk_profile.requires_review
+                          ? 'Human Review Advised'
+                          : 'System Monitored'}
+                      </Badge>
+                    </div>
                   </div>
                   <CardDescription className="text-xs text-slate-500">
                     Transparent mathematical decomposition of student indicators contributing to advisory tier.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {isOverridden && (
+                    <div className="p-3.5 bg-amber-50/90 border border-amber-300 rounded-xl flex items-start gap-3 text-xs text-amber-950 shadow-2xs">
+                      <UserCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                      <div className="space-y-1 flex-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-amber-950 text-xs">
+                              Active Human Advisor Override: <span className="underline uppercase">{activeEffectiveTier}</span> Tier
+                            </span>
+                            <span className="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">
+                              Underlying Computed Baseline: <strong className="uppercase">{baselineComputedTier}</strong> ({riskExplanation?.composite_risk_score ?? profile?.risk_profile.risk_score}/100)
+                            </span>
+                          </div>
+                          {reviewTimestamp && (
+                            <span className="text-[10px] text-amber-700 font-mono">
+                              {new Date(reviewTimestamp).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}
+                            </span>
+                          )}
+                        </div>
+                        {overrideReason && (
+                          <p className="text-[11px] text-amber-900 bg-amber-100/60 p-2 rounded-lg border border-amber-200">
+                            <strong>Advisor Context / Rationale:</strong> "{overrideReason}"
+                          </p>
+                        )}
+                        {reviewerName && (
+                          <p className="text-[10px] text-slate-500">
+                            Authorized Reviewer: <strong className="text-slate-700">{reviewerName}</strong> • Preserves audit traceability
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                     {profile.risk_profile.factors.map((factor, idx) => (
                       <div
@@ -316,6 +428,14 @@ export const StudentJourneyPage: React.FC = () => {
 
             {/* Right 1 Col: Advisor Dossier & Quick Profile Details */}
             <div className="space-y-6">
+              {/* 7-Domain Radar Fingerprint */}
+              {profile.success_profile?.domain_breakdowns && (
+                <StudentRadarFingerprint
+                  domainBreakdowns={profile.success_profile.domain_breakdowns}
+                  studentName={`${profile.student.first_name} ${profile.student.last_name}`}
+                />
+              )}
+
               <Card className="border-slate-200">
                 <CardHeader>
                   <CardTitle className="text-sm font-bold text-slate-900">
@@ -339,7 +459,7 @@ export const StudentJourneyPage: React.FC = () => {
                   <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
                     <span className="text-slate-500">Current Cohort / Grade</span>
                     <span className="font-semibold text-slate-800">
-                      {profile.student.grade || 'Grade 11'}
+                      {profile.student.current_grade || profile.student.grade || 'Current Cohort'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
@@ -383,7 +503,7 @@ export const StudentJourneyPage: React.FC = () => {
                         className="p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-300 transition-colors shadow-2xs space-y-1.5"
                       >
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-slate-900">{intv.type.replace('_', ' ').toUpperCase()}</span>
+                          <span className="font-bold text-slate-900">{intv.intervention_type.replace('_', ' ').toUpperCase()}</span>
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                               intv.status === 'in_progress'
@@ -399,7 +519,7 @@ export const StudentJourneyPage: React.FC = () => {
                         </p>
                         <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                           <span>Mentor: {intv.assigned_to || 'Support Specialist'}</span>
-                          <span>Follow-up: {intv.follow_up_date || 'Scheduled'}</span>
+                          <span>Follow-up: {intv.follow_up_date || 'Not scheduled'}</span>
                         </div>
                       </div>
                     ))
@@ -434,51 +554,107 @@ export const StudentJourneyPage: React.FC = () => {
                 </CardDescription>
               </div>
 
-              {/* Tab Selector */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs self-start">
+              {/* Tab Selector across all 7 domains and support plans */}
+              <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl text-xs self-start border border-slate-200/60">
                 <button
                   type="button"
                   onClick={() => setActiveTab('assessments')}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-xs transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
                     activeTab === 'assessments'
-                      ? 'bg-white text-indigo-700 shadow-2xs'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Assessments ({profile.recent_assessments.length})
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>Academic ({profile.recent_assessments.length})</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('attendance')}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-xs transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
                     activeTab === 'attendance'
-                      ? 'bg-white text-indigo-700 shadow-2xs'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Attendance ({profile.recent_attendance.length})
+                  <CalendarCheck className="w-3.5 h-3.5" />
+                  <span>Attendance ({profile.recent_attendance.length})</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('interventions')}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-xs transition-colors ${
-                    activeTab === 'interventions'
-                      ? 'bg-white text-indigo-700 shadow-2xs'
+                  onClick={() => setActiveTab('placement')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
+                    activeTab === 'placement'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Support Plans ({profile.interventions.length})
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>Placement</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.placement_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('skills')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
+                    activeTab === 'skills'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Skills</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.skills_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('lms')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
+                    activeTab === 'lms'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>LMS</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.lms_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('feedback')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
+                    activeTab === 'feedback'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Feedback</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.feedback_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('engagements')}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-xs transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
                     activeTab === 'engagements'
-                      ? 'bg-white text-indigo-700 shadow-2xs'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  LMS Logs ({profile.recent_engagements.length})
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>Campus Logs ({profile.recent_engagements.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('interventions')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 ${
+                    activeTab === 'interventions'
+                      ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <HeartHandshake className="w-3.5 h-3.5" />
+                  <span>Support Plans ({profile.interventions.length})</span>
                 </button>
               </div>
             </CardHeader>
@@ -507,7 +683,7 @@ export const StudentJourneyPage: React.FC = () => {
                             <td className="py-2.5 px-3 capitalize">
                               {a.assessment_type.replace('_', ' ')}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-500">{a.date}</td>
+                            <td className="py-2.5 px-3 text-slate-500">{a.assessment_date}</td>
                             <td className="py-2.5 px-3 text-center font-mono">
                               {a.score} / {a.max_score}
                             </td>
@@ -557,7 +733,7 @@ export const StudentJourneyPage: React.FC = () => {
                     <tbody className="divide-y divide-slate-100 text-slate-700">
                       {profile.recent_attendance.map((att, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900">{att.date}</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-900">{att.session_date}</td>
                           <td className="py-2.5 px-3">
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold capitalize ${
@@ -572,9 +748,7 @@ export const StudentJourneyPage: React.FC = () => {
                             </span>
                           </td>
                           <td className="py-2.5 px-3 text-slate-500">
-                            {att.status === 'absent'
-                              ? 'Absence recorded; daily guardian advisory dispatched.'
-                              : 'Standard classroom session attended.'}
+                            {att.remarks || 'No remarks recorded'}
                           </td>
                         </tr>
                       ))}
@@ -583,22 +757,291 @@ export const StudentJourneyPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Tab 3: Interventions */}
-              {activeTab === 'interventions' && (
-                <div className="space-y-3">
-                  {profile.interventions.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-slate-400">
-                      No support interventions recorded for this student.
+              {/* Tab 3: Placement Readiness */}
+              {activeTab === 'placement' && (
+                <div>
+                  {profile.placement_details ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Aptitude Score</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.placement_details.aptitude_score != null ? `${profile.placement_details.aptitude_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Coding Score</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.placement_details.coding_score != null ? `${profile.placement_details.coding_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Mock Interview</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.placement_details.mock_interview_score != null ? `${profile.placement_details.mock_interview_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Resume Rating</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.placement_details.resume_score != null ? `${profile.placement_details.resume_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-xl border border-slate-200 text-xs space-y-2">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-500">Assigned Readiness Tier</span>
+                          <span className="font-bold capitalize px-2 py-0.5 rounded text-[11px] bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            {profile.placement_details.readiness_tier.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-500">Mock Interviews Attended</span>
+                          <span className="font-bold text-slate-800">{profile.placement_details.mock_interviews_attended} sessions</span>
+                        </div>
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-500">Evaluation Date</span>
+                          <span className="text-slate-700">{profile.placement_details.evaluated_at}</span>
+                        </div>
+                        {profile.placement_details.notes && (
+                          <div className="pt-1">
+                            <span className="text-slate-500 block mb-1">Career Coach Notes:</span>
+                            <p className="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic">
+                              "{profile.placement_details.notes}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
-                    profile.interventions.map((intv, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2 text-xs"
+                    <div className="p-5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>Placement Telemetry Not Yet Ingested</span>
+                      </div>
+                      <p className="text-amber-800 leading-relaxed">
+                        No placement assessment records are currently filed for this student.
+                      </p>
+                      <p className="text-[11px] text-amber-700 italic border-t border-amber-200/60 pt-2">
+                        Institutional Governance Principle: Missing placement data is treated as unavailable evidence, not proof of poor aptitude or unreadiness.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 4: Skills & Certifications */}
+              {activeTab === 'skills' && (
+                <div>
+                  {profile.skills_details ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Technical Skill Score</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.skills_details.technical_score != null ? `${profile.skills_details.technical_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Soft Skills Score</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.skills_details.soft_skills_score != null ? `${profile.skills_details.soft_skills_score}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Accredited Certifications</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.skills_details.certifications_count ?? 0}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-xl border border-slate-200 text-xs space-y-3">
+                        <div>
+                          <span className="text-slate-500 font-semibold block mb-1.5">Verified Technical Competencies:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(profile.skills_details.verified_skills || []).length > 0 ? (
+                              profile.skills_details.verified_skills.map((skill, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1"
+                                >
+                                  <CheckCircle2 className="w-3 h-3 text-indigo-600" />
+                                  <span>{skill}</span>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-400 italic">No specific competency tags recorded</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500">
+                          <span>Last Assessed Date:</span>
+                          <span className="font-semibold text-slate-700">{profile.skills_details.last_assessed_date}</span>
+                        </div>
+
+                        {profile.skills_details.notes && (
+                          <div className="pt-2 border-t border-slate-100">
+                            <span className="text-slate-500 block mb-1">Evaluator Notes:</span>
+                            <p className="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic">
+                              "{profile.skills_details.notes}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>Skills Telemetry Awaiting Ingestion</span>
+                      </div>
+                      <p className="text-amber-800 leading-relaxed">
+                        No technical skill evaluations or certifications currently filed for this student.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 5: LMS Learning Activity */}
+              {activeTab === 'lms' && (
+                <div>
+                  {profile.lms_details ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Weekly Logins</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.lms_details.weekly_login_count ?? 0}
+                          </p>
+                          <span className="text-[10px] text-slate-400">sessions/wk</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Module Completion</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.lms_details.module_completion_pct != null ? `${profile.lms_details.module_completion_pct}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Assignment Rate</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.lms_details.assignments_submitted_pct != null ? `${profile.lms_details.assignments_submitted_pct}%` : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Forum Posts</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">
+                            {profile.lms_details.forum_posts_count ?? 0}
+                          </p>
+                          <span className="text-[10px] text-slate-400">contributions</span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-xl border border-slate-200 text-xs space-y-2">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-500">Last Portal Session</span>
+                          <span className="font-semibold text-slate-800">{profile.lms_details.last_login_date || 'Active within current week'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-500">Telemetry Ingest Timestamp</span>
+                          <span className="text-slate-700 font-mono text-[11px]">{profile.lms_details.recorded_at}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>LMS Activity Records Awaiting Ingestion</span>
+                      </div>
+                      <p className="text-amber-800 leading-relaxed">
+                        No digital learning management platform telemetry currently ingested for this student.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 6: Feedback & Faculty Sentiment */}
+              {activeTab === 'feedback' && (
+                <div>
+                  {profile.feedback_details ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Faculty Sentiment Rating</p>
+                          <p className="text-2xl font-black text-slate-900 mt-1">
+                            {profile.feedback_details.faculty_sentiment != null ? `${profile.feedback_details.faculty_sentiment}/100` : 'N/A'}
+                          </p>
+                          <p className="text-[11px] text-slate-500 mt-1">Evaluated by course instructors and teaching assistants</p>
+                        </div>
+                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                          <p className="text-[10px] uppercase font-bold text-slate-500">Student Satisfaction Rating</p>
+                          <p className="text-2xl font-black text-slate-900 mt-1">
+                            {profile.feedback_details.student_satisfaction != null ? `${profile.feedback_details.student_satisfaction}/100` : 'N/A'}
+                          </p>
+                          <p className="text-[11px] text-slate-500 mt-1">Self-reported term survey engagement metric</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-xl border border-slate-200 text-xs space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-500">Academic Term Evaluated</span>
+                          <span className="font-semibold text-slate-800">{profile.feedback_details.academic_term}</span>
+                        </div>
+                        {profile.feedback_details.mentor_notes && (
+                          <div>
+                            <span className="text-slate-500 font-semibold block mb-1">Qualitative Mentor & Faculty Observations:</span>
+                            <p className="text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-100 leading-relaxed italic">
+                              "{profile.feedback_details.mentor_notes}"
+                            </p>
+                          </div>
+                        )}
+                        <div className="pt-1 text-[10px] text-slate-400">
+                          Recorded: {profile.feedback_details.recorded_at}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>Faculty & Mentorship Feedback Awaiting Ingestion</span>
+                      </div>
+                      <p className="text-amber-800 leading-relaxed">
+                        No sentiment or survey feedback currently recorded for this student.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 7: Interventions & Recorded Outcomes */}
+              {activeTab === 'interventions' && (
+                <div className="space-y-4">
+                  {profile.interventions.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-slate-400 space-y-2">
+                      <p>No support interventions currently assigned to this student.</p>
+                      <Button
+                        size="sm"
+                        onClick={() => setInterventionModalOpen(true)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        Create Support Plan
+                      </Button>
+                    </div>
+                  ) : (
+                    profile.interventions.map((intv) => (
+                      <div
+                        key={intv.id}
+                        className="p-4 rounded-xl border border-slate-200 bg-white space-y-3 text-xs shadow-2xs hover:border-slate-300 transition-colors"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <h4 className="font-bold text-slate-900 text-sm">
-                            {intv.type.replace('_', ' ').toUpperCase()} Plan
+                            {intv.title || `${intv.intervention_type.replace('_', ' ').toUpperCase()} Plan`}
                           </h4>
                           <div className="flex items-center gap-2">
                             <Badge
@@ -610,21 +1053,70 @@ export const StudentJourneyPage: React.FC = () => {
                             <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                               {intv.status.toUpperCase()}
                             </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInterventionForOutcome(intv);
+                                setOutcomeModalOpen(true);
+                              }}
+                              className="text-xs h-7 px-2.5 text-teal-700 border-teal-200 hover:bg-teal-50 flex items-center gap-1"
+                            >
+                              <Scale className="w-3.5 h-3.5" />
+                              <span>{intv.outcomes && intv.outcomes.length > 0 ? 'Update Outcome' : 'Record Outcome'}</span>
+                            </Button>
                           </div>
                         </div>
+
                         <p className="text-slate-600 leading-relaxed">{intv.description}</p>
-                        <div className="pt-2 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
-                          <span>Mentor / Assigned Staff: <strong>{intv.assigned_to || 'Student Advisory'}</strong></span>
-                          <span>Start Date: <strong>{intv.start_date || '2026-09-15'}</strong></span>
-                          <span>Follow-up Target: <strong>{intv.follow_up_date || 'Within 30 Days'}</strong></span>
+
+                        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+                          <span>Mentor / Assigned Staff: <strong>{intv.assigned_staff_name || intv.assigned_to || 'Not assigned'}</strong></span>
+                          <span>Start Date: <strong>{intv.start_date || 'Not recorded'}</strong></span>
+                          <span>Follow-up Target: <strong>{intv.follow_up_date || 'Not scheduled'}</strong></span>
+                          {intv.completed_date && <span>Completed: <strong>{intv.completed_date}</strong></span>}
                         </div>
+
+                        {/* Outcomes Section */}
+                        {intv.outcomes && intv.outcomes.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-slate-100 bg-slate-50/70 p-3 rounded-lg border border-slate-200/80 space-y-2">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-800">
+                              <span className="flex items-center gap-1 text-teal-800">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                                <span>Recorded Outcome Measurement:</span>
+                              </span>
+                              <span className="text-slate-500 text-[10px]">
+                                {intv.outcomes[0].measurement_date}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+                              <span>Metric: <strong>{intv.outcomes[0].metric_name}</strong></span>
+                              <span>Baseline: <strong>{intv.outcomes[0].baseline_value}</strong></span>
+                              <span>Post: <strong>{intv.outcomes[0].post_value ?? '—'}</strong></span>
+                              {intv.outcomes[0].absolute_change != null && (
+                                <span className={`font-bold ${intv.outcomes[0].absolute_change >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                  Delta: {intv.outcomes[0].absolute_change >= 0 ? '+' : ''}{intv.outcomes[0].absolute_change} pts
+                                  {intv.outcomes[0].percentage_change != null && ` (${intv.outcomes[0].percentage_change >= 0 ? '+' : ''}${intv.outcomes[0].percentage_change}%)`}
+                                </span>
+                              )}
+                            </div>
+                            {intv.outcomes[0].evidence_notes && (
+                              <p className="text-[11px] text-slate-600 italic">
+                                "{intv.outcomes[0].evidence_notes}"
+                              </p>
+                            )}
+                            <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-200/60">
+                              * {intv.outcomes[0].causation_disclaimer || 'Non-causal correlation disclaimer applies.'}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ))
                   )}
                 </div>
               )}
 
-              {/* Tab 4: LMS Engagements */}
+              {/* Tab 8: Campus Engagements */}
               {activeTab === 'engagements' && (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
@@ -639,15 +1131,15 @@ export const StudentJourneyPage: React.FC = () => {
                     <tbody className="divide-y divide-slate-100 text-slate-700">
                       {profile.recent_engagements.map((eng, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900">{eng.date}</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-900">{eng.event_timestamp}</td>
                           <td className="py-2.5 px-3 font-semibold text-indigo-700 capitalize">
-                            {eng.activity_type.replace('_', ' ')}
+                            {eng.event_type.replaceAll('_', ' ')}
                           </td>
                           <td className="py-2.5 px-3 font-mono">
-                            {eng.duration_minutes || 30} mins
+                            {eng.duration_minutes == null ? 'Not recorded' : `${eng.duration_minutes} mins`}
                           </td>
                           <td className="py-2.5 px-3 text-slate-600">
-                            {eng.description || 'Digital learning portal study module completed.'}
+                            {eng.description || 'No description recorded'}
                           </td>
                         </tr>
                       ))}
@@ -669,17 +1161,70 @@ export const StudentJourneyPage: React.FC = () => {
             id: profile.student.id,
             student_id: profile.student.student_id,
             name: `${profile.student.first_name} ${profile.student.last_name}`,
-            grade: profile.student.grade || 'Grade 11',
+            grade: profile.student.current_grade || profile.student.grade || 'Current Cohort',
             risk_level: profile.risk_profile.overall_risk,
             risk_score: profile.risk_profile.risk_score,
-            primary_risk_factor: `Review flag: Attendance ${profile.attendance_rate}% | Academic ${profile.average_score}%`,
-            attendance_rate: profile.attendance_rate,
-            avg_score: profile.average_score,
+            primary_risk_factor: `Review flag: Attendance ${profile.attendance_rate != null ? profile.attendance_rate.toFixed(1) : 0}% | Academic ${profile.average_score != null ? profile.average_score.toFixed(1) : 0}%`,
+            attendance_rate: profile.attendance_rate ?? null,
+            avg_score: profile.average_score ?? null,
             last_interaction: 'Recent',
             status: 'Needs Review',
           }}
-          studentsList={[]}
+          studentsList={studentDirectory.map((s) => ({
+            id: s.id,
+            student_id: s.student_id,
+            name: `${s.first_name} ${s.last_name}`,
+            grade: s.current_grade || 'Current Cohort',
+            section: s.section || undefined,
+            risk_level: s.risk_tier || 'low',
+            risk_score: s.risk_score || 0,
+            primary_risk_factor: `Review flag: Attendance ${s.attendance_rate != null ? s.attendance_rate.toFixed(1) : 0}%`,
+            attendance_rate: s.attendance_rate ?? null,
+            avg_score: s.average_score ?? null,
+            last_interaction: 'Recent',
+            status: s.review_status || 'Under Observation',
+          }))}
           onSubmit={handleCreateIntervention}
+        />
+      )}
+
+      {/* Outcome Recording Modal */}
+      {profile && selectedInterventionForOutcome && (
+        <RecordOutcomeModal
+          isOpen={outcomeModalOpen}
+          onClose={() => {
+            setOutcomeModalOpen(false);
+            setSelectedInterventionForOutcome(null);
+          }}
+          intervention={selectedInterventionForOutcome}
+          onSuccess={(_outcome) => {
+            fetchStudentDossier(activeStudentId);
+          }}
+        />
+      )}
+
+      {/* Human Risk Override Modal */}
+      {profile && (
+        <RiskOverrideModal
+          isOpen={overrideModalOpen}
+          onClose={() => setOverrideModalOpen(false)}
+          studentId={activeStudentId}
+          studentName={`${profile.student.first_name} ${profile.student.last_name}`}
+          currentTier={baselineComputedTier || profile.risk_profile.overall_risk}
+          currentScore={riskExplanation?.composite_risk_score ?? profile.risk_profile.risk_score}
+          isOverridden={isOverridden}
+          overrideDetails={
+            isOverridden
+              ? {
+                  original_tier: baselineComputedTier,
+                  override_tier: activeEffectiveTier,
+                  reason: overrideReason || '',
+                  staff_name: reviewerName || 'Academic Advisor',
+                  recorded_at: reviewTimestamp || '',
+                }
+              : undefined
+          }
+          onSuccess={() => fetchStudentDossier(activeStudentId)}
         />
       )}
     </div>

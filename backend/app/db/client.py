@@ -96,7 +96,7 @@ def verify_database_connection() -> Dict[str, Any]:
             "configured": True,
             "connected": False,
             "verified": False,
-            "error": str(e),
+            "error": "Database connection failed; check server configuration and migrations.",
             "message": "Connection attempt to Supabase failed",
         }
 

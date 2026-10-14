@@ -13,7 +13,7 @@ StudentStatus = Literal[
     'active', 'inactive', 'graduated', 'withdrawn', 'suspended', 'on_leave'
 ]
 
-RiskTier = Literal['low', 'medium', 'high', 'critical']
+RiskTier = Literal['low', 'moderate', 'medium', 'high', 'critical', 'insufficient_data']
 TrendDirection = Literal['improving', 'stable', 'declining']
 TimelineEventType = Literal['attendance', 'academic', 'intervention', 'milestone', 'engagement']
 SeverityLevel = Literal['info', 'success', 'warning', 'critical']
@@ -30,7 +30,9 @@ class StudentBase(BaseModel):
     current_grade: str = Field(..., min_length=1, max_length=50, description="e.g. Grade 10, Grade 11")
     academic_term: str = Field(..., min_length=1, max_length=50, description="e.g. AY 2025-26 Term 1")
     section: Optional[str] = Field(None, max_length=10)
-    department: Optional[str] = Field(default="Science & Technology", description="Academic department or stream")
+    department: Optional[str] = Field(default=None, description="Academic department or stream")
+    cgpa: Optional[float] = Field(None, ge=0, le=10)
+    backlogs: Optional[int] = Field(None, ge=0)
     advisor_id: Optional[UUID] = None
     status: StudentStatus = Field(default="active")
     notes: Optional[str] = None
@@ -73,6 +75,14 @@ class StudentResponse(StudentInDB):
     risk_tier: Optional[RiskTier] = Field(default="low", description="Explainable risk tier")
     risk_score: Optional[float] = Field(default=0.0, description="Composite risk index")
     active_interventions_count: Optional[int] = Field(None, description="Number of active intervention plans")
+    # KPMG 7-Domain & Dual-Risk Extensions
+    success_score: Optional[float] = Field(None, description="0-100 holistic success index")
+    success_tier: Optional[str] = Field(None, description="thriving, proficient, developing, needs_support")
+    academic_risk_tier: Optional[str] = Field(None, description="Independent academic risk tier: low, moderate, high, critical")
+    placement_risk_tier: Optional[str] = Field(None, description="Independent placement risk tier: low, moderate, high, critical")
+    segment_id: Optional[str] = Field(None, description="Actionable cohort ID")
+    segment_label: Optional[str] = Field(None, description="Actionable cohort display name")
+    segment_badge_color: Optional[str] = Field(None, description="Tailwind color token for cohort badge")
 
 
 class JourneyTimelineEvent(BaseModel):
@@ -101,8 +111,8 @@ class StudentJourneyProfileResponse(BaseModel):
     """Holistic student dossier with journey timeline, trend points, and ethical notices."""
     student: StudentInDB
     department: str
-    attendance_rate: float
-    average_score: float
+    attendance_rate: Optional[float]
+    average_score: Optional[float]
     latest_assessment_percentage: Optional[float] = None
     trend: TrendDirection
     review_status: str
@@ -114,3 +124,13 @@ class StudentJourneyProfileResponse(BaseModel):
     interventions: List[Dict[str, Any]]
     timeline_events: List[JourneyTimelineEvent]
     metrics_trend: List[Dict[str, Any]]
+    # KPMG 7-Domain Extensions
+    success_profile: Optional[Dict[str, Any]] = None
+    academic_risk_profile: Optional[Dict[str, Any]] = None
+    placement_risk_profile: Optional[Dict[str, Any]] = None
+    segment_profile: Optional[Dict[str, Any]] = None
+    placement_details: Optional[Dict[str, Any]] = None
+    skills_details: Optional[Dict[str, Any]] = None
+    feedback_details: Optional[Dict[str, Any]] = None
+    lms_details: Optional[Dict[str, Any]] = None
+

@@ -54,10 +54,14 @@ class Settings(BaseModel):
     SUPABASE_SERVICE_ROLE_KEY: str = Field(
         default_factory=lambda: os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     )
+    SUPABASE_JWT_SECRET: str = Field(
+        default_factory=lambda: os.getenv("SUPABASE_JWT_SECRET", "")
+    )
+    SUPABASE_JWT_ISSUER: str = Field(default_factory=lambda: os.getenv("SUPABASE_JWT_ISSUER", ""))
 
     @property
     def is_production(self) -> bool:
-        return self.ENVIRONMENT.lower() == "production"
+        return self.ENVIRONMENT.lower() in ("production", "prod")
 
 
 settings = Settings()

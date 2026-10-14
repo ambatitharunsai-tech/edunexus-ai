@@ -3,4 +3,6 @@ export * from './StudentsPage';
 export * from './StudentJourneyPage';
 export * from './InterventionsPage';
 export * from './AnalyticsPage';
+export * from './CsvHubPage';
+export * from './LoginPage';
 export * from './NotFoundPage';

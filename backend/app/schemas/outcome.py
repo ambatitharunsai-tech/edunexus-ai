@@ -47,6 +47,9 @@ class OutcomeUpdate(BaseModel):
 
 class OutcomeInDB(OutcomeBase):
     id: UUID
+    absolute_change: Optional[float] = None
+    percentage_change: Optional[float] = None
+    interpretation: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     model_config = ConfigDict(from_attributes=True)

@@ -28,22 +28,34 @@ export const StudentTable: React.FC<StudentTableProps> = ({
             <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
               <th className="py-3 px-4">Student & ID</th>
               <th className="py-3 px-4">Department & Cohort</th>
+              <th className="py-3 px-4 text-center">Success Score</th>
               <th className="py-3 px-4 text-center">Attendance %</th>
               <th className="py-3 px-4 text-center">Latest Eval %</th>
               <th className="py-3 px-4 text-center">Trajectory Trend</th>
-              <th className="py-3 px-4">Risk Category</th>
+              <th className="py-3 px-4">Decoupled Risks</th>
               <th className="py-3 px-4">Review Status</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
             {students.map((student) => {
-              const riskVariant = {
-                critical: 'danger',
+              const acadRiskVariant = {
+                insufficient_data: 'neutral',
+    critical: 'danger',
                 high: 'warning',
+                moderate: 'warning',
                 medium: 'warning',
                 low: 'success',
-              }[student.risk_tier || 'low'] as 'danger' | 'warning' | 'success';
+              }[student.academic_risk_tier || student.risk_tier || 'low'] as 'danger' | 'warning' | 'success';
+
+              const placeRiskVariant = {
+                insufficient_data: 'neutral',
+    critical: 'danger',
+                high: 'warning',
+                moderate: 'warning',
+                medium: 'warning',
+                low: 'success',
+              }[student.placement_risk_tier || 'low'] as 'danger' | 'warning' | 'success';
 
               const trendIcon = {
                 improving: <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />,
@@ -58,6 +70,17 @@ export const StudentTable: React.FC<StudentTableProps> = ({
               }[student.trend || 'stable'];
 
               const initials = `${student.first_name[0] || ''}${student.last_name[0] || ''}`.toUpperCase();
+
+              const successScoreColor =
+                student.success_score === null || student.success_score === undefined
+                  ? 'text-slate-400 bg-slate-50 border-slate-200'
+                  : student.success_score >= 80
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : student.success_score >= 65
+                  ? 'text-teal-700 bg-teal-50 border-teal-200'
+                  : student.success_score >= 50
+                  ? 'text-amber-700 bg-amber-50 border-amber-200'
+                  : 'text-rose-700 bg-rose-50 border-rose-200';
 
               return (
                 <tr key={student.id} className="hover:bg-slate-50/75 transition-colors group">
@@ -77,6 +100,25 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                         <div className="font-mono text-[11px] text-slate-400">
                           {student.student_id}
                         </div>
+                        {student.segment_label && (
+                          <div className="mt-0.5">
+                            <span
+                              className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded ${
+                                student.segment_badge_color === 'emerald'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : student.segment_badge_color === 'blue'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                  : student.segment_badge_color === 'amber'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : student.segment_badge_color === 'rose'
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-purple-50 text-purple-700 border border-purple-200'
+                              }`}
+                            >
+                              {student.segment_label}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -91,6 +133,24 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                     </div>
                   </td>
 
+                  {/* Student Success Score */}
+                  <td className="py-3.5 px-4 text-center">
+                    {student.success_score !== null && student.success_score !== undefined ? (
+                      <div>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${successScoreColor}`}>
+                          {student.success_score.toFixed(1)}/100
+                        </span>
+                        <div className="text-[10px] text-slate-400 capitalize mt-0.5">
+                          {student.success_tier || 'active'}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-medium italic">
+                        Insufficient Data
+                      </span>
+                    )}
+                  </td>
+
                   {/* Attendance Rate */}
                   <td className="py-3.5 px-4 text-center">
                     <div
@@ -100,22 +160,22 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                           : 'text-emerald-600'
                       }`}
                     >
-                      {student.attendance_rate ? `${student.attendance_rate.toFixed(1)}%` : 'N/A'}
+                      {student.attendance_rate != null ? `${student.attendance_rate.toFixed(1)}%` : 'N/A'}
                     </div>
                     <span className="text-[10px] text-slate-400">
-                      {(student.attendance_rate || 0) < 80.0 ? 'Below 80% Min' : 'Target Met'}
+                      {student.attendance_rate == null ? 'Awaiting records' : student.attendance_rate < 80 ? 'Below benchmark' : 'Benchmark met'}
                     </span>
                   </td>
 
                   {/* Latest Assessment Score */}
                   <td className="py-3.5 px-4 text-center">
                     <span className="font-bold text-slate-900">
-                      {student.latest_assessment_percentage !== undefined
+                      {student.latest_assessment_percentage != null
                         ? `${student.latest_assessment_percentage.toFixed(1)}%`
-                        : `${(student.average_score || 0).toFixed(1)}%`}
+                        : student.average_score == null ? 'N/A' : `${student.average_score.toFixed(1)}%`}
                     </span>
                     <div className="text-[10px] text-slate-400">
-                      Avg: {(student.average_score || 0).toFixed(1)}%
+                      Avg: {student.average_score == null ? 'N/A' : `${student.average_score.toFixed(1)}%`}
                     </div>
                   </td>
 
@@ -129,15 +189,21 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Risk Tier & Score */}
+                  {/* Decoupled Risks: Academic & Placement */}
                   <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-1.5">
-                      <Badge variant={riskVariant} size="sm">
-                        {(student.risk_tier || 'low').toUpperCase()}
-                      </Badge>
-                      <span className="font-bold text-slate-700 text-[11px]">
-                        {student.risk_score || 0}
-                      </span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium text-slate-400 w-10">Acad:</span>
+                        <Badge variant={acadRiskVariant} size="sm">
+                          {(student.academic_risk_tier || student.risk_tier || 'low').toUpperCase()}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium text-slate-400 w-10">Place:</span>
+                        <Badge variant={placeRiskVariant} size="sm">
+                          {(student.placement_risk_tier || 'low').toUpperCase()}
+                        </Badge>
+                      </div>
                     </div>
                   </td>
 

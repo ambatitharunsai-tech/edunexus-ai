@@ -10,4 +10,6 @@ from app.main import app
 @pytest.fixture(scope="session")
 def client() -> TestClient:
     """Session-scoped test client for the FastAPI app."""
-    return TestClient(app)
+    c = TestClient(app)
+    c.headers["Authorization"] = "Bearer edunexus-demo-advisor-token"
+    return c

@@ -52,6 +52,38 @@ from app.schemas.audit import (
     AuditEventInDB,
     AuditAction,
 )
+from app.schemas.placement import (
+    PlacementBase,
+    PlacementCreate,
+    PlacementUpdate,
+    PlacementInDB,
+    ReadinessTier,
+)
+from app.schemas.skills import (
+    SkillsBase,
+    SkillsCreate,
+    SkillsUpdate,
+    SkillsInDB,
+)
+from app.schemas.feedback import (
+    FeedbackBase,
+    FeedbackCreate,
+    FeedbackUpdate,
+    FeedbackInDB,
+)
+from app.schemas.lms import (
+    LMSActivityBase,
+    LMSActivityCreate,
+    LMSActivityUpdate,
+    LMSActivityInDB,
+)
+from app.schemas.success_score import (
+    StudentSuccessScoreResponse,
+    DomainScoreBreakdown,
+    IndependentRiskSignal,
+    StudentSegmentProfile,
+    StudentComprehensiveDossier,
+)
 
 __all__ = [
     "HealthResponse",
@@ -95,4 +127,27 @@ __all__ = [
     "AuditEventCreate",
     "AuditEventInDB",
     "AuditAction",
+    "PlacementBase",
+    "PlacementCreate",
+    "PlacementUpdate",
+    "PlacementInDB",
+    "ReadinessTier",
+    "SkillsBase",
+    "SkillsCreate",
+    "SkillsUpdate",
+    "SkillsInDB",
+    "FeedbackBase",
+    "FeedbackCreate",
+    "FeedbackUpdate",
+    "FeedbackInDB",
+    "LMSActivityBase",
+    "LMSActivityCreate",
+    "LMSActivityUpdate",
+    "LMSActivityInDB",
+    "StudentSuccessScoreResponse",
+    "DomainScoreBreakdown",
+    "IndependentRiskSignal",
+    "StudentSegmentProfile",
+    "StudentComprehensiveDossier",
 ]
+
