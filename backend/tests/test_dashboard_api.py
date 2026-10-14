@@ -120,3 +120,20 @@ def test_create_and_list_intervention():
     assert list_intv.status_code == 200
     found = any(i["id"] == created["id"] for i in list_intv.json())
     assert found is True
+
+
+def test_production_refuses_synthetic_fallback_without_database(monkeypatch):
+    """A production deployment must fail closed instead of returning repository seed data."""
+    import pytest
+    from fastapi import HTTPException
+    from app.core.config import settings
+    import app.db.client as db_client
+    from app.services.dashboard_service import DashboardService
+
+    monkeypatch.setattr(settings, "ENVIRONMENT", "production")
+    monkeypatch.setattr(db_client, "is_database_configured", lambda: False)
+
+    with pytest.raises(HTTPException) as exc_info:
+        DashboardService()._load_synthetic_data()
+
+    assert exc_info.value.status_code == 503
