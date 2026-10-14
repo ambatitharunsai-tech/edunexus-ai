@@ -34,8 +34,10 @@ class SegmentationEngine:
                 tagline="Classification pending", badge_color="slate",
                 description="Success or independent risk data is insufficient; no strategic cohort is inferred.",
                 recommended_action="Review missing domain records with an advisor.", action_type="skill_expansion")
-        academic_score = academic_score if academic_score is not None else 0
-        placement_score = placement_score if placement_score is not None else 0
+        has_academic_score = academic_score is not None
+        has_placement_score = placement_score is not None
+        acad_val = academic_score if has_academic_score else 0.0
+        place_val = placement_score if has_placement_score else 0.0
         acad_tier = academic_risk.tier
         place_tier = placement_risk.tier
         is_acad_high = acad_tier in ("high", "critical")
@@ -54,7 +56,8 @@ class SegmentationEngine:
             )
 
         # 2. Academic Star / Career At-Risk (Strong academics, high placement risk)
-        if (academic_score >= 70.0 or acad_tier == "low") and is_place_high:
+        is_academic_strong = (acad_val >= 70.0) if has_academic_score else (acad_tier == "low")
+        if is_academic_strong and is_place_high:
             return StudentSegmentProfile(
                 segment_id="academic_star_career_at_risk",
                 segment_label="Academic Stars / Career At-Risk",
@@ -66,7 +69,8 @@ class SegmentationEngine:
             )
 
         # 3. Practical Star / Exam Vulnerable (Strong placement/coding, high academic risk)
-        if (placement_score >= 72.0 or place_tier == "low") and is_acad_high:
+        is_placement_strong = (place_val >= 72.0) if has_placement_score else (place_tier == "low")
+        if is_placement_strong and is_acad_high:
             return StudentSegmentProfile(
                 segment_id="practical_star_exam_vulnerable",
                 segment_label="Practical Stars / Exam Vulnerable",
@@ -79,7 +83,7 @@ class SegmentationEngine:
 
         # 4. High Achievers & Placement Ready (High success score, both risks low)
         if (success_score is not None and success_score >= 78.0 and acad_tier == "low" and place_tier == "low") or (
-            academic_score >= 78.0 and placement_score >= 75.0 and acad_tier == "low" and place_tier == "low"
+            has_academic_score and has_placement_score and acad_val >= 78.0 and place_val >= 75.0 and acad_tier == "low" and place_tier == "low"
         ):
             return StudentSegmentProfile(
                 segment_id="high_achiever_placement_ready",
