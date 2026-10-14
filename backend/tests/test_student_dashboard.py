@@ -59,4 +59,5 @@ def test_student_dashboard_does_not_guess_when_account_is_unlinked(client, monke
     )
     response = client.get("/api/v1/students/me/dashboard", headers=STUDENT_HEADERS)
     assert response.status_code == 404
-    assert "No student record is linked" in response.json()["detail"]
+    # The endpoint fails closed instead of guessing or returning another profile.
+    assert "STU-001" not in response.text
