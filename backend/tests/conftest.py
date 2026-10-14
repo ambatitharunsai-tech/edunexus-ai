@@ -5,6 +5,11 @@ EduNexus AI — Pytest Configuration & Test Fixtures
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.core.config import settings
+
+# Tests use explicit demo fixtures regardless of the hosting environment.
+# Individual production-security tests set this to production as needed.
+settings.ENVIRONMENT = "development"
 
 
 @pytest.fixture(scope="session")
