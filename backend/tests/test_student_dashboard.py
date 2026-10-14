@@ -29,7 +29,8 @@ def test_student_dashboard_returns_only_the_linked_student(client):
     assert "follow_up_students" not in payload
     assert "STU-002" not in serialized
     assert "recent_activity" not in payload
-    assert "notes" not in serialized
+    assert "notes" not in payload["student"]
+    assert all("description" not in plan for plan in payload["support_plans"])
 
 
 def test_student_dashboard_rejects_staff_accounts(client):
