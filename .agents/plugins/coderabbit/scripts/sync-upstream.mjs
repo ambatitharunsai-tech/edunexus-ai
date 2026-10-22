@@ -61,11 +61,16 @@ autofix = replaceExactlyOnce(autofix,
   'Offer to run the repository\'s relevant checks from `AGENTS.md`, README, package scripts, or project conventions. Report pass or fail clearly.',
   'Run the repository\'s required and relevant checks from `AGENTS.md`, README, package scripts, or project conventions before pushing. Report failures and do not claim the fixes are validated.');
 
+let cliWorkflows = blob(skills, 'skills/code-review/references/cli-workflows.md');
+cliWorkflows = replaceExactlyOnce(cliWorkflows,
+  'For a file change, inspect `protocolVersion`, `writable`, `writeReason`, and `baseHash`; retain the exact returned hash (`none` for a new file). The generation response has `applied: false`; save only its `after` YAML string to a separate proposal file, not the JSON envelope. Then use `config validate <proposal.yaml>` and `config apply <proposal.yaml> --base <baseHash> --dry-run`. Apply an authorized proposal with the same command and `--yes` instead of `--dry-run`. Each copyable apply command must contain exactly one of `--dry-run` or `--yes`; omit invalid combined examples entirely. A stale base, failed schema fetch, non-writable authority, TypeScript configuration, symlink, or ambiguous YAML files requires resolution; do not bypass the guard with a direct overwrite. If the installed binary lacks this protocol, report the version gap before using a different editing workflow.',
+  'For a file change, detect or require a CLI version that supports these protocol-specific commands before using them (e.g. verifying `protocolVersion` 2 via `coderabbit config --agent`). If the installed binary lacks that contract, report the version gap and stop rather than continuing with commands that will fail. Inspect `protocolVersion`, `writable`, `writeReason`, and `baseHash`; retain the exact returned hash (`none` for a new file). The generation response has `applied: false`; save only its `after` YAML string to a separate proposal file, not the JSON envelope. Then use `config validate <proposal.yaml>` and `config apply <proposal.yaml> --base <baseHash> --dry-run`. Apply an authorized proposal with the same command and `--yes` instead of `--dry-run`. Each copyable apply command must contain exactly one of `--dry-run` or `--yes`; omit invalid combined examples entirely. A stale base, failed schema fetch, non-writable authority, TypeScript configuration, symlink, or ambiguous YAML files requires resolution; do not bypass the guard with a direct overwrite. If the installed binary lacks this protocol, report the version gap and stop rather than continuing with commands that will fail.');
+
 const outputs = new Map([
   ['LICENSE', blob(skills, 'LICENSE')],
   ['skills/coderabbit-review/SKILL.md', review],
   ['skills/coderabbit-review/references/auth-recovery.md', auth],
-  ['skills/coderabbit-review/references/cli-workflows.md', blob(skills, 'skills/code-review/references/cli-workflows.md')],
+  ['skills/coderabbit-review/references/cli-workflows.md', cliWorkflows],
   ['skills/coderabbit-autofix/SKILL.md', autofix],
 ]);
 if (JSON.stringify([...outputs.keys()].sort()) !== JSON.stringify([...lock.generated].sort())) {
