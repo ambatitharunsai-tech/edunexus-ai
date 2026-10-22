@@ -65,16 +65,19 @@ export const HelpPage: React.FC = () => {
       if (!text || isThinking) return;
 
       const userMsg = createUserMessage(text);
-      setMessages((prev) => [...prev, userMsg]);
       setInputQuery('');
       setIsThinking(true);
 
-      // Brief realistic delay for UX responsiveness
-      window.setTimeout(() => {
-        const assistantMsg = createAssistantMessage(text, userRole, HELP_ENTRIES);
-        setMessages((prev) => [...prev, assistantMsg]);
-        setIsThinking(false);
-      }, 240);
+      setMessages((prev) => {
+        const updatedWithUser = [...prev, userMsg];
+        // Brief realistic delay for UX responsiveness
+        window.setTimeout(() => {
+          const assistantMsg = createAssistantMessage(text, userRole, HELP_ENTRIES, updatedWithUser);
+          setMessages((cur) => [...cur, assistantMsg]);
+          setIsThinking(false);
+        }, 240);
+        return updatedWithUser;
+      });
     },
     [inputQuery, isThinking, userRole]
   );
