@@ -82,6 +82,11 @@ export interface HelpEntry {
 
 ### 3.3 Bandwidth Estimator (`src/lib/bandwidthEstimator.ts`)
 - **Same-Origin Asset Fetch**: Queries `/probe.bin?_t=<timestamp>` to prevent intermediate browser/CDN caching.
+- **Strict Byte-Count Verification**: Requires receiving exactly **`5,242,880` bytes** (5 MiB). Any incomplete, premature termination, or truncated stream is rejected immediately with an error and `speedMbps: 0`.
+- **Content-Length Header Validation**: Rejects inconsistent or mismatched `Content-Length` headers. Handles missing headers safely during streaming without treating expected size as proof of arrival.
+- **Concurrency Guard**: Employs an active test lock to reject concurrent speed tests (`errorMessage: 'Concurrent speed tests are not permitted.'`).
+- **Cancellation & Failure Integrity**: Guarantees that cancellations, timeouts, network failures, or truncated downloads never produce a successful result or a positive speed estimate (`speedMbps: 0`).
+- **Realistic Duration Clamping**: Enforces `MIN_REALISTIC_DURATION_MS = 20ms` to prevent division by near-zero and misleading speed spikes on sub-millisecond transfers.
 - **High-Precision Timing**: Utilizes `performance.now()` before and after transfer.
 - **Stream Reading**: Uses `response.body.getReader()` to compute real-time download progress and loaded byte counts, falling back to `response.arrayBuffer()` in non-streaming environments.
 - **Throughput Math**:
@@ -179,17 +184,29 @@ Because `/help` is not wrapped in `StaffOnlyRoute` or `NonStudentJourneyRoute`, 
   ✓ getContextualSuggestions() returns student-focused suggestions for students
   ✓ getContextualSuggestions() returns staff-focused suggestions for staff
 
-✓ src/__tests__/bandwidthEstimator.test.ts (10 tests)
+✓ src/__tests__/bandwidthEstimator.test.ts (22 tests)
+  ✓ defines expected probe size as exactly 5 MiB (5,242,880 bytes)
+  ✓ defines minimum realistic duration threshold
+  ✓ reports whether a test is currently running
   ✓ getSpeedRecommendation() returns poor recommendation for < 1 Mbps
   ✓ getSpeedRecommendation() returns fair recommendation for 1 - 5 Mbps
   ✓ getSpeedRecommendation() returns good recommendation for 5 - 25 Mbps
   ✓ getSpeedRecommendation() returns excellent recommendation for >= 25 Mbps
   ✓ runSpeedTest() handles immediately cancelled signal
-  ✓ runSpeedTest() successfully computes download throughput
+  ✓ runSpeedTest() successfully computes download throughput for full 5,242,880 bytes
+  ✓ runSpeedTest() successfully completes when Content-Length header is missing but full 5,242,880 bytes arrive
+  ✓ runSpeedTest() rejects incomplete arrayBuffer response with fewer bytes than expected
+  ✓ runSpeedTest() rejects truncated ReadableStream download that ends prematurely
+  ✓ runSpeedTest() rejects inconsistent Content-Length header smaller than expected
+  ✓ runSpeedTest() rejects non-numeric or invalid Content-Length header
+  ✓ runSpeedTest() rejects inconsistent Content-Length header larger than expected
+  ✓ runSpeedTest() prevents concurrent speed tests and releases lock when completed
   ✓ runSpeedTest() handles HTTP errors (404/500)
-  ✓ runSpeedTest() handles network failure
+  ✓ runSpeedTest() handles network failure (e.g. offline / connection refused)
   ✓ runSpeedTest() handles timeout when probe takes longer than timeoutMs
   ✓ runSpeedTest() handles external cancellation during active fetch
+  ✓ runSpeedTest() handles cancellation mid-stream during ReadableStream reading
+  ✓ runSpeedTest() clamps duration to minDurationMs to prevent unrealistic speed measurements on near-zero elapsed time
 
 ✓ src/__tests__/HelpPage.test.tsx (8 tests)
   ✓ renders page header and privacy notice
@@ -200,13 +217,24 @@ Because `/help` is not wrapped in `StaffOnlyRoute` or `NonStudentJourneyRoute`, 
   ✓ clears chat when Reset button is clicked
   ✓ renders bandwidth estimator card with Run Speed Test button
   ✓ renders Quick Topics and clicking a topic triggers a question
+
+Test Files  4 passed (4)
+     Tests  58 passed (58)
 ```
 
-### 5.2 Build & Static Analysis Checks
-- **TypeScript**: `npx tsc -b` exited with code `0` (zero type errors).
+### 5.2 Build, Static Analysis, & CI Evidence
+- **Frontend Test Suite**: **58 passed** across 4 suites in Vitest (46 baseline tests + 12 probe validation and concurrency edge-case tests).
+- **Backend Test Suite**: **148 passed, 2 skipped, 0 failures** across 18 test modules in Pytest.
+- **CI Python & Node Versions**:
+  - CI Workflow runs **Python 3.12** (`actions/setup-python@v5` with `python-version: '3.12'`) and **Node.js 22.x** (`actions/setup-node@v4` with `node-version: '22.x'`).
+  - Local development environments operate under Python 3.14.2 and Node.js 24.15.0; both environments achieve 100% test parity.
+- **Unverified Live Database Integration vs. Tested Logic**:
+  - The 2 skipped backend tests in `backend/tests/test_db_integration.py` (`test_live_supabase_connection` and `test_live_supabase_table_schemas`) require active live Supabase cloud credentials.
+  - Because production database keys are kept uncommitted and unconfigured in CI and local clones, **live database integration remains unverified**.
+  - All verified tests validate the deterministic risk engines, student success calculators, dynamic weight rescaling, cohort segmentation, CSV validation services, and synthetic repository layer.
+- **TypeScript Strict Validation**: `npx tsc -b` exited with code `0` (zero type errors).
 - **Linter**: `npm run lint` (`oxlint`) completed with code `0` (zero errors across 64 files).
-- **Vite Production Build**: `npm run build` completed in `429ms`, bundling `dist/probe.bin` (5 MiB / 5,242,880 bytes).
-- **Backend Non-Regression**: `pytest -q` completed with `148 passed, 2 skipped, 0 failures`.
+- **Vite Production Build**: `npm run build` completed in `390ms`, bundling `dist/probe.bin` (exactly 5 MiB / 5,242,880 bytes).
 
 ---
 

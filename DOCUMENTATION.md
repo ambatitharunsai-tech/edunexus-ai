@@ -3,8 +3,8 @@
 
 **Competition**: KPMG India Student Analytics Challenge  
 **Platform**: EduNexus AI — Student Success & Journey Intelligence Platform  
-**Architecture**: React 19 • TypeScript • Vite • Tailwind CSS v4 • Recharts • Python 3.14 • FastAPI • Supabase PostgreSQL  
-**Verification Status**: 93/95 Backend Tests Passed (2 Skipped Live DB) • 0 Build Errors • 0 Lint Errors (7 Compiler Advisories)  
+**Architecture**: React 19 • TypeScript • Vite • Tailwind CSS v4 • Recharts • Python 3.12 (CI) / Python 3.14 (Dev) • FastAPI • Supabase PostgreSQL  
+**Verification Status**: 148/150 Backend Tests Passed (2 Skipped Live DB) • 58 Frontend Tests Passed (46 Baseline + 12 Probe Edge-Case Tests) • 0 Build Errors • 0 Lint Errors  
 
 ---
 
@@ -340,36 +340,43 @@ erDiagram
 
 ## Automated Test Suite & Quality Verification
 
-### Backend Pytest Suite: **93 Passed, 0 Failed, 2 Skipped (Live DB)**
+### Backend Pytest Suite: **148 Passed, 0 Failed, 2 Skipped (Live DB)**
 
 ```bash
-python3 -m pytest -v backend/tests
+python3 -m pytest -v backend
 ```
 
 ```
-backend/tests/test_authorization.py            ... 8 passed (Bearer token RBAC, anti-spoofing & prod env guard)
-backend/tests/test_cors_and_errors.py          ... 3 passed (Structured error & CORS preflight)
-backend/tests/test_csv_service.py              ... 7 passed (Line-numbered CSV validation)
-backend/tests/test_csv_service_7domains.py     ... 7 passed (All 7 KPMG domain templates, validation & reset)
-backend/tests/test_dashboard_api.py            ... 4 passed (Aggregated analytics & KPIs)
-backend/tests/test_database_service.py         ... 6 passed (Repository & fallback service)
-backend/tests/test_db_integration.py           ... 2 skipped (Live Supabase placeholder credentials)
-backend/tests/test_dual_risk_engine.py         ... 6 passed (Decoupled Academic vs Placement Risk & quadrants)
-backend/tests/test_health.py                   ... 3 passed (Health check & version telemetry)
-backend/tests/test_interventions_crud.py       ... 4 passed (Intervention lifecycle & cancellation)
-backend/tests/test_risk_engine.py              ... 8 passed (Deterministic risk & advisor overrides)
-backend/tests/test_schemas_validation.py       ... 13 passed (Pydantic schema constraints)
-backend/tests/test_segmentation_engine.py      ... 5 passed (5 strategic cohorts & action pathways)
-backend/tests/test_students_journey_api.py     ... 8 passed (Directory search & journey timeline)
-backend/tests/test_success_score_engine.py     ... 6 passed (0-100 Success Score & dynamic weight rescaling)
-========================= 93 passed, 2 skipped, 1 warning in 0.28s =========================
+backend/tests/test_7domain_endpoints.py         ... 5 passed (All 7 KPMG domain REST endpoints)
+backend/tests/test_authorization.py             ... 9 passed (Bearer token RBAC, anti-spoofing & prod env guard)
+backend/tests/test_cors_and_errors.py           ... 3 passed (Structured error & CORS preflight)
+backend/tests/test_csv_service.py               ... 7 passed (Line-numbered CSV validation)
+backend/tests/test_csv_service_7domains.py      ... 7 passed (All 7 KPMG domain templates, validation & reset)
+backend/tests/test_dashboard_api.py             ... 5 passed (Aggregated analytics & KPIs)
+backend/tests/test_database_service.py          ... 6 passed (Repository & fallback service)
+backend/tests/test_db_integration.py            ... 2 skipped (Live Supabase credentials deliberately unconfigured)
+backend/tests/test_dual_risk_engine.py          ... 7 passed (Decoupled Academic vs Placement Risk & quadrants)
+backend/tests/test_health.py                    ... 3 passed (Health check & version telemetry)
+backend/tests/test_integrated_regressions.py    ... 23 passed (Multi-domain integrated regression scenarios)
+backend/tests/test_interventions_crud.py        ... 6 passed (Intervention lifecycle & cancellation)
+backend/tests/test_risk_engine.py               ... 15 passed (Deterministic risk & advisor overrides)
+backend/tests/test_schemas_validation.py        ... 13 passed (Pydantic schema constraints)
+backend/tests/test_segmentation_engine.py       ... 14 passed (5 strategic cohorts & action pathways)
+backend/tests/test_student_dashboard.py         ... 5 passed (Student self-dashboard security & fail-closed RLS)
+backend/tests/test_students_journey_api.py      ... 8 passed (Directory search & journey timeline)
+backend/tests/test_success_score_engine.py      ... 12 passed (0-100 Success Score & dynamic weight rescaling)
+======================== 148 passed, 2 skipped, 1 warning in 0.57s ========================
 ```
 
-> [!NOTE]
-> **Live Database Test Skip Verification**:  
-> In `backend/tests/test_db_integration.py`, the two live database tests (`test_live_supabase_connection` and `test_live_supabase_table_schemas`) are conditioned on `@pytest.mark.skipif(not is_database_configured(), ...)`. Because production Supabase keys are kept unconfigured in local repository clones, these tests are **gracefully skipped**. Live database integration is **not** falsely claimed as verified; the platform operates in verified, fully functional synthetic demo mode backed by `data/synthetic_seed.json`.
+> [!IMPORTANT]
+> **CI Environment & Live Database Distinction**:
+> 1. **CI Python Environment**: Automated CI executes under **Python 3.12** (`actions/setup-python@v5` with `python-version: '3.12'`), while local developer machines run Python 3.14.2. Both environments pass all 148 automated backend tests identically.
+> 2. **Unverified Live Database Integration vs. Verified Code**:  
+> In `backend/tests/test_db_integration.py`, the two live database tests (`test_live_supabase_connection` and `test_live_supabase_table_schemas`) are conditioned on `@pytest.mark.skipif(not is_database_configured(), ...)`. Because live production Supabase database credentials are kept out of Git and unconfigured in CI and local clones, **live database integration remains unverified in automated runs**. All verified test execution proves the correctness of the deterministic analytics engine, business logic, authorization guards, and synthetic repository layer backed by `data/synthetic_seed.json`.
 
-### Frontend Test Suite & Verification: **46 Passed, 0 Failed (Vitest)**
+### Frontend Test Suite & Verification: **58 Passed, 0 Failed (Vitest)**
+
+The frontend test suite includes the 46 baseline feature tests plus 12 specialized bandwidth estimator edge-case tests (handling truncated downloads, inconsistent Content-Length headers, concurrency locks, cancellation mid-stream, timeouts, and realistic duration clamping).
 
 ```bash
 cd frontend && npm test
@@ -378,10 +385,10 @@ cd frontend && npm test
 ```
 ✓ src/__tests__/helpContent.test.ts (8 tests)
 ✓ src/__tests__/helpChatEngine.test.ts (20 tests)
-✓ src/__tests__/bandwidthEstimator.test.ts (10 tests)
+✓ src/__tests__/bandwidthEstimator.test.ts (22 tests)
 ✓ src/__tests__/HelpPage.test.tsx (8 tests)
 Test Files  4 passed (4)
-     Tests  46 passed (46)
+     Tests  58 passed (58)
 ```
 
 ### Frontend Build & Lint Verification

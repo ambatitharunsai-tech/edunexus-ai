@@ -2,6 +2,9 @@
 // Measures download throughput using a same-origin static binary probe asset.
 // No data is collected, logged, or sent to external services.
 
+export const EXPECTED_PROBE_SIZE_BYTES = 5_242_880; // Exactly 5 MiB (5 * 1024 * 1024 bytes)
+export const MIN_REALISTIC_DURATION_MS = 20; // Guard against sub-millisecond divisions & unrealistic speeds
+
 export interface SpeedTestResult {
   speedMbps: number;
   latencyMs: number;
@@ -16,6 +19,7 @@ export interface SpeedTestOptions {
   probeUrl?: string;
   signal?: AbortSignal;
   timeoutMs?: number;
+  minDurationMs?: number;
   onProgress?: (progress: number, bytesLoaded: number) => void;
 }
 
@@ -42,17 +46,48 @@ export function getSpeedRecommendation(mbps: number): string {
   return SPEED_RECOMMENDATIONS.EXCELLENT;
 }
 
+// Module-level test lock to prevent concurrent speed tests
+let isTestInProgress = false;
+
+/**
+ * Check if a speed test is currently in progress.
+ */
+export function isSpeedTestRunning(): boolean {
+  return isTestInProgress;
+}
+
+/**
+ * Reset test lock (primarily for test suite isolation).
+ */
+export function _resetSpeedTestLock(): void {
+  isTestInProgress = false;
+}
+
 /**
  * Execute client-side download speed estimation.
+ * Only returns status 'complete' after exactly 5,242,880 bytes have been verified.
  */
 export async function runSpeedTest(options: SpeedTestOptions = {}): Promise<SpeedTestResult> {
   const {
     probeUrl = '/probe.bin',
     signal,
     timeoutMs = 15000,
+    minDurationMs = MIN_REALISTIC_DURATION_MS,
     onProgress,
   } = options;
 
+  // Prevent concurrent tests
+  if (isTestInProgress) {
+    return {
+      speedMbps: 0,
+      latencyMs: 0,
+      status: 'error',
+      recommendation: 'A speed test is already running. Please wait for it to complete.',
+      errorMessage: 'Concurrent speed tests are not permitted.',
+    };
+  }
+
+  // Check early cancellation
   if (signal?.aborted) {
     return {
       speedMbps: 0,
@@ -62,7 +97,9 @@ export async function runSpeedTest(options: SpeedTestOptions = {}): Promise<Spee
     };
   }
 
-  // Create internal abort controller that coordinates user cancellation and timeout
+  isTestInProgress = true;
+
+  // Create internal abort controller coordinating user cancellation and timeout
   const internalController = new AbortController();
 
   const handleExternalAbort = () => {
@@ -103,33 +140,83 @@ export async function runSpeedTest(options: SpeedTestOptions = {}): Promise<Spee
       throw new Error(`HTTP error ${response.status}: ${response.statusText || 'Unable to download probe asset'}`);
     }
 
-    let bytesLoaded = 0;
-    const contentLength = Number(response.headers.get('content-length')) || 5242880; // Default 5 MiB (5,242,880 bytes) if unknown
-
-    if (response.body && typeof response.body.getReader === 'function') {
-      const reader = response.body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          bytesLoaded += value.byteLength;
-          if (onProgress) {
-            const progress = Math.min(100, Math.round((bytesLoaded / contentLength) * 100));
-            onProgress(progress, bytesLoaded);
-          }
-        }
-      }
-    } else {
-      // Fallback for environments lacking ReadableStream (e.g., jsdom / older browsers)
-      const buffer = await response.arrayBuffer();
-      bytesLoaded = buffer.byteLength;
-      if (onProgress) {
-        onProgress(100, bytesLoaded);
+    // Validate Content-Length header if present
+    const contentLengthHeader = response.headers.get('content-length');
+    if (contentLengthHeader !== null && contentLengthHeader.trim() !== '') {
+      const parsedLength = Number(contentLengthHeader.trim());
+      if (!Number.isInteger(parsedLength) || parsedLength !== EXPECTED_PROBE_SIZE_BYTES) {
+        throw new Error(
+          `Inconsistent Content-Length header: expected ${EXPECTED_PROBE_SIZE_BYTES} bytes, but received "${contentLengthHeader}".`
+        );
       }
     }
 
+    let bytesLoaded = 0;
+
+    if (response.body && typeof response.body.getReader === 'function') {
+      const reader = response.body.getReader();
+      try {
+        while (true) {
+          // Check for mid-stream cancellation
+          if (signal?.aborted || internalController.signal.aborted) {
+            await reader.cancel().catch(() => {});
+            break;
+          }
+
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          if (value) {
+            bytesLoaded += value.byteLength;
+            if (onProgress) {
+              const progress = Math.min(100, Math.round((bytesLoaded / EXPECTED_PROBE_SIZE_BYTES) * 100));
+              onProgress(progress, bytesLoaded);
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock?.();
+      }
+    } else {
+      // Fallback for environments lacking ReadableStream (e.g. jsdom / older browsers)
+      const buffer = await response.arrayBuffer();
+      bytesLoaded = buffer.byteLength;
+      if (onProgress) {
+        const progress = Math.min(100, Math.round((bytesLoaded / EXPECTED_PROBE_SIZE_BYTES) * 100));
+        onProgress(progress, bytesLoaded);
+      }
+    }
+
+    // Cancellation check immediately after reading
+    if (signal?.aborted || internalController.signal.aborted) {
+      if (isTimedOut) {
+        return {
+          speedMbps: 0,
+          latencyMs: 0,
+          status: 'error',
+          recommendation: 'Connection test timed out. Your network might be experiencing heavy congestion or disconnects.',
+          errorMessage: 'Speed test timed out.',
+        };
+      }
+      return {
+        speedMbps: 0,
+        latencyMs: 0,
+        status: 'cancelled',
+        recommendation: 'Speed measurement cancelled.',
+      };
+    }
+
+    // Verify exact byte count received (reject incomplete/truncated downloads)
+    if (bytesLoaded !== EXPECTED_PROBE_SIZE_BYTES) {
+      throw new Error(
+        `Incomplete or truncated download: received ${bytesLoaded} bytes, expected exactly ${EXPECTED_PROBE_SIZE_BYTES} bytes.`
+      );
+    }
+
     const endTime = performance.now();
-    const durationMs = Math.max(1, endTime - startTime);
+    const rawDurationMs = endTime - startTime;
+    // Guard against zero, negative, or unrealistically short durations
+    const durationMs = Math.max(minDurationMs, rawDurationMs);
     const durationSeconds = durationMs / 1000;
 
     // Convert bytes to Megabits: (bytes * 8) / 1,000,000
@@ -142,7 +229,7 @@ export async function runSpeedTest(options: SpeedTestOptions = {}): Promise<Spee
       status: 'complete',
       recommendation: getSpeedRecommendation(speedMbps),
       bytesLoaded,
-      durationMs: Math.round(durationMs),
+      durationMs: Math.round(rawDurationMs),
     };
   } catch (error: unknown) {
     if (signal?.aborted && !isTimedOut) {
@@ -173,6 +260,7 @@ export async function runSpeedTest(options: SpeedTestOptions = {}): Promise<Spee
       errorMessage: errorMsg,
     };
   } finally {
+    isTestInProgress = false;
     if (timeoutId) clearTimeout(timeoutId);
     if (signal) {
       signal.removeEventListener('abort', handleExternalAbort);
