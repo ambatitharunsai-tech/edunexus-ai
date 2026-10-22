@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -57,6 +57,11 @@ export const StudentJourneyPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const profileRef = useRef(profile);
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
   // Active records tab across all 7 domains + support plans
   const [activeTab, setActiveTab] = useState<
     'assessments' | 'attendance' | 'placement' | 'skills' | 'lms' | 'feedback' | 'interventions' | 'engagements'
@@ -100,27 +105,33 @@ export const StudentJourneyPage: React.FC = () => {
   }, [studentIdParam]);
 
   // 2. Fetch full student dossier & risk explanation
-  const fetchStudentDossier = useCallback(async (id: string) => {
+  const fetchStudentDossier = useCallback(async (id: string, opts: { bypassCache?: boolean } = {}) => {
     if (!id) return;
-    setLoading(true);
+    const current = profileRef.current;
+    if (!current || (current.student.id !== id && current.student.student_id !== id)) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const [profileRes, riskRes] = await Promise.all([
-        api<StudentJourneyProfileResponse>(`/api/v1/students/${id}`),
-        api<RiskExplanationResponse>(`/api/v1/students/${id}/risk-explanation`).catch((err) => {
+        api<StudentJourneyProfileResponse>(`/api/v1/students/${id}`, { bypassCache: opts.bypassCache }),
+        api<RiskExplanationResponse>(`/api/v1/students/${id}/risk-explanation`, { bypassCache: opts.bypassCache }).catch((err) => {
           console.warn('Could not fetch risk explanation for student:', err);
           return null;
         }),
       ]);
       setProfile(profileRes);
       setRiskExplanation(riskRes);
+      setError(null);
     } catch (err: unknown) {
       console.error('Failed to load student journey profile:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to load student journey. Please ensure the backend is running.'
-      );
+      if (!profileRef.current) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Unable to load student journey. Please ensure the backend is running.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -205,7 +216,7 @@ export const StudentJourneyPage: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => activeStudentId && fetchStudentDossier(activeStudentId)}
+            onClick={() => activeStudentId && fetchStudentDossier(activeStudentId, { bypassCache: true })}
             disabled={loading}
             className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900"
           >
@@ -250,7 +261,7 @@ export const StudentJourneyPage: React.FC = () => {
             </Link>
             <Button
               size="sm"
-              onClick={() => activeStudentId && fetchStudentDossier(activeStudentId)}
+              onClick={() => activeStudentId && fetchStudentDossier(activeStudentId, { bypassCache: true })}
             >
               Retry
             </Button>

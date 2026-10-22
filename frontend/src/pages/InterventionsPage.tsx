@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User,
   Plus,
@@ -19,7 +19,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
-import { api } from '../lib/api';
+import { api, getCachedApiData } from '../lib/api';
 import { RecordOutcomeModal } from '../features/interventions/RecordOutcomeModal';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
 import type {
@@ -31,9 +31,15 @@ import type {
 } from '../types';
 
 export const InterventionsPage: React.FC = () => {
-  const [interventions, setInterventions] = useState<Intervention[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const initialCache = getCachedApiData<Intervention[]>('/api/v1/interventions');
+  const [interventions, setInterventions] = useState<Intervention[]>(() => initialCache || []);
+  const [loading, setLoading] = useState<boolean>(() => !initialCache);
   const [error, setError] = useState<string | null>(null);
+
+  const interventionsRef = useRef(interventions);
+  useEffect(() => {
+    interventionsRef.current = interventions;
+  }, [interventions]);
 
   // Filters
   const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'planned' | 'completed' | 'cancelled'>('all');
@@ -51,19 +57,26 @@ export const InterventionsPage: React.FC = () => {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   // 1. Fetch live interventions
-  const fetchInterventions = useCallback(async () => {
-    setLoading(true);
+  const fetchInterventions = useCallback(async (opts: { bypassCache?: boolean } = {}) => {
+    if (interventionsRef.current.length === 0) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const res = await api<Intervention[]>('/api/v1/interventions');
+      const res = await api<Intervention[]>('/api/v1/interventions', {
+        bypassCache: opts.bypassCache,
+      });
       setInterventions(res);
+      setError(null);
     } catch (err: unknown) {
       console.error('Failed to load interventions:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to load interventions from backend. Please ensure the API is running.'
-      );
+      if (interventionsRef.current.length === 0) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Unable to load interventions from backend. Please ensure the API is running.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -219,7 +232,7 @@ export const InterventionsPage: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={fetchInterventions}
+            onClick={() => fetchInterventions({ bypassCache: true })}
             disabled={loading}
             className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
           >
@@ -367,7 +380,7 @@ export const InterventionsPage: React.FC = () => {
           <div className="space-y-1 text-xs">
             <h4 className="font-bold">Failed to load interventions</h4>
             <p>{error}</p>
-            <Button size="sm" variant="secondary" onClick={fetchInterventions} className="mt-2 text-xs">
+            <Button size="sm" variant="secondary" onClick={() => void fetchInterventions({ bypassCache: true })} className="mt-2 text-xs">
               Retry Connection
             </Button>
           </div>

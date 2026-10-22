@@ -15,7 +15,7 @@ import {
   StudentsPage,
 } from './pages';
 
-function ProtectedRoute({ children }: { children: ReactNode }) {
+export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
@@ -25,7 +25,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function StaffOnlyRoute({ children }: { children: ReactNode }) {
+export function StaffOnlyRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isStaff } = useAuth();
 
   if (!isAuthenticated) {
@@ -39,7 +39,7 @@ function StaffOnlyRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
+export function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, session } = useAuth();
 
   if (!isAuthenticated) {
@@ -53,7 +53,7 @@ function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function RoleDashboard() {
+export function RoleDashboard() {
   const { session } = useAuth();
   return session?.role?.toLowerCase() === 'student'
     ? <StudentDashboardPage />
@@ -61,6 +61,40 @@ function RoleDashboard() {
 }
 
 type AppTheme = 'light' | 'dark';
+
+export function AppRoutes({
+  theme = 'dark',
+  onThemeChange = () => {},
+}: {
+  theme?: AppTheme;
+  onThemeChange?: (theme: AppTheme) => void;
+}) {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AppShell theme={theme} onThemeChange={onThemeChange} />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<RoleDashboard />} />
+        <Route path="students" element={<StaffOnlyRoute><StudentsPage /></StaffOnlyRoute>} />
+        <Route path="students/:id" element={<StaffOnlyRoute><StudentJourneyPage /></StaffOnlyRoute>} />
+        <Route path="journey" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
+        <Route path="journey/:id" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
+        <Route path="interventions" element={<StaffOnlyRoute><InterventionsPage /></StaffOnlyRoute>} />
+        <Route path="analytics" element={<StaffOnlyRoute><AnalyticsPage /></StaffOnlyRoute>} />
+        <Route path="csv-hub" element={<StaffOnlyRoute><CsvHubPage /></StaffOnlyRoute>} />
+        <Route path="help" element={<HelpPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  );
+}
 
 export function App() {
   const [theme, setTheme] = useState<AppTheme>(() => {
@@ -91,29 +125,7 @@ export function App() {
     <div className={`${theme === 'dark' ? 'dark-app' : 'light-app'} min-h-screen`}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-          <Route path="/login" element={<LoginPage />} />
-
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <AppShell theme={theme} onThemeChange={handleThemeChange} />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<RoleDashboard />} />
-            <Route path="students" element={<StaffOnlyRoute><StudentsPage /></StaffOnlyRoute>} />
-            <Route path="students/:id" element={<StaffOnlyRoute><StudentJourneyPage /></StaffOnlyRoute>} />
-            <Route path="journey" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
-            <Route path="journey/:id" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
-            <Route path="interventions" element={<StaffOnlyRoute><InterventionsPage /></StaffOnlyRoute>} />
-            <Route path="analytics" element={<StaffOnlyRoute><AnalyticsPage /></StaffOnlyRoute>} />
-            <Route path="csv-hub" element={<StaffOnlyRoute><CsvHubPage /></StaffOnlyRoute>} />
-            <Route path="help" element={<HelpPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-          </Routes>
+          <AppRoutes theme={theme} onThemeChange={handleThemeChange} />
         </BrowserRouter>
       </AuthProvider>
     </div>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Download, RefreshCw } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, getCachedApiData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -19,9 +19,16 @@ export const StudentsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSegment = searchParams.get('segment') || 'all';
 
-  const [data, setData] = useState<StudentDirectoryResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const initialCache = getCachedApiData<StudentDirectoryResponse>('/api/v1/students?page=1&page_size=10&sort_by=risk_score&sort_dir=desc');
+  const [data, setData] = useState<StudentDirectoryResponse | null>(() => initialCache);
+  const [loading, setLoading] = useState<boolean>(() => !initialCache);
   const [error, setError] = useState<string | null>(null);
+
+  const dataRef = useRef(data);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Filters state
   const [search, setSearch] = useState<string>(searchParams.get('search') || '');
@@ -42,8 +49,16 @@ export const StudentsPage: React.FC = () => {
   const [interventionModalOpen, setInterventionModalOpen] = useState<boolean>(false);
   const [selectedStudentForIntervention, setSelectedStudentForIntervention] = useState<any>(null);
 
-  const fetchStudents = useCallback(async () => {
-    setLoading(true);
+  const fetchStudents = useCallback(async (opts: { bypassCache?: boolean } = {}) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    if (!dataRef.current) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const params = new URLSearchParams({
@@ -63,11 +78,20 @@ export const StudentsPage: React.FC = () => {
       if (segment !== 'all') params.append('segment', segment);
       if (riskTier !== 'all') params.append('risk_tier', riskTier);
 
-      const res = await api<StudentDirectoryResponse>(`/api/v1/students?${params.toString()}`);
+      const res = await api<StudentDirectoryResponse>(`/api/v1/students?${params.toString()}`, {
+        signal: controller.signal,
+        bypassCache: opts.bypassCache,
+      });
       setData(res);
+      setError(null);
     } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('Failed to load students directory:', err);
-      setError('Unable to retrieve student records. Please ensure backend is operational.');
+      if (!dataRef.current) {
+        setError('Unable to retrieve student records. Please ensure backend is operational.');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,6 +100,12 @@ export const StudentsPage: React.FC = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const handleResetFilters = () => {
     setAcademicRisk('all'); setPlacementRisk('all'); setSuccessMin(''); setSuccessMax('');
@@ -159,7 +189,7 @@ export const StudentsPage: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            onClick={fetchStudents}
+            onClick={() => fetchStudents({ bypassCache: true })}
             disabled={loading}
             className="flex items-center gap-1.5 text-xs"
           >
@@ -256,7 +286,7 @@ export const StudentsPage: React.FC = () => {
       ) : error ? (
         <div className="p-8 text-center bg-white rounded-xl border border-rose-200">
           <p className="text-sm text-rose-700">{error}</p>
-          <Button size="sm" onClick={fetchStudents} className="mt-3">
+          <Button size="sm" onClick={() => void fetchStudents({ bypassCache: true })} className="mt-3">
             Retry
           </Button>
         </div>

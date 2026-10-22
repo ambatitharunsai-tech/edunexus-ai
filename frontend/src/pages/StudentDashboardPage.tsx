@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   Activity,
   AlertCircle,
@@ -11,7 +11,7 @@ import {
   Target,
   TrendingUp,
 } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, getCachedApiData } from '../lib/api';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
 
@@ -95,18 +95,31 @@ const riskTone = (tier?: string | null) => {
 };
 
 export const StudentDashboardPage: React.FC = () => {
-  const [dashboard, setDashboard] = useState<StudentDashboardResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const initialCache = getCachedApiData<StudentDashboardResponse>('/api/v1/students/me/dashboard');
+  const [dashboard, setDashboard] = useState<StudentDashboardResponse | null>(() => initialCache);
+  const [loading, setLoading] = useState(() => !initialCache);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
+  const dashboardRef = useRef(dashboard);
+  useEffect(() => {
+    dashboardRef.current = dashboard;
+  }, [dashboard]);
+
+  const loadDashboard = useCallback(async (opts: { bypassCache?: boolean } = {}) => {
+    if (!dashboardRef.current) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const response = await api<StudentDashboardResponse>('/api/v1/students/me/dashboard');
+      const response = await api<StudentDashboardResponse>('/api/v1/students/me/dashboard', {
+        bypassCache: opts.bypassCache,
+      });
       setDashboard(response);
+      setError(null);
     } catch (err: unknown) {
-      setDashboard(null);
+      if (!dashboardRef.current) {
+        setDashboard(null);
+      }
       setError(err instanceof Error ? err.message : 'Unable to load your student dashboard.');
     } finally {
       setLoading(false);
@@ -162,7 +175,11 @@ export const StudentDashboardPage: React.FC = () => {
 
   if (!dashboard) return null;
 
-  const { student, metrics, domains, recent_assessments, recent_attendance, support_plans, data_source } = dashboard;
+  const { student, metrics, data_source } = dashboard;
+  const domains = dashboard.domains ?? [];
+  const recent_assessments = dashboard.recent_assessments ?? [];
+  const recent_attendance = dashboard.recent_attendance ?? [];
+  const support_plans = dashboard.support_plans ?? [];
   const scoreCards = [
     {
       label: 'Student Success Score',
@@ -336,10 +353,10 @@ export const StudentDashboardPage: React.FC = () => {
               </div>
             ))}
           </div>
-          {metrics.missing_domains.length > 0 && (
+          {(metrics.missing_domains?.length ?? 0) > 0 && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 p-3 text-xs leading-5 text-sky-900">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>Still awaiting records for: {metrics.missing_domains.map(prettyLabel).join(', ')}. The score uses available evidence only and does not impute missing domains as zero.</p>
+              <p>Still awaiting records for: {metrics.missing_domains?.map(prettyLabel).join(', ')}. The score uses available evidence only and does not impute missing domains as zero.</p>
             </div>
           )}
         </CardContent>
