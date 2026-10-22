@@ -6,6 +6,7 @@ import {
   AnalyticsPage,
   CsvHubPage,
   DashboardPage,
+  HelpPage,
   InterventionsPage,
   LoginPage,
   NotFoundPage,
@@ -107,6 +108,7 @@ export function App() {
             <Route path="interventions" element={<StaffOnlyRoute><InterventionsPage /></StaffOnlyRoute>} />
             <Route path="analytics" element={<StaffOnlyRoute><AnalyticsPage /></StaffOnlyRoute>} />
             <Route path="csv-hub" element={<StaffOnlyRoute><CsvHubPage /></StaffOnlyRoute>} />
+            <Route path="help" element={<HelpPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
           </Routes>

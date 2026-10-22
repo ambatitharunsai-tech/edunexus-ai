@@ -369,9 +369,28 @@ backend/tests/test_success_score_engine.py     ... 6 passed (0-100 Success Score
 > **Live Database Test Skip Verification**:  
 > In `backend/tests/test_db_integration.py`, the two live database tests (`test_live_supabase_connection` and `test_live_supabase_table_schemas`) are conditioned on `@pytest.mark.skipif(not is_database_configured(), ...)`. Because production Supabase keys are kept unconfigured in local repository clones, these tests are **gracefully skipped**. Live database integration is **not** falsely claimed as verified; the platform operates in verified, fully functional synthetic demo mode backed by `data/synthetic_seed.json`.
 
+### Frontend Test Suite & Verification: **46 Passed, 0 Failed (Vitest)**
+
+```bash
+cd frontend && npm test
+```
+
+```
+✓ src/__tests__/helpContent.test.ts (8 tests)
+✓ src/__tests__/helpChatEngine.test.ts (20 tests)
+✓ src/__tests__/bandwidthEstimator.test.ts (10 tests)
+✓ src/__tests__/HelpPage.test.tsx (8 tests)
+Test Files  4 passed (4)
+     Tests  46 passed (46)
+```
+
 ### Frontend Build & Lint Verification
-- **Vite Production Bundle**: `npm run build` completed cleanly in **431ms** (Exit Code 0).
-- **Static Linter**: `npx oxlint` completed with **0 errors** across 47 frontend source files (7 React 19 compiler advisory warnings).
+- **TypeScript Strict Check**: `npx tsc -b` completed with **0 errors**.
+- **Vite Production Bundle**: `npm run build` completed cleanly in **429ms** (Exit Code 0, 5 MiB probe.bin bundled in `dist/`).
+- **Static Linter**: `npm run lint` (`oxlint`) completed with **0 errors** across 64 frontend source files.
+
+### Help Chatbot & Bandwidth Guide Feature
+For comprehensive architectural specifications, client-side pattern matching algorithms, throughput measurement math, and evaluator scripts, see [`document.md`](./document.md).
 
 ---
 

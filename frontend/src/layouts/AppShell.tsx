@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   Sun,
   Moon,
+  HelpCircle,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context';
@@ -41,6 +42,7 @@ const navItems: NavItem[] = [
   { name: 'Interventions', to: '/interventions', icon: ShieldAlert },
   { name: 'Analytics & Trends', to: '/analytics', icon: BarChart3 },
   { name: 'Data & CSV Hub', to: '/csv-hub', icon: FileSpreadsheet, badge: 'Ingest' },
+  { name: 'Help & Support', to: '/help', icon: HelpCircle },
 ];
 
 type AppTheme = 'light' | 'dark';
@@ -127,10 +129,10 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
 
   // Determine current page title
   const visibleNavItems = isStudent
-    ? navItems.filter((item) => item.to === '/')
+    ? navItems.filter((item) => item.to === '/' || item.to === '/help')
     : isStaff
       ? navItems
-      : navItems.filter((item) => item.to === '/' || item.to === '/journey');
+      : navItems.filter((item) => item.to === '/' || item.to === '/journey' || item.to === '/help');
 
   const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
@@ -466,7 +468,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
               </div>
 
               <nav className="space-y-1 flex-1">
-                {navItems.map((item) => {
+                {visibleNavItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <NavLink
