@@ -33,7 +33,6 @@ const renderHelpPage = (role: 'advisor' | 'student' = 'advisor') => {
 describe('HelpPage Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    // Element.scrollIntoView is not implemented in jsdom
     Element.prototype.scrollIntoView = vi.fn();
     window.scrollTo = vi.fn();
   });
@@ -97,13 +96,18 @@ describe('HelpPage Component', () => {
     expect(screen.getByText(/EduNexus AI Staff Help Assistant/i)).toBeInTheDocument();
   });
 
-  it('renders bandwidth estimator card with Run Speed Test button', () => {
+  it('does NOT render the Bandwidth Guide widget or speed test controls', () => {
     renderHelpPage('advisor');
-    expect(screen.getByText('Bandwidth Guide')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /run speed test/i })).toBeInTheDocument();
+    // Ensure all Bandwidth Guide elements are completely removed
+    expect(screen.queryByText('Bandwidth Guide')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /run speed test/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Same-Origin')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tips for Low-Bandwidth Environments/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Client-side download speed probe & diagnosis/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Estimated Download Speed/i)).not.toBeInTheDocument();
   });
 
-  it('renders Quick Topics and clicking a topic triggers a question', async () => {
+  it('renders Quick Topics and clicking a topic triggers a question without auto-scrolling', async () => {
     renderHelpPage('advisor');
     const topicButton = screen.getByText('Getting started');
     expect(topicButton).toBeInTheDocument();
@@ -122,5 +126,31 @@ describe('HelpPage Component', () => {
       },
       { timeout: 1500 }
     );
+
+    // Verify window.scrollTo and scrollIntoView were not called
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('does not trigger automatic window.scrollTo or element.scrollIntoView on mount or when sending messages', async () => {
+    renderHelpPage('advisor');
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+
+    const input = screen.getByLabelText(/Ask a question about EduNexus AI/i);
+    fireEvent.change(input, { target: { value: 'What do the risk tiers mean?' } });
+    fireEvent.submit(input.closest('form')!);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/Risk tiers \(Low, Moderate, High, Critical\) are advisory indicators/i)
+        ).toBeInTheDocument();
+      },
+      { timeout: 1500 }
+    );
+
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
   });
 });
