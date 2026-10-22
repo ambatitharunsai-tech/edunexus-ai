@@ -25,6 +25,11 @@ const replaceExactlyOnce = (text, before, after) => {
   if (text.split(before).length !== 2) throw new Error('Upstream adaptation target changed; review the transformation.');
   return text.replace(before, after);
 };
+const replaceCount = (text, before, after, expectedCount) => {
+  const count = text.split(before).length - 1;
+  if (count !== expectedCount) throw new Error(`Upstream adaptation target count changed; expected ${expectedCount}, got ${count}.`);
+  return text.split(before).join(after);
+};
 
 let review = blob(skills, 'skills/code-review/SKILL.md');
 review = replaceExactlyOnce(review, 'name: code-review\n', 'name: coderabbit-review\n');
@@ -52,7 +57,7 @@ auth = auth.slice(0, boundaryStart) +
   'and authorized.\n\n' +
   auth.slice(boundaryEnd);
 
-let autofix = blob(cursor, 'skills/autofix/SKILL.md').replaceAll('Cursor', 'Antigravity');
+let autofix = blob(cursor, 'skills/autofix/SKILL.md').replace(/\bCursor\b/g, 'Antigravity');
 autofix = replaceExactlyOnce(autofix, 'name: autofix\n', 'name: coderabbit-autofix\n');
 autofix = replaceExactlyOnce(autofix,
   'Map severity:\n\n- Critical or High means critical.\n- Medium means warning.\n- Minor or Low means info.\n- Info or Suggestion means info.\n- Security issues should be treated as high priority.',
@@ -60,6 +65,43 @@ autofix = replaceExactlyOnce(autofix,
 autofix = replaceExactlyOnce(autofix,
   'Offer to run the repository\'s relevant checks from `AGENTS.md`, README, package scripts, or project conventions. Report pass or fail clearly.',
   'Run the repository\'s required and relevant checks from `AGENTS.md`, README, package scripts, or project conventions before pushing. Report failures and do not claim the fixes are validated.');
+
+autofix = replaceCount(autofix,
+  "test \"$(git rev-parse HEAD)\" = \"$approved_commit\"",
+  "test \"$(git rev-parse HEAD)\" = \"$approved_commit\" || exit 1", 1);
+autofix = replaceCount(autofix,
+  'expected_parent=$(git rev-parse "$approved_commit^")',
+  'expected_parent=$(git rev-parse "$approved_commit^") || exit 1', 1);
+autofix = replaceCount(autofix,
+  "head_ref=$(gh pr view \"$pr_url\" --json headRefName --jq '.headRefName')",
+  "head_ref=$(gh pr view \"$pr_url\" --json headRefName --jq '.headRefName') || exit 1", 1);
+autofix = replaceCount(autofix,
+  "head_owner=$(gh pr view \"$pr_url\" --json headRepositoryOwner --jq '.headRepositoryOwner.login')",
+  "head_owner=$(gh pr view \"$pr_url\" --json headRepositoryOwner --jq '.headRepositoryOwner.login') || exit 1", 1);
+autofix = replaceCount(autofix,
+  "head_repo=$(gh pr view \"$pr_url\" --json headRepository --jq '.headRepository.name')",
+  "head_repo=$(gh pr view \"$pr_url\" --json headRepository --jq '.headRepository.name') || exit 1", 1);
+autofix = replaceCount(autofix,
+  'test "$resolved_target" = "$approved_target"',
+  'test "$resolved_target" = "$approved_target" || exit 1', 1);
+autofix = replaceCount(autofix,
+  "remote_head=$(gh pr view \"$pr_url\" --json headRefOid --jq '.headRefOid')",
+  "remote_head=$(gh pr view \"$pr_url\" --json headRefOid --jq '.headRefOid') || exit 1", 2);
+autofix = replaceCount(autofix,
+  'test "$remote_head" = "$expected_parent"',
+  'test "$remote_head" = "$expected_parent" || exit 1', 1);
+autofix = replaceCount(autofix,
+  "head_repo_url=$(gh repo view \"$head_owner/$head_repo\" --json url --jq '.url')",
+  "head_repo_url=$(gh repo view \"$head_owner/$head_repo\" --json url --jq '.url') || exit 1", 1);
+autofix = replaceCount(autofix,
+  'test "$remote_head" = "$approved_commit"',
+  'test "$remote_head" = "$approved_commit" || exit 1', 1);
+autofix = replaceCount(autofix,
+  "current_pr_head=$(gh pr view \"$pr_url\" --json headRefOid --jq '.headRefOid')",
+  "current_pr_head=$(gh pr view \"$pr_url\" --json headRefOid --jq '.headRefOid') || exit 1", 1);
+autofix = replaceCount(autofix,
+  'test "$current_pr_head" = "$approved_commit"',
+  'test "$current_pr_head" = "$approved_commit" || exit 1', 1);
 
 let cliWorkflows = blob(skills, 'skills/code-review/references/cli-workflows.md');
 cliWorkflows = replaceExactlyOnce(cliWorkflows,
