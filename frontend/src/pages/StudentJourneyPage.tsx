@@ -227,9 +227,9 @@ export const StudentJourneyPage: React.FC = () => {
       {/* Loading State */}
       {loading && !profile && (
         <div className="py-24 flex flex-col items-center justify-center space-y-3">
-          <Spinner size="lg" />
-          <p className="text-xs font-medium text-slate-500 animate-pulse">
-            Loading student chronological journey, academic markers, and explainable risk profile...
+          <Spinner size="lg" label="Loading student chronological journey, academic markers, and explainable risk profile…" />
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+            Loading student chronological journey, academic markers, and explainable risk profile…
           </p>
         </div>
       )}

@@ -120,8 +120,10 @@ export const StudentDashboardPage: React.FC = () => {
   if (loading && !dashboard) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24">
-        <Spinner size="lg" />
-        <p className="text-sm text-slate-500">Loading your personal learning overview…</p>
+        <Spinner size="lg" label="Loading your personal learning overview…" />
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          Loading your personal learning overview…
+        </p>
       </div>
     );
   }

@@ -218,12 +218,35 @@ Because `/help` is not wrapped in `StaffOnlyRoute` or `NonStudentJourneyRoute`, 
   ✓ renders bandwidth estimator card with Run Speed Test button
   ✓ renders Quick Topics and clicking a topic triggers a question
 
-Test Files  4 passed (4)
-     Tests  58 passed (58)
+✓ src/__tests__/Spinner.test.tsx (8 tests)
+  ✓ renders with role="status" and aria-live="polite"
+  ✓ renders default screen-reader text "Loading..."
+  ✓ renders custom screen-reader label when provided
+  ✓ renders visible text when showLabel is true
+  ✓ renders SVG circles for circular loader geometry
+  ✓ applies animate-spin class to the rotating element
+  ✓ applies correct dimension classes for different sizes
+  ✓ applies custom className when provided
+
+✓ src/__tests__/UIAnimationAndContrast.test.tsx (11 tests)
+  ✓ Spinner renders during loading and unmounts immediately upon success
+  ✓ Spinner unmounts immediately upon error state
+  ✓ Spinner unmounts immediately upon cancellation
+  ✓ Button with isLoading renders spinner with aria-busy and disabled state
+  ✓ Button disabled state retains readable contrast and cursor-not-allowed
+  ✓ Input with error message has high contrast error text and aria-invalid
+  ✓ Input placeholder has adequate contrast classes
+  ✓ Badges render with high-contrast text and border classes
+  ✓ Card titles and descriptions maintain accessible contrast classes
+  ✓ HelpPage user message bubble has high-contrast timestamp
+  ✓ HelpPage assistant message bubble has high-contrast timestamp
+
+Test Files  6 passed (6)
+     Tests  77 passed (77)
 ```
 
 ### 5.2 Build, Static Analysis, & CI Evidence
-- **Frontend Test Suite**: **58 passed** across 4 suites in Vitest (46 baseline tests + 12 probe validation and concurrency edge-case tests).
+- **Frontend Test Suite**: **77 passed** across 6 suites in Vitest (46 baseline tests + 12 probe validation edge-case tests + 8 Spinner lifecycle tests + 11 UI animation/contrast tests).
 - **Backend Test Suite**: **148 passed, 2 skipped, 0 failures** across 18 test modules in Pytest.
 - **CI Python & Node Versions**:
   - CI Workflow runs **Python 3.12** (`actions/setup-python@v5` with `python-version: '3.12'`) and **Node.js 22.x** (`actions/setup-node@v4` with `node-version: '22.x'`).
@@ -233,8 +256,9 @@ Test Files  4 passed (4)
   - Because production database keys are kept uncommitted and unconfigured in CI and local clones, **live database integration remains unverified**.
   - All verified tests validate the deterministic risk engines, student success calculators, dynamic weight rescaling, cohort segmentation, CSV validation services, and synthetic repository layer.
 - **TypeScript Strict Validation**: `npx tsc -b` exited with code `0` (zero type errors).
-- **Linter**: `npm run lint` (`oxlint`) completed with code `0` (zero errors across 64 files).
-- **Vite Production Build**: `npm run build` completed in `390ms`, bundling `dist/probe.bin` (exactly 5 MiB / 5,242,880 bytes).
+- **Linter**: `npm run lint` (`oxlint`) completed with code `0` (zero errors across 66 files).
+- **Vite Production Build**: `npm run build` completed cleanly, bundling `dist/probe.bin` (exactly 5 MiB / 5,242,880 bytes).
+- **UI Animation & Contrast Fixes**: Resolved spinner animation freezing under reduced motion and centered transform-origin, removed global border-radius stripping, and enhanced WCAG AA color contrast across light and dark themes.
 
 ---
 

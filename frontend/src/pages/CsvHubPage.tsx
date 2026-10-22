@@ -340,9 +340,9 @@ export const CsvHubPage: React.FC = () => {
           {/* Validation in progress */}
           {validating && (
             <div className="py-8 flex flex-col items-center justify-center space-y-2">
-              <Spinner size="md" />
-              <p className="text-xs text-slate-500 animate-pulse">
-                Parsing headers, evaluating row boundaries, and checking relational integrity...
+              <Spinner size="md" label="Parsing headers, evaluating row boundaries, and checking relational integrity…" />
+              <p className="text-xs text-slate-700 dark:text-slate-200">
+                Parsing headers, evaluating row boundaries, and checking relational integrity…
               </p>
             </div>
           )}

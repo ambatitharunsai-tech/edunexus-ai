@@ -121,9 +121,9 @@ export const DashboardPage: React.FC = () => {
   if (loading && !data) {
     return (
       <div className="py-24 flex flex-col items-center justify-center space-y-4">
-        <Spinner size="lg" />
-        <p className="text-sm font-medium text-slate-500 animate-pulse">
-          Aggregating cohort intelligence, risk signals, and attendance trends...
+        <Spinner size="lg" label="Aggregating cohort intelligence, risk signals, and attendance trends…" />
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          Aggregating cohort intelligence, risk signals, and attendance trends…
         </p>
       </div>
     );

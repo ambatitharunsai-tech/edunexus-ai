@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { cn } from '../../lib/utils';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from './Spinner';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -27,15 +27,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.99] select-none';
+      'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99] select-none';
 
     const variants = {
-      primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm',
-      secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200',
+      primary:
+        'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:border dark:border-indigo-400/30',
+      secondary:
+        'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:border-slate-700',
       outline:
-        'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-sm',
-      ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-      danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm',
+        'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white shadow-xs',
+      ghost:
+        'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white',
+      danger:
+        'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm dark:bg-rose-600 dark:hover:bg-rose-500',
     };
 
     const sizes = {
@@ -44,16 +48,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'text-base px-5 py-2.5 gap-2.5',
     };
 
+    const spinnerColor = variant === 'primary' || variant === 'danger'
+      ? 'text-white'
+      : 'text-indigo-600 dark:text-indigo-400';
+
     return (
       <button
         ref={ref}
         type={type}
         disabled={disabled || isLoading}
+        aria-busy={isLoading ? 'true' : undefined}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
+          <Spinner size="sm" className={cn('shrink-0', spinnerColor)} label="Loading..." />
         ) : (
           leftIcon
         )}

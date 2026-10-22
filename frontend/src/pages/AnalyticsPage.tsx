@@ -35,9 +35,9 @@ export function AnalyticsPage() {
   if (loading && !data) {
     return (
       <div className="py-24 flex flex-col items-center justify-center space-y-4">
-        <Spinner size="lg" />
-        <p className="text-sm font-medium text-slate-500 animate-pulse">
-          Synthesizing cohort analytics, department benchmarks, and student segmentation...
+        <Spinner size="lg" label="Synthesizing cohort analytics, department benchmarks, and student segmentation…" />
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          Synthesizing cohort analytics, department benchmarks, and student segmentation…
         </p>
       </div>
     );

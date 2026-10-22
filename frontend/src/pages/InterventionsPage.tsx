@@ -353,9 +353,9 @@ export const InterventionsPage: React.FC = () => {
       {/* Loading state */}
       {loading && interventions.length === 0 && (
         <div className="py-20 flex flex-col items-center justify-center space-y-3">
-          <Spinner size="lg" />
-          <p className="text-xs font-medium text-slate-500 animate-pulse">
-            Loading interventions and outcome telemetry...
+          <Spinner size="lg" label="Loading interventions and outcome telemetry…" />
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+            Loading interventions and outcome telemetry…
           </p>
         </div>
       )}
