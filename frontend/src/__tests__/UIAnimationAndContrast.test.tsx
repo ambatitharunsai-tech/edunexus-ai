@@ -256,4 +256,42 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
       expect(desc).toHaveClass('text-slate-600');
     });
   });
+
+  describe('7. Sharp Edges Verification (Zero Border Radius)', () => {
+    it('applies rounded-none to Button component for sharp edges', () => {
+      render(<Button>Sharp Button</Button>);
+      expect(screen.getByRole('button')).toHaveClass('rounded-none');
+    });
+
+    it('applies rounded-none to Card component for sharp edges', () => {
+      const { container } = render(<Card>Sharp Card Content</Card>);
+      expect(container.firstChild).toHaveClass('rounded-none');
+    });
+
+    it('applies rounded-none to Input component for sharp edges', () => {
+      render(<Input placeholder="Sharp input" />);
+      expect(screen.getByPlaceholderText('Sharp input')).toHaveClass('rounded-none');
+    });
+
+    it('applies rounded-none to Badge component for sharp edges', () => {
+      const { container } = render(<Badge variant="primary" dot>Sharp Badge</Badge>);
+      expect(container.firstChild).toHaveClass('rounded-none');
+    });
+  });
+
+  describe('8. Dark Theme Styling (No Pure White)', () => {
+    it('uses non-white comfortable tints in dark mode for CardTitle', () => {
+      render(<CardTitle>Non-white Title</CardTitle>);
+      const title = screen.getByText('Non-white Title');
+      expect(title).toHaveClass('dark:text-[#e2ece6]');
+      expect(title).not.toHaveClass('dark:text-white');
+    });
+
+    it('uses non-white hover color in dark mode for outline Button', () => {
+      render(<Button variant="outline">Outline</Button>);
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass('dark:hover:text-[#e2ece6]');
+      expect(button).not.toHaveClass('dark:hover:text-white');
+    });
+  });
 });

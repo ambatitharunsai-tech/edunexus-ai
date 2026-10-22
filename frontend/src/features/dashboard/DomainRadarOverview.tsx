@@ -76,9 +76,10 @@ export const DomainRadarOverview: React.FC<DomainRadarOverviewProps> = ({ domain
               <Tooltip
                 formatter={(val: any) => [`${val}%`, 'Cohort Score']}
                 contentStyle={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '0.5rem',
-                  borderColor: '#cbd5e1',
+                  backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                  borderRadius: 0,
+                  borderColor: 'var(--tooltip-border, #cbd5e1)',
+                  color: 'var(--tooltip-text, #1e293b)',
                   fontSize: '12px',
                 }}
               />

@@ -58,15 +58,40 @@
     @apply min-h-screen;
   }
 
+  /* ─────────────────────────────────────────────────────────────────────────
+     Sharp Edges Engine: Strict Zero Border-Radius Across All UI Elements
+     Eliminates rounded corners across all cards, buttons, inputs, badges,
+     modals, tooltips, chips, and containers for a sleek, modern architectural aesthetic.
+     ───────────────────────────────────────────────────────────────────────── */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+
   * {
     @apply selection:bg-indigo-200 selection:text-indigo-900;
   }
 }
 
+:root {
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #cbd5e1;
+  --tooltip-text: #1e293b;
+}
+
+.dark-app,
+html[data-theme="dark"],
+[data-theme="dark"] {
+  --tooltip-bg: #18221e;
+  --tooltip-border: #2e3a34;
+  --tooltip-text: #e2ece6;
+}
+
 .dark-app {
   min-height: 100vh;
   background: #090e0c;
-  color: #e6ede8;
+  color: #e2ece6; /* Soft, glare-free light tone (never pure #ffffff) */
 }
 
 .app-shell {
@@ -154,22 +179,22 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Dark App Surface Overrides
+   Dark App Surface Overrides (No pure white backgrounds in dark theme)
    ─────────────────────────────────────────────────────────────────────────── */
 
-.dark-app :where([class~="bg-white"], [class~="bg-white/95"], [class~="bg-white/90"], [class~="bg-white/80"], [class~="bg-white/70"], [class~="bg-white/60"], [class~="bg-white/50"]) {
+.dark-app :where([class~="bg-white"], [class*="bg-white/"]) {
   background-color: #151c19 !important;
 }
 
-.dark-app :where([class~="bg-slate-50"], [class~="bg-slate-50/40"], [class~="bg-slate-50/50"], [class~="bg-slate-50/60"], [class~="bg-slate-50/70"], [class~="bg-slate-50/80"]) {
+.dark-app :where([class~="bg-slate-50"], [class*="bg-slate-50/"]) {
   background-color: #18201d !important;
 }
 
-.dark-app :where([class~="bg-slate-100"], [class~="bg-slate-100/50"], [class~="bg-slate-100/70"]) {
+.dark-app :where([class~="bg-slate-100"], [class*="bg-slate-100/"]) {
   background-color: #1e2723 !important;
 }
 
-.dark-app :where([class~="bg-slate-200"], [class~="bg-slate-200/60"]) {
+.dark-app :where([class~="bg-slate-200"], [class*="bg-slate-200/"]) {
   background-color: #27332e !important;
 }
 
@@ -177,49 +202,60 @@
   background-color: #1a2320 !important;
 }
 
-.dark-app :where([class~="bg-indigo-50"], [class~="bg-indigo-50/50"], [class~="bg-indigo-50/70"], [class~="bg-indigo-100"], [class~="bg-indigo-100/50"]) {
+.dark-app :where([class~="bg-indigo-50"], [class*="bg-indigo-50/"], [class~="bg-indigo-100"], [class*="bg-indigo-100/"]) {
   background-color: #142a23 !important;
 }
 
-.dark-app :where([class~="bg-teal-50"], [class~="bg-teal-50/50"], [class~="bg-teal-50/70"], [class~="bg-teal-100"], [class~="bg-teal-100/50"]) {
+.dark-app :where([class~="bg-teal-50"], [class*="bg-teal-50/"], [class~="bg-teal-100"], [class*="bg-teal-100/"]) {
   background-color: #122824 !important;
 }
 
-.dark-app :where([class~="bg-sky-50"], [class~="bg-sky-50/50"], [class~="bg-sky-50/70"], [class~="bg-sky-50/80"], [class~="bg-sky-100"], [class~="bg-sky-100/50"]) {
+.dark-app :where([class~="bg-sky-50"], [class*="bg-sky-50/"], [class~="bg-sky-100"], [class*="bg-sky-100/"]) {
   background-color: #14252e !important;
 }
 
-.dark-app :where([class~="bg-purple-50"], [class~="bg-purple-50/60"], [class~="bg-purple-50/70"], [class~="bg-purple-100"]) {
+.dark-app :where([class~="bg-purple-50"], [class*="bg-purple-50/"], [class~="bg-purple-100"]) {
   background-color: #172a30 !important;
 }
 
-.dark-app :where([class~="bg-blue-50"], [class~="bg-blue-50/50"], [class~="bg-blue-50/60"], [class~="bg-blue-50/70"], [class~="bg-blue-100"]) {
+.dark-app :where([class~="bg-blue-50"], [class*="bg-blue-50/"], [class~="bg-blue-100"]) {
   background-color: #17272c !important;
 }
 
-.dark-app :where([class~="bg-emerald-50"], [class~="bg-emerald-50/50"], [class~="bg-emerald-100"]) {
+.dark-app :where([class~="bg-emerald-50"], [class*="bg-emerald-50/"], [class~="bg-emerald-100"]) {
   background-color: #142820 !important;
 }
 
-.dark-app :where([class~="bg-amber-50"], [class~="bg-amber-50/70"], [class~="bg-yellow-50"], [class~="bg-yellow-50/60"]) {
+.dark-app :where([class~="bg-amber-50"], [class*="bg-amber-50/"], [class~="bg-yellow-50"], [class*="bg-yellow-50/"]) {
   background-color: #2b2415 !important;
 }
 
-.dark-app :where([class~="bg-rose-50"], [class~="bg-rose-50/40"], [class~="bg-red-50"]) {
+.dark-app :where([class~="bg-rose-50"], [class*="bg-rose-50/"], [class~="bg-red-50"]) {
   background-color: #2b191a !important;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Dark App Text Readability & Contrast
+   Dark App Text Readability & Elimination of Pure White Text
+   Uses glare-free, high-contrast soft tints (#e2ece6, #cbdcd2) instead of #ffffff
    ─────────────────────────────────────────────────────────────────────────── */
 
-.dark-app :where([class~="text-slate-900"]) { color: #f2f7f4 !important; }
-.dark-app :where([class~="text-slate-800"]) { color: #e5ece8 !important; }
-.dark-app :where([class~="text-slate-700"]) { color: #d0ded6 !important; }
+.dark-app :where([class~="text-slate-900"]) { color: #e2ece6 !important; }
+.dark-app :where([class~="text-slate-800"]) { color: #d0ded6 !important; }
+.dark-app :where([class~="text-slate-700"]) { color: #cbdcd2 !important; }
 .dark-app :where([class~="text-slate-600"]) { color: #b8c9c0 !important; }
 .dark-app :where([class~="text-slate-500"]) { color: #a2b4aa !important; }
 .dark-app :where([class~="text-slate-400"]) { color: #90a398 !important; }
-.dark-app :where([class~="text-slate-300"]) { color: #cbdcd2 !important; } /* Crisp soft slate */
+.dark-app :where([class~="text-slate-300"]) { color: #cbdcd2 !important; }
+.dark-app :where([class~="text-slate-100"], [class~="text-slate-50"]) { color: #e2ece6 !important; }
+
+/* Never use pure white text in dark theme */
+.dark-app :where([class~="text-white"], [class*="text-white"]) {
+  color: #e2ece6 !important;
+}
+
+.dark-app :where([class~="hover:text-white"]:hover, [class*="hover:text-white"]:hover) {
+  color: #eaf3ee !important;
+}
 
 .dark-app :where([class~="text-indigo-900"], [class~="text-indigo-950"]) { color: #d5eee4 !important; }
 .dark-app :where([class~="text-indigo-800"], [class~="text-indigo-700"], [class~="text-indigo-600"]) { color: #6ee7b7 !important; }
@@ -271,6 +307,39 @@
 
 .dark-app :where([class~="border-rose-100"], [class~="border-rose-200"], [class~="border-rose-300"]) {
   border-color: #4a1d22 !important;
+}
+
+/* Strict elimination of white borders, dividers, and rings in dark theme */
+.dark-app :where([class~="border-white"], [class*="border-white/"]) {
+  border-color: #2e3a34 !important;
+}
+
+.dark-app :where([class~="divide-white"], [class*="divide-white/"]) {
+  border-color: #2e3a34 !important;
+}
+
+.dark-app :where([class~="ring-white"], [class*="ring-white/"]) {
+  --tw-ring-color: #2e3a34 !important;
+}
+
+/* Tooltip sharp edges and dark theme styling (eliminating white popup cards) */
+.recharts-default-tooltip {
+  border-radius: 0 !important;
+}
+
+.dark-app .recharts-default-tooltip,
+html[data-theme="dark"] .recharts-default-tooltip,
+[data-theme="dark"] .recharts-default-tooltip {
+  background-color: #18221e !important;
+  border: 1px solid #2e3a34 !important;
+  color: #e2ece6 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-app .recharts-default-tooltip *,
+html[data-theme="dark"] .recharts-default-tooltip *,
+[data-theme="dark"] .recharts-default-tooltip * {
+  color: #e2ece6 !important;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -445,36 +514,36 @@
 /* Custom component styles */
 @layer components {
   .btn-primary {
-    @apply bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium
+    @apply bg-indigo-600 text-white px-4 py-2 rounded-none font-medium
            hover:bg-indigo-700 transition-all duration-200 ease-out
            hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-200/50
            disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none;
   }
 
   .btn-secondary {
-    @apply bg-white text-slate-800 px-4 py-2 rounded-lg font-medium
+    @apply bg-white text-slate-800 px-4 py-2 rounded-none font-medium
            border border-slate-300 hover:bg-slate-50 transition-all duration-200 ease-out
            hover:-translate-y-0.5 hover:shadow-xs;
   }
 
   .btn-danger {
-    @apply bg-rose-600 text-white px-4 py-2 rounded-lg font-medium
+    @apply bg-rose-600 text-white px-4 py-2 rounded-none font-medium
            hover:bg-rose-700 transition-all duration-200 ease-out;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-xs border border-slate-200 p-6;
+    @apply bg-white rounded-none shadow-xs border border-slate-200 p-6;
   }
 
   .input {
-    @apply w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900
+    @apply w-full px-3 py-2 rounded-none border border-slate-300 bg-white text-slate-900
            placeholder:text-slate-500
            focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600
            outline-none transition-all duration-200;
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-none text-xs font-semibold border;
   }
 
   .badge-low {
@@ -502,11 +571,11 @@
   }
 
   .glass-panel {
-    @apply border border-white/60 bg-white/70 backdrop-blur-md shadow-lg shadow-slate-200/50;
+    @apply border border-slate-200 bg-white/90 backdrop-blur-md shadow-lg shadow-slate-200/50 rounded-none;
   }
 
   .feature-tile {
-    @apply relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-xs transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-md hover:border-indigo-200;
+    @apply relative overflow-hidden rounded-none border border-slate-200 bg-white p-4 shadow-xs transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-md hover:border-indigo-200;
   }
 
   .feature-tile::after {
@@ -520,7 +589,7 @@
   }
 
   .dark-app .feature-tile::after {
-    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.03) 40%, transparent 100%) !important;
+    background: none !important;
   }
 
   .csv-template-card {

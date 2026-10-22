@@ -69,9 +69,10 @@ export const StudentMetricTrendsChart: React.FC<StudentMetricTrendsChartProps> =
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
+                  backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                  borderRadius: 0,
+                  border: '1px solid var(--tooltip-border, #e2e8f0)',
+                  color: 'var(--tooltip-text, #1e293b)',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                   fontSize: '12px',
                 }}

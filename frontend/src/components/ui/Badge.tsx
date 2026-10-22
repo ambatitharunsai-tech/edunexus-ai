@@ -47,7 +47,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border shadow-2xs select-none',
+        'inline-flex items-center gap-1.5 rounded-none border shadow-2xs select-none',
         variants[variant],
         sizes[size],
         className
@@ -56,7 +56,7 @@ export const Badge: React.FC<BadgeProps> = ({
     >
       {dot && (
         <span
-          className={cn('w-1.5 h-1.5 rounded-full shrink-0', dotColors[variant])}
+          className={cn('w-1.5 h-1.5 rounded-none shrink-0', dotColors[variant])}
           aria-hidden="true"
         />
       )}

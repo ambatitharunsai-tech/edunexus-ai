@@ -4,7 +4,7 @@
 **Competition**: KPMG India Student Analytics Challenge  
 **Platform**: EduNexus AI — Student Success & Journey Intelligence Platform  
 **Architecture**: React 19 • TypeScript • Vite • Tailwind CSS v4 • Recharts • Python 3.12 (CI) / Python 3.14 (Dev) • FastAPI • Supabase PostgreSQL  
-**Verification Status**: 148/150 Backend Tests Passed (2 Skipped Live DB) • 77 Frontend Tests Passed across 6 Test Suites • 0 Build Errors • 0 Lint Errors  
+**Verification Status**: 148/150 Backend Tests Passed (2 Skipped Live DB) • 83 Frontend Tests Passed across 6 Test Suites • 0 Build Errors • 0 Lint Errors  
 
 ---
 
@@ -374,9 +374,9 @@ backend/tests/test_success_score_engine.py      ... 12 passed (0-100 Success Sco
 > 2. **Unverified Live Database Integration vs. Verified Code**:  
 > In `backend/tests/test_db_integration.py`, the two live database tests (`test_live_supabase_connection` and `test_live_supabase_table_schemas`) are conditioned on `@pytest.mark.skipif(not is_database_configured(), ...)`. Because live production Supabase database credentials are kept out of Git and unconfigured in CI and local clones, **live database integration remains unverified in automated runs**. All verified test execution proves the correctness of the deterministic analytics engine, business logic, authorization guards, and synthetic repository layer backed by `data/synthetic_seed.json`.
 
-### Frontend Test Suite & Verification: **77 Passed, 0 Failed (Vitest)**
+### Frontend Test Suite & Verification: **83 Passed, 0 Failed (Vitest)**
 
-The frontend test suite includes 46 baseline feature tests, 12 specialized bandwidth estimator edge-case tests (handling truncated downloads, inconsistent Content-Length headers, concurrency locks, cancellation mid-stream, timeouts, and realistic duration clamping), 8 Spinner component lifecycle tests, and 11 UI animation, theme, and WCAG AA contrast verification tests.
+The frontend test suite includes 46 baseline feature tests, 12 specialized bandwidth estimator edge-case tests (handling truncated downloads, inconsistent Content-Length headers, concurrency locks, cancellation mid-stream, timeouts, and realistic duration clamping), 8 Spinner component lifecycle tests, and 17 UI animation, sharp edges, and dark theme contrast verification tests.
 
 ```bash
 cd frontend && npm test
@@ -388,9 +388,9 @@ cd frontend && npm test
 ✓ src/__tests__/bandwidthEstimator.test.ts (22 tests)
 ✓ src/__tests__/HelpPage.test.tsx (8 tests)
 ✓ src/__tests__/Spinner.test.tsx (8 tests)
-✓ src/__tests__/UIAnimationAndContrast.test.tsx (11 tests)
+✓ src/__tests__/UIAnimationAndContrast.test.tsx (17 tests)
 Test Files  6 passed (6)
-     Tests  77 passed (77)
+     Tests  83 passed (83)
 ```
 
 ### Frontend Build & Lint Verification
@@ -398,10 +398,14 @@ Test Files  6 passed (6)
 - **Vite Production Bundle**: `npm run build` completed cleanly (Exit Code 0, 5 MiB probe.bin bundled in `dist/`).
 - **Static Linter**: `npm run lint` (`oxlint`) completed with **0 errors** across 66 frontend source files.
 
-### UI Architecture: Spinner Animation & WCAG AA Color Clarity
-- **Spinner Keyframe & Centering Fix**: Replaced ambiguous `animate-spin` utilities with `@keyframes edunexusSpin` enforcing `transform-origin: center center !important; transform-box: fill-box !important;`. Removed a legacy global `#root :where(*) { border-radius: 0 !important; }` rule that was flattening circular loaders.
-- **Accessible Reduced-Motion Handling**: Under `prefers-reduced-motion: reduce` and the app's `.reduce-motion` setting, spinning indicators transition to a gentle, non-vestibular pulse (`@keyframes edunexusPulseGently`) while retaining visible textual progress labels and `role="status" aria-live="polite"`.
-- **WCAG AA Color Contrast**: Enhanced muted text tokens (e.g. `--color-slate-400` upgraded from 2.6:1 to 5.1:1, `--color-slate-500` to 6.8:1), input placeholders, disabled states, badges, chat bubbles, and dark theme surfaces (`#151c19`, `#18201d`, `#2e3a34`).
+### UI Architecture: Sharp Edges & Elimination of White in Dark Theme
+- **Sharp Edges Engine (`border-radius: 0 !important`)**: Enforced architectural sharp edges across all cards, buttons, inputs, badges, modals, tooltips, chips, and interactive containers throughout the application. All core UI components use `rounded-none`.
+- **Strict Elimination of White in Dark Theme**: 
+  - Overrode all text elements (`text-white`, `text-slate-50`, `text-slate-100`, `hover:text-white`) in `.dark-app` to soft, glare-free high-contrast mint/slate tints (`#e2ece6`, `#cbdcd2`).
+  - Overrode all white background utilities (`bg-white` and translucent `bg-white/*`) in `.dark-app` to dark surfaces (`#151c19`, `#18201d`).
+  - Overrode all white borders (`border-white`, `border-white/*`, dividers, rings) in `.dark-app` to dark slate borders (`#2e3a34`).
+  - Overrode Recharts chart tooltips in dark mode to dark surface `#18221e`, border `#2e3a34`, and text `#e2ece6`, replacing previously hardcoded white tooltip boxes.
+- **Spinner Keyframe & Centering Fix**: Built on `@keyframes edunexusSpin` with centered transform-origin, preserving smooth circular loader SVG rotation and providing accessible gentle pulse progression under reduced motion.
 
 ### Help Chatbot & Bandwidth Guide Feature
 For comprehensive architectural specifications, client-side pattern matching algorithms, throughput measurement math, and evaluator scripts, see [`document.md`](./document.md).
