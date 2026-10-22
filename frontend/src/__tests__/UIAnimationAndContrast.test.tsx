@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { useState } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { Spinner } from '../components/ui/Spinner';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Input } from '../components/ui/Input';
 import { Card, CardTitle, CardDescription } from '../components/ui/Card';
+import { DualRiskMatrixCard } from '../features/dashboard/DualRiskMatrixCard';
 
 describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
   describe('1. Spinner Lifecycle & Rotation', () => {
@@ -292,6 +294,112 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
       const button = screen.getByRole('button');
       expect(button).toHaveClass('dark:hover:text-[#e2ece6]');
       expect(button).not.toHaveClass('dark:hover:text-white');
+    });
+  });
+
+  describe('9. Table Theme Contrast & Readability (Problem A)', () => {
+    it('verifies Card has rounded-none and dark surface token #151C19 without pure white', () => {
+      const { container } = render(
+        <Card>
+          <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#35433B]">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#EEF2F6] dark:bg-[#1D2722] border-b border-slate-200 dark:border-[#35433B] text-slate-700 dark:text-[#CBD5CF]">
+                <tr>
+                  <th className="py-2.5 px-3">Department</th>
+                  <th className="py-2.5 px-3">Students</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                <tr>
+                  <td className="py-2 px-3 font-semibold text-slate-900 dark:text-[#E2ECE6]">Computer Science</td>
+                  <td className="py-2 px-3 text-slate-700 dark:text-[#CBD5CF]">120 students</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      );
+
+      const card = container.firstChild as HTMLElement;
+      expect(card).toHaveClass('rounded-none', 'dark:bg-[#151C19]', 'dark:text-[#E2ECE6]', 'dark:border-[#35433B]');
+      expect(card).not.toHaveClass('dark:bg-white', 'dark:text-white');
+
+      const thead = container.querySelector('thead');
+      expect(thead).toHaveClass('bg-[#EEF2F6]', 'dark:bg-[#1D2722]', 'text-slate-700', 'dark:text-[#CBD5CF]');
+
+      const deptCell = screen.getByText('Computer Science');
+      expect(deptCell).toHaveClass('font-semibold', 'text-slate-900', 'dark:text-[#E2ECE6]');
+
+      const countCell = screen.getByText('120 students');
+      expect(countCell).toHaveClass('text-slate-700', 'dark:text-[#CBD5CF]');
+    });
+  });
+
+  describe('10. Sidebar Navigation Active & Badge Contrast (Problem B)', () => {
+    it('ensures active navigation uses high-contrast pale green in light mode and dark green in dark mode', () => {
+      const activeNavClasses = 'bg-[#E8F5F1] text-[#166B53] dark:bg-[#1D332A] dark:text-[#56B594] font-semibold shadow-2xs';
+      expect(activeNavClasses).toContain('bg-[#E8F5F1]');
+      expect(activeNavClasses).toContain('text-[#166B53]');
+      expect(activeNavClasses).toContain('dark:bg-[#1D332A]');
+      expect(activeNavClasses).toContain('dark:text-[#56B594]');
+      expect(activeNavClasses).not.toContain('text-white');
+    });
+
+    it('ensures active navigation badge uses readable contrasting tones', () => {
+      const badgeClasses = 'bg-[#D5EDE5] text-[#166B53] dark:bg-[#153E31] dark:text-[#56B594]';
+      expect(badgeClasses).toContain('bg-[#D5EDE5]');
+      expect(badgeClasses).toContain('text-[#166B53]');
+      expect(badgeClasses).toContain('dark:bg-[#153E31]');
+      expect(badgeClasses).toContain('dark:text-[#56B594]');
+    });
+  });
+
+  describe('11. AppShell Surface & Border Consistency (Problem C)', () => {
+    it('ensures header, sidebar, and breadcrumbs share synchronized dark surface #151C19 and border #35433B', () => {
+      const headerClasses = 'border-b border-slate-200 dark:border-[#35433B] bg-white/95 dark:bg-[#151C19]/95 backdrop-blur-xs';
+      const sidebarClasses = 'border-r border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19]';
+      const breadcrumbClasses = 'bg-white dark:bg-[#151C19] border-b border-slate-200 dark:border-[#35433B]';
+
+      expect(headerClasses).toContain('dark:bg-[#151C19]/95');
+      expect(headerClasses).toContain('dark:border-[#35433B]');
+
+      expect(sidebarClasses).toContain('dark:bg-[#151C19]');
+      expect(sidebarClasses).toContain('dark:border-[#35433B]');
+
+      expect(breadcrumbClasses).toContain('dark:bg-[#151C19]');
+      expect(breadcrumbClasses).toContain('dark:border-[#35433B]');
+    });
+  });
+
+  describe('12. DualRiskMatrixCard Quadrants & Sharp Edges', () => {
+    it('renders all four quadrants with rounded-none and high-contrast distinct backgrounds', () => {
+      const mockMatrix = {
+        academic_low_placement_low: 45,
+        academic_low_placement_high: 12,
+        academic_high_placement_low: 8,
+        academic_high_placement_high: 3,
+        moderate_quadrants: 15,
+        insufficient_data: 2,
+      };
+
+      const { container } = render(
+        <MemoryRouter>
+          <DualRiskMatrixCard dualRiskMatrix={mockMatrix} />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText('Academic vs Placement Risk Matrix')).toBeInTheDocument();
+      const links = container.querySelectorAll('.grid a[href^="/students"]');
+      expect(links.length).toBe(4);
+      links.forEach((link) => {
+        expect(link).toHaveClass('rounded-none');
+        expect(link).not.toHaveClass('rounded-xl');
+      });
+
+      expect(links[0]).toHaveClass('bg-emerald-50/50', 'dark:bg-[#142820]', 'border-emerald-200', 'dark:border-[#1D4633]');
+      expect(links[1]).toHaveClass('bg-blue-50/50', 'dark:bg-[#14252E]', 'border-blue-200', 'dark:border-[#1E3A4B]');
+      expect(links[2]).toHaveClass('bg-amber-50/50', 'dark:bg-[#261F14]', 'border-amber-200', 'dark:border-[#45331C]');
+      expect(links[3]).toHaveClass('bg-rose-50/50', 'dark:bg-[#281618]', 'border-rose-200', 'dark:border-[#4A1E24]');
     });
   });
 });

@@ -1048,7 +1048,7 @@ export const DashboardPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold">
+                  <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] font-semibold">
                     <th className="py-3 px-4">Student & ID</th>
                     <th className="py-3 px-4">Cohort</th>
                     <th className="py-3 px-4">Risk Tier</th>
@@ -1059,7 +1059,7 @@ export const DashboardPage: React.FC = () => {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                   {filteredFollowUps.map((student) => {
                     const badgeVariant = {
                       insufficient_data: 'neutral',
@@ -1071,24 +1071,24 @@ export const DashboardPage: React.FC = () => {
                     }[student.risk_level] as 'danger' | 'warning' | 'success';
 
                     return (
-                      <tr key={student.id} className="hover:bg-slate-50/80 transition-colors">
+                      <tr key={student.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1D2722]/60 transition-colors">
                         {/* Student Name */}
                         <td className="py-3 px-4">
                           <button
                             type="button"
                             onClick={() => handleOpenProfile(student)}
-                            className="font-bold text-slate-900 hover:text-indigo-600 text-left transition-colors"
+                            className="font-bold text-slate-900 dark:text-[#E2ECE6] hover:text-indigo-600 dark:hover:text-[#56B594] text-left transition-colors"
                           >
                             {student.name}
                           </button>
-                          <div className="font-mono text-[11px] text-slate-400">
+                          <div className="font-mono text-[11px] text-slate-400 dark:text-[#8FA89B]">
                             {student.student_id}
                           </div>
                         </td>
 
                         {/* Grade & Section */}
-                        <td className="py-3 px-4 text-slate-600">
-                          {student.grade} <span className="text-slate-400">({student.section || 'A'})</span>
+                        <td className="py-3 px-4 text-slate-600 dark:text-[#CBD5CF]">
+                          {student.grade} <span className="text-slate-400 dark:text-[#8FA89B]">({student.section || 'A'})</span>
                         </td>
 
                         {/* Risk Level & Score */}
@@ -1097,18 +1097,18 @@ export const DashboardPage: React.FC = () => {
                             <Badge variant={badgeVariant} size="sm">
                               {student.risk_level.toUpperCase()}
                             </Badge>
-                            <span className="font-bold text-slate-700 text-[11px]">
+                            <span className="font-bold text-slate-700 dark:text-[#CBD5CF] text-[11px]">
                               {student.risk_score}
                             </span>
                           </div>
                         </td>
 
                         {/* Primary Factor */}
-                        <td className="py-3 px-4 max-w-xs text-slate-700">
+                        <td className="py-3 px-4 max-w-xs text-slate-700 dark:text-[#CBD5CF]">
                           <div className="truncate text-xs font-medium" title={student.primary_risk_factor}>
                             {student.primary_risk_factor}
                           </div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="text-[10px] text-slate-400 dark:text-[#8FA89B]">
                             Status: {student.status}
                           </div>
                         </td>
@@ -1117,7 +1117,7 @@ export const DashboardPage: React.FC = () => {
                         <td className="py-3 px-4 text-center">
                           <span
                             className={`font-semibold ${
-                              student.attendance_rate != null && student.attendance_rate < 80 ? 'text-amber-600' : 'text-emerald-600'
+                              student.attendance_rate != null && student.attendance_rate < 80 ? 'text-amber-600 dark:text-[#F6D289]' : 'text-emerald-600 dark:text-[#5EEAD4]'
                             }`}
                           >
                             {student.attendance_rate}%
@@ -1125,12 +1125,12 @@ export const DashboardPage: React.FC = () => {
                         </td>
 
                         {/* Avg Score */}
-                        <td className="py-3 px-4 text-center font-semibold text-slate-800">
+                        <td className="py-3 px-4 text-center font-semibold text-slate-800 dark:text-[#E2ECE6]">
                           {student.avg_score}%
                         </td>
 
                         {/* Last Interaction */}
-                        <td className="py-3 px-4 text-slate-500 text-[11px]">
+                        <td className="py-3 px-4 text-slate-500 dark:text-[#8FA89B] text-[11px]">
                           {student.last_interaction}
                         </td>
 

@@ -150,104 +150,104 @@ export function AnalyticsPage() {
       {/* ── Analytics KPI Row ────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Total Cohort */}
-        <Card hoverable className="border-slate-200">
+        <Card hoverable className="border-slate-200 dark:border-[#35433B]">
           <CardContent className="p-5 flex items-start justify-between">
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 dark:text-[#8FA89B] uppercase tracking-wider">
                 Total Enrolled Cohort
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-[#E2ECE6]">
                   {summary.total_students}
                 </h3>
-                <span className="text-xs font-medium text-slate-500">
+                <span className="text-xs font-medium text-slate-500 dark:text-[#8FA89B]">
                   ({summary.active_students} active)
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-[#8FA89B]">
                 100% telemetry cataloged
               </p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-none bg-indigo-50 dark:bg-[#1D332A] text-indigo-600 dark:text-[#56B594] flex items-center justify-center shrink-0 shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
         {/* Metric 2: Average Success Score */}
-        <Card hoverable className="border-slate-200">
+        <Card hoverable className="border-slate-200 dark:border-[#35433B]">
           <CardContent className="p-5 flex items-start justify-between">
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 dark:text-[#8FA89B] uppercase tracking-wider">
                 Cohort Average Success
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-[#E2ECE6]">
                   {summary.average_success_score ?? 'Under Review'}
                 </h3>
                 {summary.average_success_score != null && (
-                  <span className="text-xs font-medium text-slate-500">
+                  <span className="text-xs font-medium text-slate-500 dark:text-[#8FA89B]">
                     / 100
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1 text-xs text-teal-600 font-medium">
+              <div className="flex items-center gap-1 text-xs text-teal-600 dark:text-[#5EEAD4] font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>KPMG 7-domain composite</span>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-none bg-teal-50 dark:bg-[#122824] text-teal-600 dark:text-[#5EEAD4] flex items-center justify-center shrink-0 shadow-2xs">
               <Award className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
         {/* Metric 3: Active Segments */}
-        <Card hoverable className="border-slate-200">
+        <Card hoverable className="border-slate-200 dark:border-[#35433B]">
           <CardContent className="p-5 flex items-start justify-between">
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 dark:text-[#8FA89B] uppercase tracking-wider">
                 Behavioral Segments
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-slate-900">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-[#E2ECE6]">
                   {segments.length}
                 </h3>
-                <span className="text-xs font-medium text-slate-500">
+                <span className="text-xs font-medium text-slate-500 dark:text-[#8FA89B]">
                   actionable pathways
                 </span>
               </div>
-              <p className="text-xs text-indigo-600 font-medium">
+              <p className="text-xs text-indigo-600 dark:text-[#56B594] font-medium">
                 Tailored intervention protocols
               </p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-none bg-purple-50 dark:bg-[#172A30] text-purple-600 dark:text-[#9BD3DC] flex items-center justify-center shrink-0 shadow-2xs">
               <Sparkles className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
         {/* Metric 4: Priority Dual Risk */}
-        <Card hoverable className="border-slate-200">
+        <Card hoverable className="border-slate-200 dark:border-[#35433B]">
           <CardContent className="p-5 flex items-start justify-between">
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 dark:text-[#8FA89B] uppercase tracking-wider">
                 Priority Dual Risk
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-black text-rose-600">
+                <h3 className="text-2xl font-black text-rose-600 dark:text-[#F87171]">
                   {dualRisk?.academic_high_placement_high ?? 0}
                 </h3>
-                <span className="text-xs font-semibold text-rose-600">
+                <span className="text-xs font-semibold text-rose-600 dark:text-[#F87171]">
                   urgent cases
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-xs text-amber-600 font-medium">
+              <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-[#F6D289] font-medium">
                 <AlertTriangle className="w-3.5 h-3.5" />
                 <span>Simultaneous exam & career deficits</span>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-none bg-rose-50 dark:bg-[#281618] text-rose-600 dark:text-[#F87171] flex items-center justify-center shrink-0 shadow-2xs">
               <AlertTriangle className="w-5 h-5" />
             </div>
           </CardContent>
@@ -255,23 +255,23 @@ export function AnalyticsPage() {
       </div>
 
       {/* ── Departmental Comparison Analysis ─────────────────────────── */}
-      <Card className="border-slate-200/80 shadow-xs">
+      <Card className="border-slate-200/80 dark:border-[#35433B] shadow-xs">
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-indigo-50 text-indigo-700 shrink-0">
+              <div className="p-2 rounded-none bg-indigo-50 dark:bg-[#1D332A] text-indigo-700 dark:text-[#56B594] shrink-0">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <div>
-                <CardTitle className="text-base font-semibold text-slate-900">
+                <CardTitle className="text-base font-semibold text-slate-900 dark:text-[#E2ECE6]">
                   Departmental Performance & Success Benchmark
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500">
+                <CardDescription className="text-xs text-slate-500 dark:text-[#8FA89B]">
                   Comparative analysis across academic assessment scores, class attendance, and composite success ratings
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="neutral" className="bg-slate-100 text-slate-700 border-slate-200 text-xs shrink-0 self-start sm:self-auto">
+            <Badge variant="neutral" className="bg-slate-100 dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] border-slate-200 dark:border-[#35433B] text-xs shrink-0 self-start sm:self-auto">
               {cohorts.length} Departments Tracked
             </Badge>
           </div>
@@ -340,9 +340,9 @@ export function AnalyticsPage() {
               </div>
 
               {/* Department Metrics Table */}
-              <div className="overflow-x-auto rounded-lg border border-slate-200 mt-2">
+              <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#35433B] mt-2">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+                  <thead className="bg-[#EEF2F6] dark:bg-[#1D2722] border-b border-slate-200 dark:border-[#35433B] text-slate-700 dark:text-[#CBD5CF] font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
                       <th className="py-2.5 px-3">Department</th>
                       <th className="py-2.5 px-3">Students</th>
@@ -352,30 +352,30 @@ export function AnalyticsPage() {
                       <th className="py-2.5 px-3 text-right">Directory</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                     {cohorts.map((c) => (
-                      <tr key={c.department} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-2 px-3 font-semibold text-slate-900">{c.department}</td>
-                        <td className="py-2 px-3">{c.count} students</td>
+                      <tr key={c.department} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
+                        <td className="py-2 px-3 font-semibold text-slate-900 dark:text-[#E2ECE6]">{c.department}</td>
+                        <td className="py-2 px-3 text-slate-700 dark:text-[#CBD5CF]">{c.count} students</td>
                         <td className="py-2 px-3">
-                          <span className="font-bold text-indigo-700">
+                          <span className="font-bold text-indigo-700 dark:text-[#56B594]">
                             {c.average_success_score != null ? `${c.average_success_score} / 100` : '—'}
                           </span>
                         </td>
                         <td className="py-2 px-3">
-                          <span className="font-medium text-teal-700">
+                          <span className="font-medium text-teal-700 dark:text-[#5EEAD4]">
                             {c.average_attendance != null ? `${c.average_attendance}%` : '—'}
                           </span>
                         </td>
                         <td className="py-2 px-3">
-                          <span className="font-medium text-amber-700">
+                          <span className="font-medium text-amber-700 dark:text-[#F6D289]">
                             {c.average_assessment != null ? `${c.average_assessment}%` : '—'}
                           </span>
                         </td>
                         <td className="py-2 px-3 text-right">
                           <Link
                             to={`/students?search=${encodeURIComponent(c.department)}`}
-                            className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
+                            className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 dark:text-[#56B594] dark:hover:text-[#7FE3BC] font-medium hover:underline"
                           >
                             <span>Filter</span>
                             <ArrowRight className="w-3 h-3" />
@@ -388,12 +388,12 @@ export function AnalyticsPage() {
               </div>
             </>
           ) : (
-            <div className="py-8 text-center text-xs text-slate-500">
+            <div className="py-8 text-center text-xs text-slate-500 dark:text-[#8FA89B]">
               No departmental comparison records available in the active dataset.
             </div>
           )}
 
-          <p className="text-[11px] text-slate-500 italic pt-1">
+          <p className="text-[11px] text-slate-500 dark:text-[#8FA89B] italic pt-1">
             * Note: Averages strictly exclude missing domain telemetry. Cohorts with differing data coverage depths may not be directly comparable.
           </p>
         </CardContent>
@@ -406,14 +406,14 @@ export function AnalyticsPage() {
       <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-base font-bold text-slate-900 dark:text-[#E2ECE6]">
               Strategic Student Segmentation Pathways
             </h3>
             <Badge variant="primary" size="sm">
               {segments.length} Distinct Cohorts
             </Badge>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#8FA89B] mt-0.5">
             Decoupled risk and multi-domain behavioral personas with tailored institutional support recommendations
           </p>
         </div>
@@ -425,31 +425,31 @@ export function AnalyticsPage() {
             return (
               <div
                 key={segment.segment_id}
-                className={`p-5 rounded-xl border ${style.border} ${style.bg} flex flex-col justify-between hover:shadow-md transition-all space-y-4`}
+                className={`p-5 rounded-none border ${style.border} ${style.bg} flex flex-col justify-between hover:shadow-md transition-all space-y-4`}
               >
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between gap-2">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${style.badge}`}
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none border ${style.badge}`}
                     >
                       {segment.tagline}
                     </span>
-                    <Badge variant="neutral" size="sm" className="font-bold text-slate-900">
+                    <Badge variant="neutral" size="sm" className="font-bold text-slate-900 dark:text-[#E2ECE6]">
                       {segment.count} ({segment.percentage}%)
                     </Badge>
                   </div>
 
-                  <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-[#E2ECE6] leading-snug">
                     {segment.label}
                   </h4>
 
-                  <p className="text-xs text-slate-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-[#CBD5CF] leading-relaxed">
                     {segment.description}
                   </p>
 
-                  <div className="p-2.5 rounded-lg bg-white/80 border border-slate-200/70 text-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-slate-800 mb-1">
-                      <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
+                  <div className="p-2.5 rounded-none bg-white/80 dark:bg-[#1D2722]/80 border border-slate-200/70 dark:border-[#35433B] text-xs">
+                    <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-[#E2ECE6] mb-1">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-600 dark:text-[#F6D289]" />
                       <span>Recommended Intervention:</span>
                     </div>
                     <p className={`text-[11px] leading-relaxed ${style.accent}`}>
@@ -458,10 +458,10 @@ export function AnalyticsPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200/60">
+                <div className="pt-3 border-t border-slate-200/60 dark:border-[#35433B]">
                   <Link
                     to={`/students?segment=${encodeURIComponent(segment.segment_id)}`}
-                    className="inline-flex items-center justify-between w-full text-xs font-semibold text-slate-800 hover:text-indigo-600 transition-colors"
+                    className="inline-flex items-center justify-between w-full text-xs font-semibold text-slate-800 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors"
                   >
                     <span>View {segment.count} Matching Students</span>
                     <ArrowRight className="w-3.5 h-3.5" />

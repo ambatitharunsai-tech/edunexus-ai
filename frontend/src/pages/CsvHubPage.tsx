@@ -404,29 +404,29 @@ export const CsvHubPage: React.FC = () => {
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span>Line-Numbered Row Validation Failures ({previewResult.errors.length}):</span>
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-rose-200 bg-rose-50/40">
+                  <div className="overflow-x-auto rounded-none border border-rose-200 dark:border-[#4A1E24] bg-rose-50/40 dark:bg-[#281618]/40">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-rose-200 bg-rose-100/60 text-rose-900 uppercase text-[10px] font-bold">
+                        <tr className="border-b border-rose-200 dark:border-[#4A1E24] bg-rose-100/60 dark:bg-[#341C20] text-rose-900 dark:text-[#FECDD3] uppercase text-[10px] font-bold">
                           <th className="py-2 px-3 w-16 text-center">Line</th>
                           <th className="py-2 px-3 w-32">Column / Field</th>
                           <th className="py-2 px-3">Validation Rule Violation</th>
                           <th className="py-2 px-3 w-40">Sample Value</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-rose-100 text-slate-700">
+                      <tbody className="divide-y divide-rose-100 dark:divide-[#4A1E24] text-slate-700 dark:text-[#CBD5CF]">
                         {previewResult.errors.map((err: CsvRowError, idx: number) => (
-                          <tr key={idx} className="hover:bg-rose-100/30">
-                            <td className="py-2 px-3 text-center font-mono font-bold text-rose-700">
+                          <tr key={idx} className="hover:bg-rose-100/30 dark:hover:bg-[#341C20]/50">
+                            <td className="py-2 px-3 text-center font-mono font-bold text-rose-700 dark:text-[#F87171]">
                               #{err.line}
                             </td>
-                            <td className="py-2 px-3 font-semibold text-slate-800">
+                            <td className="py-2 px-3 font-semibold text-slate-800 dark:text-[#E2ECE6]">
                               {err.column || 'General'}
                             </td>
-                            <td className="py-2 px-3 text-rose-800 font-medium">
+                            <td className="py-2 px-3 text-rose-800 dark:text-[#FECDD3] font-medium">
                               {err.message}
                             </td>
-                            <td className="py-2 px-3 font-mono text-[11px] text-slate-500 truncate max-w-xs">
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-500 dark:text-[#8FA89B] truncate max-w-xs">
                               {err.raw_value || '—'}
                             </td>
                           </tr>
@@ -440,13 +440,13 @@ export const CsvHubPage: React.FC = () => {
               {/* Sample Data Table Preview */}
               {previewResult.sample_data.length > 0 && (
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-700">
+                  <span className="text-xs font-bold text-slate-700 dark:text-[#CBD5CF]">
                     Verified Rows Sample Preview ({previewResult.valid_rows} rows):
                   </span>
-                  <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                  <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19]">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 uppercase text-[10px] font-bold">
+                        <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
                           {Object.keys(previewResult.sample_data[0]).map((col) => (
                             <th key={col} className="py-2 px-3">
                               {col}
@@ -454,11 +454,11 @@ export const CsvHubPage: React.FC = () => {
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                         {previewResult.sample_data.slice(0, 5).map((row: Record<string, string>, idx: number) => (
-                          <tr key={idx} className="hover:bg-slate-50">
+                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#1D2722]/60">
                             {Object.values(row).map((val: unknown, cIdx: number) => (
-                              <td key={cIdx} className="py-2 px-3 font-mono text-[11px]">
+                              <td key={cIdx} className="py-2 px-3 font-mono text-[11px] text-slate-800 dark:text-[#E2ECE6]">
                                 {String(val ?? '')}
                               </td>
                             ))}

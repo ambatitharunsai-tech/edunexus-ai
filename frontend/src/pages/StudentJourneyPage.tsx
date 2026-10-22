@@ -665,7 +665,7 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-600 uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Subject</th>
                         <th className="py-2.5 px-3">Evaluation Type</th>
                         <th className="py-2.5 px-3">Date</th>
@@ -674,27 +674,27 @@ export const StudentJourneyPage: React.FC = () => {
                         <th className="py-2.5 px-3">Institutional Benchmark</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                       {profile.recent_assessments.map((a, idx) => {
                         const scorePct = a.max_score > 0 ? (a.score / a.max_score) * 100 : 0;
                         return (
-                          <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                            <td className="py-2.5 px-3 font-bold text-slate-900">{a.subject}</td>
+                          <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
+                            <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-[#E2ECE6]">{a.subject}</td>
                             <td className="py-2.5 px-3 capitalize">
                               {a.assessment_type.replace('_', ' ')}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-500">{a.assessment_date}</td>
-                            <td className="py-2.5 px-3 text-center font-mono">
+                            <td className="py-2.5 px-3 text-slate-500 dark:text-[#8FA89B]">{a.assessment_date}</td>
+                            <td className="py-2.5 px-3 text-center font-mono text-slate-800 dark:text-[#E2ECE6]">
                               {a.score} / {a.max_score}
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               <span
                                 className={`font-bold ${
                                   scorePct >= 75
-                                    ? 'text-emerald-600'
+                                    ? 'text-emerald-600 dark:text-[#5EEAD4]'
                                     : scorePct >= 60
-                                    ? 'text-amber-600'
-                                    : 'text-rose-600'
+                                    ? 'text-amber-600 dark:text-[#F6D289]'
+                                    : 'text-rose-600 dark:text-[#F87171]'
                                 }`}
                               >
                                 {scorePct.toFixed(1)}%
@@ -702,10 +702,10 @@ export const StudentJourneyPage: React.FC = () => {
                             </td>
                             <td className="py-2.5 px-3">
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                className={`px-2 py-0.5 rounded-none text-[10px] font-semibold border ${
                                   scorePct >= 70
-                                    ? 'bg-emerald-50 text-emerald-700'
-                                    : 'bg-amber-50 text-amber-700'
+                                    ? 'bg-emerald-50 dark:bg-[#142820] text-emerald-700 dark:text-[#5EEAD4] border-emerald-200 dark:border-[#1D4633]'
+                                    : 'bg-amber-50 dark:bg-[#261F14] text-amber-700 dark:text-[#F6D289] border-amber-200 dark:border-[#45331C]'
                                 }`}
                               >
                                 {scorePct >= 70 ? 'Benchmark Met' : 'Under Observation'}
@@ -724,19 +724,19 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-600 uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Status</th>
                         <th className="py-2.5 px-3">Advisory Note</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                       {profile.recent_attendance.map((att, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900">{att.session_date}</td>
+                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
+                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{att.session_date}</td>
                           <td className="py-2.5 px-3">
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold capitalize ${
+                              className={`px-2 py-0.5 rounded-none border text-[10px] font-bold capitalize ${
                                 att.status === 'present'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : att.status === 'late'
@@ -1121,24 +1121,24 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-600 uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Activity Type</th>
                         <th className="py-2.5 px-3">Duration (mins)</th>
                         <th className="py-2.5 px-3">Engagement Context</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                       {profile.recent_engagements.map((eng, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900">{eng.event_timestamp}</td>
-                          <td className="py-2.5 px-3 font-semibold text-indigo-700 capitalize">
+                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
+                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{eng.event_timestamp}</td>
+                          <td className="py-2.5 px-3 font-semibold text-indigo-700 dark:text-[#56B594] capitalize">
                             {eng.event_type.replaceAll('_', ' ')}
                           </td>
-                          <td className="py-2.5 px-3 font-mono">
+                          <td className="py-2.5 px-3 font-mono text-slate-800 dark:text-[#E2ECE6]">
                             {eng.duration_minutes == null ? 'Not recorded' : `${eng.duration_minutes} mins`}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-600">
+                          <td className="py-2.5 px-3 text-slate-600 dark:text-[#CBD5CF]">
                             {eng.description || 'No description recorded'}
                           </td>
                         </tr>

@@ -129,10 +129,10 @@ export const StudentSuccessScoreCard: React.FC<StudentSuccessScoreCardProps> = (
         )}
 
         {/* Factor Breakdown Table */}
-        <div className="overflow-x-auto border border-slate-200 rounded-xl">
+        <div className="overflow-x-auto border border-slate-200 dark:border-[#35433B] rounded-none">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
+              <tr className="bg-[#EEF2F6] dark:bg-[#1D2722] border-b border-slate-200 dark:border-[#35433B] text-slate-700 dark:text-[#CBD5CF] font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-2.5 px-3">Domain</th>
                 <th className="py-2.5 px-3 text-center">Measured Score</th>
                 <th className="py-2.5 px-3 text-center">Initial Weight</th>
@@ -141,33 +141,33 @@ export const StudentSuccessScoreCard: React.FC<StudentSuccessScoreCardProps> = (
                 <th className="py-2.5 px-3">Telemetry Context</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
               {domain_breakdowns.map((b) => (
-                <tr key={b.domain} className={b.is_missing ? 'bg-amber-50/30' : 'hover:bg-slate-50/60'}>
-                  <td className="py-2.5 px-3 font-semibold text-slate-900 capitalize">
+                <tr key={b.domain} className={b.is_missing ? 'bg-amber-50/30 dark:bg-[#261F14]/40' : 'hover:bg-slate-50/60 dark:hover:bg-[#1D2722]/60'}>
+                  <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-[#E2ECE6] capitalize">
                     {b.domain.replace('_', ' ')}
                   </td>
                   <td className="py-2.5 px-3 text-center">
                     {b.is_missing ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      <span className="px-2 py-0.5 rounded-none text-[10px] font-bold bg-amber-100 dark:bg-[#261F14] text-amber-800 dark:text-[#F6D289] border border-amber-200 dark:border-[#45331C]">
                         Missing Data
                       </span>
                     ) : (
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-800 dark:text-[#E2ECE6]">
                         {b.raw_score !== null ? b.raw_score.toFixed(1) : 'N/A'}/100
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-center text-slate-500">
+                  <td className="py-2.5 px-3 text-center text-slate-500 dark:text-[#8FA89B]">
                     {(b.assigned_weight * 100).toFixed(0)}%
                   </td>
-                  <td className="py-2.5 px-3 text-center font-semibold text-indigo-700">
+                  <td className="py-2.5 px-3 text-center font-semibold text-indigo-700 dark:text-[#56B594]">
                     {(b.normalized_weight * 100).toFixed(1)}%
                   </td>
-                  <td className="py-2.5 px-3 text-right font-bold text-slate-900">
+                  <td className="py-2.5 px-3 text-right font-bold text-slate-900 dark:text-[#E2ECE6]">
                     +{b.weighted_contribution.toFixed(1)} pts
                   </td>
-                  <td className="py-2.5 px-3 text-[11px] text-slate-500">
+                  <td className="py-2.5 px-3 text-[11px] text-slate-500 dark:text-[#8FA89B]">
                     {Object.entries(b.telemetry_summary || {})
                       .slice(0, 2)
                       .map(([k, v]) => `${k.replace('_', ' ')}: ${v}`)

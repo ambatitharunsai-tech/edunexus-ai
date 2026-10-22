@@ -357,16 +357,16 @@ export const StudentDashboardPage: React.FC = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-500">
+                  <thead className="border-b border-slate-200 dark:border-[#35433B] text-[10px] uppercase tracking-wide text-slate-500 dark:text-[#CBD5CF]">
                     <tr><th className="py-2 pr-3">Subject</th><th className="py-2 pr-3">Assessment</th><th className="py-2 pr-3">Result</th><th className="py-2 text-right">Date</th></tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
                     {recent_assessments.map((assessment, index) => (
-                      <tr key={`${assessment.subject}-${assessment.date ?? index}-${index}`}>
-                        <td className="py-3 pr-3 font-semibold text-slate-800">{assessment.subject}</td>
-                        <td className="py-3 pr-3 text-slate-600">{assessment.assessment_type}</td>
-                        <td className="py-3 pr-3 font-bold text-slate-800">{formatScore(assessment.percentage)}</td>
-                        <td className="py-3 text-right text-slate-500">{formatDate(assessment.date)}</td>
+                      <tr key={`${assessment.subject}-${assessment.date ?? index}-${index}`} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
+                        <td className="py-3 pr-3 font-semibold text-slate-800 dark:text-[#E2ECE6]">{assessment.subject}</td>
+                        <td className="py-3 pr-3 text-slate-600 dark:text-[#CBD5CF]">{assessment.assessment_type}</td>
+                        <td className="py-3 pr-3 font-bold text-slate-800 dark:text-[#E2ECE6]">{formatScore(assessment.percentage)}</td>
+                        <td className="py-3 text-right text-slate-500 dark:text-[#8FA89B]">{formatDate(assessment.date)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -376,25 +376,25 @@ export const StudentDashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 bg-white">
+        <Card className="border-slate-200 dark:border-[#35433B]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-slate-900">
-              <CalendarCheck className="h-4 w-4 text-emerald-600" /> Recent attendance
+            <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-[#E2ECE6]">
+              <CalendarCheck className="h-4 w-4 text-emerald-600 dark:text-[#56B594]" /> Recent attendance
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500">Attendance entries most recently recorded for you.</CardDescription>
+            <CardDescription className="text-xs text-slate-500 dark:text-[#8FA89B]">Attendance entries most recently recorded for you.</CardDescription>
           </CardHeader>
           <CardContent>
             {recent_attendance.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-slate-200 p-4 text-sm text-slate-500">No attendance sessions have been recorded yet.</p>
+              <p className="rounded-none border border-dashed border-slate-200 dark:border-[#35433B] p-4 text-sm text-slate-500 dark:text-[#8FA89B]">No attendance sessions have been recorded yet.</p>
             ) : (
               <div className="space-y-2">
                 {recent_attendance.map((row, index) => (
-                  <div key={`${row.date ?? index}-${index}`} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-3 py-2.5">
+                  <div key={`${row.date ?? index}-${index}`} className="flex items-center justify-between gap-3 rounded-none border border-slate-100 dark:border-[#35433B] px-3 py-2.5 bg-slate-50/50 dark:bg-[#1D2722]/50">
                     <div className="flex items-center gap-2">
-                      <CalendarCheck className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs font-medium text-slate-700">{formatDate(row.date)}</span>
+                      <CalendarCheck className="h-4 w-4 text-slate-400 dark:text-[#8FA89B]" />
+                      <span className="text-xs font-medium text-slate-700 dark:text-[#CBD5CF]">{formatDate(row.date)}</span>
                     </div>
-                    <span className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase ${row.status === 'present' || row.status === 'late' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : row.status === 'absent' ? 'border-rose-200 bg-rose-50 text-rose-800' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+                    <span className={`rounded-none border px-2 py-1 text-[10px] font-bold uppercase ${row.status === 'present' || row.status === 'late' ? 'border-emerald-200 dark:border-[#1D4633] bg-emerald-50 dark:bg-[#142820] text-emerald-800 dark:text-[#83D9A9]' : row.status === 'absent' ? 'border-rose-200 dark:border-[#4A1E24] bg-rose-50 dark:bg-[#281618] text-rose-800 dark:text-[#F87171]' : 'border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] text-slate-600 dark:text-[#CBD5CF]'}`}>
                       {prettyLabel(row.status)}
                     </span>
                   </div>
