@@ -272,15 +272,15 @@ export const StudentsPage: React.FC = () => {
   if (isStudent) {
     return (
       <div className="mx-auto max-w-2xl py-12 px-4">
-        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+        <Card className="border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-sm">
           <CardContent className="space-y-4 p-6 sm:p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#18181B] text-indigo-700 dark:text-[#818CF8] border border-indigo-200 dark:border-[#27272A]">
               <GraduationCap className="h-7 w-7" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-[#FAFAFA]">
               Private Educational Records Policy
             </h2>
-            <p className="text-sm leading-6 text-slate-600 dark:text-[#CBD5CF]">
+            <p className="text-sm leading-6 text-slate-600 dark:text-[#A1A1AA]">
               The Students Directory contains institutional cohort data and is restricted to authorized faculty and academic advisors. Student privacy policies prohibit students from viewing peer educational records.
             </p>
             <div className="pt-2">
@@ -303,16 +303,16 @@ export const StudentsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#E2ECE6]">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#FAFAFA]">
               Students Directory
             </h2>
             {data && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-[#18352A] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-[#18181B] text-indigo-700 dark:text-[#818CF8] border border-indigo-200 dark:border-[#27272A]">
                 {data.total} Enrolled
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 dark:text-[#8FA89B] mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-0.5">
             Holistic student records with observable attendance rates, evaluation benchmarks, and explainable risk tiers.
           </p>
         </div>
@@ -325,7 +325,7 @@ export const StudentsPage: React.FC = () => {
             disabled={loading}
             className="flex items-center gap-1.5 text-xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 dark:text-[#CBD5CF] ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 dark:text-[#A1A1AA] ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
 
@@ -337,7 +337,7 @@ export const StudentsPage: React.FC = () => {
             className="flex items-center gap-1.5 text-xs"
             title="Export currently displayed page (10 records)"
           >
-            <Download className="w-3.5 h-3.5 text-slate-600 dark:text-[#CBD5CF]" />
+            <Download className="w-3.5 h-3.5 text-slate-600 dark:text-[#A1A1AA]" />
             <span>Export Page</span>
           </Button>
 
@@ -346,7 +346,7 @@ export const StudentsPage: React.FC = () => {
             size="sm"
             onClick={() => exportCohortCSV('cohort')}
             disabled={!data || data.total === 0 || exportingFull}
-            className="flex items-center gap-1.5 text-xs bg-indigo-50/70 dark:bg-[#1D332A] text-indigo-700 dark:text-[#56B594] border-indigo-200 dark:border-[#1D4633] font-semibold"
+            className="flex items-center gap-1.5 text-xs bg-indigo-50/70 dark:bg-[#18181B] text-indigo-700 dark:text-[#818CF8] border-indigo-200 dark:border-[#3F3F46] font-semibold"
             title="Export all students matching active filters to CSV"
           >
             <Download className={`w-3.5 h-3.5 ${exportingFull ? 'animate-bounce' : ''}`} />
@@ -430,14 +430,14 @@ export const StudentsPage: React.FC = () => {
           </p>
         </div>
       ) : error ? (
-        <div className="p-8 text-center bg-white dark:bg-[#151C19] rounded-xl border border-rose-200 dark:border-[#4A1E24]">
-          <p className="text-sm text-rose-700 dark:text-[#F87171]">{error}</p>
+        <div className="p-8 text-center bg-white dark:bg-[#141416] rounded-xl border border-rose-200 dark:border-[#9F1239]">
+          <p className="text-sm text-rose-700 dark:text-[#FDA4AF]">{error}</p>
           <Button size="sm" onClick={() => void fetchStudents({ bypassCache: true })} className="mt-3">
             Retry
           </Button>
         </div>
       ) : data?.students.length === 0 ? (
-        <div className="p-10 bg-white dark:bg-[#151C19] rounded-xl border border-slate-200 dark:border-[#35433B]">
+        <div className="p-10 bg-white dark:bg-[#141416] rounded-xl border border-slate-200 dark:border-[#29292D]">
           <EmptyState
             title="No Matching Students Found"
             description="No students matched your search keyword or selected department/risk filters."
@@ -449,13 +449,13 @@ export const StudentsPage: React.FC = () => {
         <div className="space-y-4">
           {/* Floating Batch Action Bar */}
           {selectedStudentIds.length > 0 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-indigo-50 dark:bg-[#162B23] border border-indigo-200 dark:border-[#1E4B3E] rounded-xl text-xs text-indigo-950 dark:text-[#E2ECE6] shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-indigo-50 dark:bg-[#172554] border border-indigo-200 dark:border-[#1D4ED8] rounded-xl text-xs text-indigo-950 dark:text-[#FAFAFA] shadow-xs">
               <div className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-[#56B594]" />
-                <span className="font-bold text-indigo-900 dark:text-[#56B594]">
+                <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-[#93C5FD]" />
+                <span className="font-bold text-indigo-900 dark:text-[#FAFAFA]">
                   {selectedStudentIds.length} student{selectedStudentIds.length > 1 ? 's' : ''} selected
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-[#8FA89B] hidden sm:inline">
+                <span className="text-[11px] text-slate-500 dark:text-[#A1A1AA] hidden sm:inline">
                   • Apply batch operations or export selected rows
                 </span>
               </div>
@@ -464,7 +464,7 @@ export const StudentsPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => exportCohortCSV('selected')}
-                  className="text-xs py-1 h-auto flex items-center gap-1 bg-white dark:bg-[#1D2722]"
+                  className="text-xs py-1 h-auto flex items-center gap-1 bg-white dark:bg-[#141416] text-slate-800 dark:text-[#FAFAFA] border dark:border-[#3F3F46]"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export Selected ({selectedStudentIds.length})</span>
@@ -485,7 +485,7 @@ export const StudentsPage: React.FC = () => {
                   size="sm"
                   variant="ghost"
                   onClick={handleClearSelection}
-                  className="text-xs py-1 h-auto text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900"
+                  className="text-xs py-1 h-auto text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#FAFAFA]"
                 >
                   Clear Selection
                 </Button>

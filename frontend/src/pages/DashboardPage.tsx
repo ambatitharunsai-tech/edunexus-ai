@@ -187,21 +187,22 @@ export const DashboardPage: React.FC = () => {
       label: 'Average attendance',
       value: `${summary.average_attendance}%`,
       note: summary.attendance_status,
-      accent: 'emerald',
+      accent: 'cyan',
     },
   ];
 
   const insightTone = {
     amber: 'border-amber-200/80 bg-amber-50/60 text-amber-800 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-300',
     indigo: 'border-indigo-200/80 bg-indigo-50/60 text-indigo-800 dark:border-indigo-800/60 dark:bg-indigo-950/20 dark:text-indigo-300',
-    emerald: 'border-emerald-200/80 bg-emerald-50/60 text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/20 dark:text-emerald-300',
+    cyan: 'border-cyan-200/80 bg-cyan-50/60 text-cyan-800 dark:border-cyan-800/60 dark:bg-cyan-950/20 dark:text-cyan-300',
+    emerald: 'border-cyan-200/80 bg-cyan-50/60 text-cyan-800 dark:border-cyan-800/60 dark:bg-cyan-950/20 dark:text-cyan-300',
   } as const;
 
   const activityTone = {
-    info: 'bg-sky-100 text-sky-700 border-sky-200',
-    success: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    warning: 'bg-amber-100 text-amber-700 border-amber-200',
-    critical: 'bg-rose-100 text-rose-700 border-rose-200',
+    info: 'bg-sky-100 text-sky-700 border-sky-200 dark:bg-[#172554] dark:text-[#93C5FD] dark:border-[#1D4ED8]',
+    success: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-[#083344] dark:text-[#67E8F9] dark:border-[#155E75]',
+    warning: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]',
+    critical: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-[#4C0519] dark:text-[#FDA4AF] dark:border-[#9F1239]',
   } as const;
 
   const recentHighlights = recent_activity.slice(0, 5);
@@ -304,21 +305,21 @@ export const DashboardPage: React.FC = () => {
 
       {/* ── Demo Mode / Connection Status Banner ───────────────────── */}
       {metadata.is_demo && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-950 via-slate-900 to-teal-950 text-white border border-indigo-900/50 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="p-4 rounded-xl bg-[#141416] text-[#FAFAFA] border border-[#27272A] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#083344] text-[#67E8F9] border border-[#155E75] uppercase tracking-wider">
                 Synthetic Demo Dataset Active
               </span>
-              <span className="text-xs text-slate-300 flex items-center gap-1">
-                <Database className="w-3.5 h-3.5 text-teal-400" />
+              <span className="text-xs text-[#A1A1AA] flex items-center gap-1">
+                <Database className="w-3.5 h-3.5 text-[#67E8F9]" />
                 <span>36 Fictional Student Cohort</span>
               </span>
             </div>
-            <h3 className="text-sm font-bold text-white">
+            <h3 className="text-sm font-bold text-[#FAFAFA]">
               Operating in Verified Prototype Mode
             </h3>
-            <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] max-w-3xl leading-relaxed">
               Synthetic records are held in this backend process. Changes reset when the process restarts or you reset demo data.
             </p>
           </div>
@@ -326,13 +327,13 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               to="/students"
-              className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs px-3 py-1.5 font-medium rounded-none transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center bg-[#27272A] hover:bg-[#3F3F46] text-[#FAFAFA] border border-[#3F3F46] text-xs px-3 py-1.5 font-medium rounded-none transition-colors cursor-pointer"
             >
               Explore Directory
             </Link>
             <Link
               to="/interventions"
-              className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-500 text-white border-0 text-xs font-semibold px-3 py-1.5 rounded-none transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center bg-[#6366F1] hover:bg-[#4F46E5] text-white border-0 text-xs font-semibold px-3 py-1.5 rounded-none transition-colors cursor-pointer"
             >
               View Active Plans ({summary.active_interventions_count})
             </Link>
@@ -458,12 +459,12 @@ export const DashboardPage: React.FC = () => {
                     ({summary.active_students} active)
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                <div className="flex items-center gap-1 text-xs text-indigo-600 dark:text-[#818CF8] font-semibold">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>{summary.total_students ? ((summary.active_students / summary.total_students) * 100).toFixed(1) : '0'}% Active enrollment</span>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-[#18181B] text-indigo-600 dark:text-[#818CF8] group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
                 <Users className="w-5 h-5" />
               </div>
             </CardContent>
@@ -472,28 +473,28 @@ export const DashboardPage: React.FC = () => {
 
         {/* KPI 2: Average Student Success Score -> Campus Analytics */}
         <Link to="/analytics" className="block group">
-          <Card hoverable className="border-slate-200 group-hover:border-teal-300 transition-colors h-full">
+          <Card hoverable className="border-slate-200 dark:border-[#29292D] group-hover:border-indigo-300 dark:group-hover:border-[#818CF8] transition-colors h-full">
             <CardContent className="p-5 flex items-start justify-between">
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-teal-700 transition-colors">
+                <p className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider group-hover:text-indigo-600 dark:group-hover:text-[#A5B4FC] transition-colors">
                   Average Success Score
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-2xl font-black text-slate-900">
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-[#FAFAFA]">
                     {summary.average_success_score ?? 'Under Review'}
                   </h3>
                   {summary.average_success_score != null && (
-                    <span className="text-xs font-medium text-slate-500">
+                    <span className="text-xs font-medium text-slate-500 dark:text-[#A1A1AA]">
                       / 100
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 text-xs text-teal-600 font-medium">
+                <div className="flex items-center gap-1 text-xs text-indigo-600 dark:text-[#818CF8] font-medium">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>KPMG 7-Domain holistic composite</span>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-[#18181B] text-indigo-600 dark:text-[#818CF8] group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
                 <Award className="w-5 h-5" />
               </div>
             </CardContent>
@@ -502,23 +503,23 @@ export const DashboardPage: React.FC = () => {
 
         {/* KPI 3: Cohort Attendance Average -> Students Directory sorted by attendance */}
         <Link to="/students?sortBy=attendance_rate&sortDir=asc" className="block group">
-          <Card hoverable className="border-slate-200 group-hover:border-emerald-300 transition-colors h-full">
+          <Card hoverable className="border-slate-200 dark:border-[#29292D] group-hover:border-cyan-300 dark:group-hover:border-[#155E75] transition-colors h-full">
             <CardContent className="p-5 flex items-start justify-between">
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-emerald-700 transition-colors">
+                <p className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider group-hover:text-cyan-600 dark:group-hover:text-[#67E8F9] transition-colors">
                   Cohort Attendance Rate
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-2xl font-black text-slate-900">
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-[#FAFAFA]">
                     {summary.average_attendance}%
                   </h3>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                <div className="flex items-center gap-1 text-xs text-cyan-600 dark:text-[#67E8F9] font-medium">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{summary.attendance_status}</span>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-cyan-50 dark:bg-[#083344] text-cyan-600 dark:text-[#67E8F9] group-hover:bg-cyan-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
                 <CalendarCheck className="w-5 h-5" />
               </div>
             </CardContent>
@@ -667,30 +668,30 @@ export const DashboardPage: React.FC = () => {
                 >
                   <defs>
                     <linearGradient id="attRateGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#818CF8" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#818CF8" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #27272A)" vertical={false} />
                   <XAxis
                     dataKey="period"
-                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tick={{ fontSize: 11, fill: 'var(--chart-axis, #A1A1AA)' }}
                     tickLine={false}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: 'var(--chart-grid, #27272A)' }}
                   />
                   <YAxis
                     domain={[60, 100]}
-                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tick={{ fontSize: 11, fill: 'var(--chart-axis, #A1A1AA)' }}
                     tickFormatter={(val) => `${val}%`}
                     tickLine={false}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: 'var(--chart-grid, #27272A)' }}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                      backgroundColor: 'var(--tooltip-bg, #18181B)',
                       borderRadius: 0,
-                      border: '1px solid var(--tooltip-border, #e2e8f0)',
-                      color: 'var(--tooltip-text, #1e293b)',
+                      border: '1px solid var(--tooltip-border, #3F3F46)',
+                      color: 'var(--tooltip-text, #FAFAFA)',
                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                       fontSize: '12px',
                     }}
@@ -701,12 +702,12 @@ export const DashboardPage: React.FC = () => {
                   />
                   <ReferenceLine
                     y={80}
-                    stroke="#ef4444"
+                    stroke="#FB7185"
                     strokeDasharray="4 4"
                     label={{
                       value: '80% Benchmark',
                       position: 'top',
-                      fill: '#ef4444',
+                      fill: '#FB7185',
                       fontSize: 10,
                       fontWeight: 600,
                     }}
@@ -714,7 +715,7 @@ export const DashboardPage: React.FC = () => {
                   <Area
                     type="monotone"
                     dataKey="attendance_rate"
-                    stroke="#4338ca"
+                    stroke="#818CF8"
                     strokeWidth={2.5}
                     fillOpacity={1}
                     fill="url(#attRateGradient)"
@@ -872,7 +873,7 @@ export const DashboardPage: React.FC = () => {
                   />
                   <Bar
                     dataKey="average_score"
-                    fill="#0f766e"
+                    fill="var(--chart-2, #22D3EE)"
                     radius={[4, 4, 0, 0]}
                     name="Cohort Average"
                   />
@@ -926,7 +927,7 @@ export const DashboardPage: React.FC = () => {
                   title={`Planned: ${intervention_summary.planned}`}
                 />
                 <div
-                  className="bg-emerald-500 h-full"
+                  className="bg-cyan-500 h-full"
                   style={{
                     width: `${(intervention_summary.completed / (intervention_summary.total || 1)) * 100}%`,
                   }}
@@ -937,27 +938,27 @@ export const DashboardPage: React.FC = () => {
 
             {/* Status Breakdown Pills */}
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                <div className="text-[11px] text-slate-500">In Progress</div>
-                <div className="text-lg font-bold text-indigo-700">
+              <div className="p-2.5 rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113]">
+                <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">In Progress</div>
+                <div className="text-lg font-bold text-indigo-700 dark:text-[#818CF8]">
                   {intervention_summary.in_progress}
                 </div>
               </div>
-              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                <div className="text-[11px] text-slate-500">Planned</div>
-                <div className="text-lg font-bold text-amber-600">
+              <div className="p-2.5 rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113]">
+                <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">Planned</div>
+                <div className="text-lg font-bold text-amber-600 dark:text-[#FCD34D]">
                   {intervention_summary.planned}
                 </div>
               </div>
-              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                <div className="text-[11px] text-slate-500">Under Review</div>
-                <div className="text-lg font-bold text-purple-600">
+              <div className="p-2.5 rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113]">
+                <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">Under Review</div>
+                <div className="text-lg font-bold text-purple-600 dark:text-[#C4B5FD]">
                   {intervention_summary.under_review}
                 </div>
               </div>
-              <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                <div className="text-[11px] text-slate-500">Completed</div>
-                <div className="text-lg font-bold text-emerald-600">
+              <div className="p-2.5 rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113]">
+                <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">Completed</div>
+                <div className="text-lg font-bold text-cyan-600 dark:text-[#67E8F9]">
                   {intervention_summary.completed}
                 </div>
               </div>
@@ -1067,7 +1068,7 @@ export const DashboardPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] font-semibold">
+                  <tr className="border-b border-slate-200 dark:border-[#27272A] bg-[#EEF2F6] dark:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] font-semibold">
                     <th className="py-3 px-4">Student & ID</th>
                     <th className="py-3 px-4">Cohort</th>
                     <th className="py-3 px-4">Risk Tier</th>
@@ -1078,7 +1079,7 @@ export const DashboardPage: React.FC = () => {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                   {filteredFollowUps.map((student) => {
                     const badgeVariant = {
                       insufficient_data: 'neutral',
@@ -1090,24 +1091,24 @@ export const DashboardPage: React.FC = () => {
                     }[student.risk_level] as 'danger' | 'warning' | 'success';
 
                     return (
-                      <tr key={student.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1D2722]/60 transition-colors">
+                      <tr key={student.id} className="hover:bg-slate-50/80 dark:hover:bg-[#242428] transition-colors">
                         {/* Student Name */}
                         <td className="py-3 px-4">
                           <button
                             type="button"
                             onClick={() => handleOpenProfile(student)}
-                            className="font-bold text-slate-900 dark:text-[#E2ECE6] hover:text-indigo-600 dark:hover:text-[#56B594] text-left transition-colors"
+                            className="font-bold text-slate-900 dark:text-[#FAFAFA] hover:text-indigo-600 dark:hover:text-[#A5B4FC] text-left transition-colors"
                           >
                             {student.name}
                           </button>
-                          <div className="font-mono text-[11px] text-slate-400 dark:text-[#8FA89B]">
+                          <div className="font-mono text-[11px] text-slate-400 dark:text-[#71717A]">
                             {student.student_id}
                           </div>
                         </td>
 
                         {/* Grade & Section */}
-                        <td className="py-3 px-4 text-slate-600 dark:text-[#CBD5CF]">
-                          {student.grade} <span className="text-slate-400 dark:text-[#8FA89B]">({student.section || 'A'})</span>
+                        <td className="py-3 px-4 text-slate-600 dark:text-[#A1A1AA]">
+                          {student.grade} <span className="text-slate-400 dark:text-[#71717A]">({student.section || 'A'})</span>
                         </td>
 
                         {/* Risk Level & Score */}
@@ -1116,18 +1117,18 @@ export const DashboardPage: React.FC = () => {
                             <Badge variant={badgeVariant} size="sm">
                               {student.risk_level.toUpperCase()}
                             </Badge>
-                            <span className="font-bold text-slate-700 dark:text-[#CBD5CF] text-[11px]">
+                            <span className="font-bold text-slate-700 dark:text-[#D4D4D8] text-[11px]">
                               {student.risk_score}
                             </span>
                           </div>
                         </td>
 
                         {/* Primary Factor */}
-                        <td className="py-3 px-4 max-w-xs text-slate-700 dark:text-[#CBD5CF]">
+                        <td className="py-3 px-4 max-w-xs text-slate-700 dark:text-[#D4D4D8]">
                           <div className="truncate text-xs font-medium" title={student.primary_risk_factor}>
                             {student.primary_risk_factor}
                           </div>
-                          <div className="text-[10px] text-slate-400 dark:text-[#8FA89B]">
+                          <div className="text-[10px] text-slate-400 dark:text-[#71717A]">
                             Status: {student.status}
                           </div>
                         </td>
@@ -1136,7 +1137,7 @@ export const DashboardPage: React.FC = () => {
                         <td className="py-3 px-4 text-center">
                           <span
                             className={`font-semibold ${
-                              student.attendance_rate != null && student.attendance_rate < 80 ? 'text-amber-600 dark:text-[#F6D289]' : 'text-emerald-600 dark:text-[#5EEAD4]'
+                              student.attendance_rate != null && student.attendance_rate < 80 ? 'text-amber-600 dark:text-[#FCD34D]' : 'text-cyan-600 dark:text-[#67E8F9]'
                             }`}
                           >
                             {student.attendance_rate}%
@@ -1144,12 +1145,12 @@ export const DashboardPage: React.FC = () => {
                         </td>
 
                         {/* Avg Score */}
-                        <td className="py-3 px-4 text-center font-semibold text-slate-800 dark:text-[#E2ECE6]">
+                        <td className="py-3 px-4 text-center font-semibold text-slate-800 dark:text-[#FAFAFA]">
                           {student.avg_score}%
                         </td>
 
                         {/* Last Interaction */}
-                        <td className="py-3 px-4 text-slate-500 dark:text-[#8FA89B] text-[11px]">
+                        <td className="py-3 px-4 text-slate-500 dark:text-[#A1A1AA] text-[11px]">
                           {student.last_interaction}
                         </td>
 
@@ -1212,7 +1213,7 @@ export const DashboardPage: React.FC = () => {
           <CardContent className="space-y-3">
             {recent_activity.map((act) => {
               const dotColor = {
-                success: 'bg-emerald-500',
+                success: 'bg-cyan-500',
                 warning: 'bg-amber-500',
                 critical: 'bg-rose-500',
                 info: 'bg-indigo-500',
@@ -1221,16 +1222,16 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={act.id}
-                  className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-start gap-3 hover:bg-slate-100/60 transition-colors"
+                  className="p-3 rounded-lg bg-slate-50 dark:bg-[#111113] border border-slate-100 dark:border-[#27272A] flex items-start gap-3 hover:bg-slate-100/60 dark:hover:bg-[#1C1C20] transition-colors"
                 >
                   <span className={`w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0`} />
                   <div className="flex-1 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-900">{act.title}</span>
-                      <span className="text-[11px] text-slate-400">{act.timestamp}</span>
+                      <span className="font-bold text-slate-900 dark:text-[#FAFAFA]">{act.title}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-[#71717A]">{act.timestamp}</span>
                     </div>
-                    <p className="text-slate-600 mt-0.5 leading-relaxed">{act.description}</p>
-                    <div className="mt-1 text-[11px] text-slate-400 font-mono">
+                    <p className="text-slate-600 dark:text-[#A1A1AA] mt-0.5 leading-relaxed">{act.description}</p>
+                    <div className="mt-1 text-[11px] text-slate-400 dark:text-[#71717A] font-mono">
                       Student: {act.student_name} ({act.student_id})
                     </div>
                   </div>
@@ -1241,32 +1242,32 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         {/* Ethical AI Assurance & Challenge Submission Scope */}
-        <Card className="border-slate-200 flex flex-col justify-between">
+        <Card className="border-slate-200 dark:border-[#29292D] flex flex-col justify-between">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-bold text-slate-900">
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-[#FAFAFA]">
               Ethical AI Principles & Platform Integrity
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
+            <CardDescription className="text-xs text-slate-500 dark:text-[#A1A1AA]">
               KPMG Challenge submission architecture guidelines
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2.5 text-xs">
-              <div className="p-3 rounded-lg border border-teal-200 bg-teal-50/60 flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-lg border border-cyan-200 dark:border-[#155E75] bg-cyan-50/60 dark:bg-[#083344] flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9] shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold text-teal-900">Human-in-the-Loop Decision Support</div>
-                  <p className="text-[11px] text-teal-800 mt-0.5">
+                  <div className="font-bold text-cyan-900 dark:text-[#67E8F9]">Human-in-the-Loop Decision Support</div>
+                  <p className="text-[11px] text-cyan-800 dark:text-[#E4E4E7] mt-0.5">
                     Risk indices synthesize observable signals (attendance rates, assessment scores, LMS participation). No punitive decisions are executed automatically.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg border border-indigo-200 bg-indigo-50/60 flex items-start gap-2.5">
-                <ShieldAlert className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-lg border border-indigo-200 dark:border-[#1D4ED8] bg-indigo-50/60 dark:bg-[#172554] flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-indigo-600 dark:text-[#93C5FD] shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold text-indigo-900">Non-Causal Outcome Attribution</div>
-                  <p className="text-[11px] text-indigo-800 mt-0.5">
+                  <div className="font-bold text-indigo-900 dark:text-[#93C5FD]">Non-Causal Outcome Attribution</div>
+                  <p className="text-[11px] text-indigo-800 dark:text-[#E4E4E7] mt-0.5">
                     Intervention outcomes compare pre- and post-metric variance with mandatory disclaimers. Platform does not claim unproven causal attribution without randomized controls.
                   </p>
                 </div>

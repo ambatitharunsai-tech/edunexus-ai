@@ -201,15 +201,15 @@ export const StudentJourneyPage: React.FC = () => {
   if (isStudent) {
     return (
       <div className="mx-auto max-w-2xl py-12 px-4">
-        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+        <Card className="border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-sm">
           <CardContent className="space-y-4 p-6 sm:p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#18181B] text-indigo-700 dark:text-[#818CF8] border border-indigo-200 dark:border-[#27272A]">
               <GraduationCap className="h-7 w-7" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-[#FAFAFA]">
               Student Caseload Privacy Policy
             </h2>
-            <p className="text-sm leading-6 text-slate-600 dark:text-[#CBD5CF]">
+            <p className="text-sm leading-6 text-slate-600 dark:text-[#A1A1AA]">
               Individual caseload student journey profiles are restricted to institutional academic advisors and mentors. To view your own personal attendance, assessment analytics, and support indicators, please open your student portal.
             </p>
             <div className="pt-2">
@@ -230,8 +230,8 @@ export const StudentJourneyPage: React.FC = () => {
     <div className="space-y-6">
       {/* Student Read-Only Mode Banner */}
       {isStudent && (
-        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
-          <Shield className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-[#92400E] dark:bg-[#451A03] text-amber-900 dark:text-[#FCD34D] text-xs shadow-xs">
+          <Shield className="w-5 h-5 shrink-0 text-amber-600 dark:text-[#FCD34D] mt-0.5" />
           <div>
             <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
             You are viewing this student journey profile and timeline in read-only mode.
@@ -241,12 +241,12 @@ export const StudentJourneyPage: React.FC = () => {
       )}
 
       {/* Top Student Switcher & Context Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#151C19] p-3.5 rounded-xl border border-slate-200 dark:border-[#35433B] shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#141416] p-3.5 rounded-xl border border-slate-200 dark:border-[#27272A] shadow-2xs">
         <div className="flex items-center gap-3">
           {!isStudent && (
             <Link
               to="/students"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-[#1D2722] border border-slate-200 dark:border-[#35433B]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#A1A1AA] hover:text-indigo-600 dark:hover:text-[#818CF8] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-[#1C1C20] border border-slate-200 dark:border-[#27272A]"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Directory</span>
@@ -254,13 +254,13 @@ export const StudentJourneyPage: React.FC = () => {
           )}
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-[#8FA89B] font-medium hidden md:inline">
+            <span className="text-xs text-slate-500 dark:text-[#71717A] font-medium hidden md:inline">
               Selected Student:
             </span>
             <select
               value={studentDirectory.find((s) => s.id === activeStudentId || s.student_id === activeStudentId)?.id || activeStudentId}
               onChange={(e) => handleSelectStudent(e.target.value)}
-              className="text-xs font-semibold text-slate-800 dark:text-[#E2ECE6] bg-slate-50 dark:bg-[#1D2722] border border-slate-300 dark:border-[#35433B] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+              className="text-xs font-semibold text-slate-800 dark:text-[#FAFAFA] bg-slate-50 dark:bg-[#111113] border border-slate-300 dark:border-[#3F3F46] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
             >
               {studentDirectory.length === 0 && profile?.student && (
                 <option value={profile.student.id || profile.student.student_id || 'STU-001'}>
@@ -283,9 +283,9 @@ export const StudentJourneyPage: React.FC = () => {
             size="sm"
             onClick={() => activeStudentId && fetchStudentDossier(activeStudentId, { bypassCache: true })}
             disabled={loading}
-            className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900 dark:hover:text-[#E2ECE6]"
+            className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#FAFAFA]"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600 dark:text-[#818CF8]' : ''}`} />
             <span>Refresh Journey</span>
           </Button>
 
@@ -478,7 +478,7 @@ export const StudentJourneyPage: React.FC = () => {
                                 ? 'bg-amber-500'
                                 : idx === 1
                                 ? 'bg-indigo-600'
-                                : 'bg-teal-600'
+                                : 'bg-cyan-500'
                             }`}
                             style={{ width: `${Math.min(100, factor.value)}%` }}
                           />
@@ -587,8 +587,8 @@ export const StudentJourneyPage: React.FC = () => {
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                               intv.status === 'in_progress'
-                                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                ? 'bg-indigo-50 dark:bg-[#172554] text-indigo-700 dark:text-[#93C5FD] border border-indigo-200 dark:border-[#1D4ED8]'
+                                : 'bg-cyan-50 dark:bg-[#083344] text-cyan-700 dark:text-[#67E8F9] border border-cyan-200 dark:border-[#155E75]'
                             }`}
                           >
                             {intv.status.toUpperCase()}
@@ -672,7 +672,7 @@ export const StudentJourneyPage: React.FC = () => {
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                   <span>Placement</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${profile.placement_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.placement_details ? 'bg-cyan-400' : 'bg-slate-300'}`} />
                 </button>
                 <button
                   type="button"
@@ -685,7 +685,7 @@ export const StudentJourneyPage: React.FC = () => {
                 >
                   <Award className="w-3.5 h-3.5" />
                   <span>Skills</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${profile.skills_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.skills_details ? 'bg-cyan-400' : 'bg-slate-300'}`} />
                 </button>
                 <button
                   type="button"
@@ -698,7 +698,7 @@ export const StudentJourneyPage: React.FC = () => {
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>LMS</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${profile.lms_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.lms_details ? 'bg-cyan-400' : 'bg-slate-300'}`} />
                 </button>
                 <button
                   type="button"
@@ -711,7 +711,7 @@ export const StudentJourneyPage: React.FC = () => {
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   <span>Feedback</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${profile.feedback_details ? 'bg-teal-500' : 'bg-slate-300'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.feedback_details ? 'bg-cyan-400' : 'bg-slate-300'}`} />
                 </button>
                 <button
                   type="button"
@@ -745,7 +745,7 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#27272A] bg-[#EEF2F6] dark:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Subject</th>
                         <th className="py-2.5 px-3">Evaluation Type</th>
                         <th className="py-2.5 px-3">Date</th>
@@ -754,27 +754,27 @@ export const StudentJourneyPage: React.FC = () => {
                         <th className="py-2.5 px-3">Institutional Benchmark</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                       {(profile.recent_assessments || []).map((a, idx) => {
                         const scorePct = a.max_score > 0 ? (a.score / a.max_score) * 100 : 0;
                         return (
-                          <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
-                            <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-[#E2ECE6]">{a.subject}</td>
+                          <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#242428] transition-colors">
+                            <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-[#FAFAFA]">{a.subject}</td>
                             <td className="py-2.5 px-3 capitalize">
                               {a.assessment_type.replace('_', ' ')}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-500 dark:text-[#8FA89B]">{a.assessment_date}</td>
-                            <td className="py-2.5 px-3 text-center font-mono text-slate-800 dark:text-[#E2ECE6]">
+                            <td className="py-2.5 px-3 text-slate-500 dark:text-[#71717A]">{a.assessment_date}</td>
+                            <td className="py-2.5 px-3 text-center font-mono text-slate-800 dark:text-[#FAFAFA]">
                               {a.score} / {a.max_score}
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               <span
                                 className={`font-bold ${
                                   scorePct >= 75
-                                    ? 'text-emerald-600 dark:text-[#5EEAD4]'
+                                    ? 'text-cyan-600 dark:text-[#67E8F9]'
                                     : scorePct >= 60
-                                    ? 'text-amber-600 dark:text-[#F6D289]'
-                                    : 'text-rose-600 dark:text-[#F87171]'
+                                    ? 'text-amber-600 dark:text-[#FCD34D]'
+                                    : 'text-rose-600 dark:text-[#FDA4AF]'
                                 }`}
                               >
                                 {scorePct.toFixed(1)}%
@@ -784,8 +784,8 @@ export const StudentJourneyPage: React.FC = () => {
                               <span
                                 className={`px-2 py-0.5 rounded-none text-[10px] font-semibold border ${
                                   scorePct >= 70
-                                    ? 'bg-emerald-50 dark:bg-[#142820] text-emerald-700 dark:text-[#5EEAD4] border-emerald-200 dark:border-[#1D4633]'
-                                    : 'bg-amber-50 dark:bg-[#261F14] text-amber-700 dark:text-[#F6D289] border-amber-200 dark:border-[#45331C]'
+                                    ? 'bg-cyan-50 dark:bg-[#083344] text-cyan-700 dark:text-[#67E8F9] border-cyan-200 dark:border-[#155E75]'
+                                    : 'bg-amber-50 dark:bg-[#451A03] text-amber-700 dark:text-[#FCD34D] border-amber-200 dark:border-[#92400E]'
                                 }`}
                               >
                                 {scorePct >= 70 ? 'Benchmark Met' : 'Under Observation'}
@@ -804,24 +804,24 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#27272A] bg-[#EEF2F6] dark:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Status</th>
                         <th className="py-2.5 px-3">Advisory Note</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                       {(profile.recent_attendance || []).map((att, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{att.session_date}</td>
+                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#242428] transition-colors">
+                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#FAFAFA]">{att.session_date}</td>
                           <td className="py-2.5 px-3">
                             <span
                               className={`px-2 py-0.5 rounded-none border text-[10px] font-bold capitalize ${
                                 att.status === 'present'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  ? 'bg-cyan-50 dark:bg-[#083344] text-cyan-700 dark:text-[#67E8F9] border border-cyan-200 dark:border-[#155E75]'
                                   : att.status === 'late'
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  ? 'bg-amber-50 dark:bg-[#451A03] text-amber-700 dark:text-[#FCD34D] border border-amber-200 dark:border-[#92400E]'
+                                  : 'bg-rose-50 dark:bg-[#4C0519] text-rose-700 dark:text-[#FDA4AF] border border-rose-200 dark:border-[#9F1239]'
                               }`}
                             >
                               {att.status}
@@ -1143,7 +1143,7 @@ export const StudentJourneyPage: React.FC = () => {
                                   setSelectedInterventionForOutcome(intv);
                                   setOutcomeModalOpen(true);
                                 }}
-                                className="text-xs h-7 px-2.5 text-teal-700 border-teal-200 hover:bg-teal-50 flex items-center gap-1"
+                                className="text-xs h-7 px-2.5 text-cyan-700 dark:text-[#67E8F9] border-cyan-200 dark:border-[#155E75] hover:bg-cyan-50 dark:hover:bg-[#083344] flex items-center gap-1"
                               >
                                 <Scale className="w-3.5 h-3.5" />
                                 <span>{intv.outcomes && intv.outcomes.length > 0 ? 'Update Outcome' : 'Record Outcome'}</span>
@@ -1152,9 +1152,9 @@ export const StudentJourneyPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <p className="text-slate-600 leading-relaxed">{intv.description}</p>
+                        <p className="text-slate-600 dark:text-[#A1A1AA] leading-relaxed">{intv.description}</p>
 
-                        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#27272A] flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500 dark:text-[#71717A]">
                           <span>Mentor / Assigned Staff: <strong>{intv.assigned_staff_name || intv.assigned_to || 'Not assigned'}</strong></span>
                           <span>Start Date: <strong>{intv.start_date || 'Not recorded'}</strong></span>
                           <span>Follow-up Target: <strong>{intv.follow_up_date || 'Not scheduled'}</strong></span>
@@ -1163,13 +1163,13 @@ export const StudentJourneyPage: React.FC = () => {
 
                         {/* Outcomes Section */}
                         {intv.outcomes && intv.outcomes.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-slate-100 bg-slate-50/70 p-3 rounded-lg border border-slate-200/80 space-y-2">
-                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-800">
-                              <span className="flex items-center gap-1 text-teal-800">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#111113] p-3 rounded-lg border border-slate-200/80 dark:border-[#27272A] space-y-2">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 dark:text-[#FAFAFA]">
+                              <span className="flex items-center gap-1 text-cyan-800 dark:text-[#67E8F9]">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600 dark:text-[#67E8F9]" />
                                 <span>Recorded Outcome Measurement:</span>
                               </span>
-                              <span className="text-slate-500 text-[10px]">
+                              <span className="text-slate-500 dark:text-[#71717A] text-[10px]">
                                 {intv.outcomes[0].measurement_date}
                               </span>
                             </div>
@@ -1178,18 +1178,18 @@ export const StudentJourneyPage: React.FC = () => {
                               <span>Baseline: <strong>{intv.outcomes[0].baseline_value}</strong></span>
                               <span>Post: <strong>{intv.outcomes[0].post_value ?? '—'}</strong></span>
                               {intv.outcomes[0].absolute_change != null && (
-                                <span className={`font-bold ${intv.outcomes[0].absolute_change >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                <span className={`font-bold ${intv.outcomes[0].absolute_change >= 0 ? 'text-cyan-700 dark:text-[#67E8F9]' : 'text-rose-700 dark:text-[#FDA4AF]'}`}>
                                   Delta: {intv.outcomes[0].absolute_change >= 0 ? '+' : ''}{intv.outcomes[0].absolute_change} pts
                                   {intv.outcomes[0].percentage_change != null && ` (${intv.outcomes[0].percentage_change >= 0 ? '+' : ''}${intv.outcomes[0].percentage_change}%)`}
                                 </span>
                               )}
                             </div>
                             {intv.outcomes[0].evidence_notes && (
-                              <p className="text-[11px] text-slate-600 italic">
+                              <p className="text-[11px] text-slate-600 dark:text-[#A1A1AA] italic">
                                 "{intv.outcomes[0].evidence_notes}"
                               </p>
                             )}
-                            <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-200/60">
+                            <p className="text-[10px] text-slate-400 dark:text-[#71717A] italic pt-1 border-t border-slate-200/60 dark:border-[#27272A]">
                               * {intv.outcomes[0].causation_disclaimer || 'Non-causal correlation disclaimer applies.'}
                             </p>
                           </div>
@@ -1205,24 +1205,24 @@ export const StudentJourneyPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
+                      <tr className="border-b border-slate-200 dark:border-[#27272A] bg-[#EEF2F6] dark:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] uppercase text-[10px] font-bold">
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Activity Type</th>
                         <th className="py-2.5 px-3">Duration (mins)</th>
                         <th className="py-2.5 px-3">Engagement Context</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                       {(profile.recent_engagements || []).map((eng, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
-                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{eng.event_timestamp}</td>
-                          <td className="py-2.5 px-3 font-semibold text-indigo-700 dark:text-[#56B594] capitalize">
+                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#242428] transition-colors">
+                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#FAFAFA]">{eng.event_timestamp}</td>
+                          <td className="py-2.5 px-3 font-semibold text-indigo-700 dark:text-[#818CF8] capitalize">
                             {eng.event_type.replaceAll('_', ' ')}
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-slate-800 dark:text-[#E2ECE6]">
+                          <td className="py-2.5 px-3 font-mono text-slate-800 dark:text-[#FAFAFA]">
                             {eng.duration_minutes == null ? 'Not recorded' : `${eng.duration_minutes} mins`}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-600 dark:text-[#CBD5CF]">
+                          <td className="py-2.5 px-3 text-slate-600 dark:text-[#A1A1AA]">
                             {eng.description || 'No description recorded'}
                           </td>
                         </tr>

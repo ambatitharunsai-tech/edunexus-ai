@@ -156,16 +156,16 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
 
     it('applies high-contrast variants for primary, secondary, outline, and danger', () => {
       const { rerender } = render(<Button variant="primary">Primary</Button>);
-      expect(screen.getByRole('button')).toHaveClass('bg-indigo-600', 'text-white');
+      expect(screen.getByRole('button')).toHaveClass('bg-[#18181B]', 'text-[#FFFFFF]');
 
       rerender(<Button variant="secondary">Secondary</Button>);
-      expect(screen.getByRole('button')).toHaveClass('bg-slate-100', 'text-slate-800');
+      expect(screen.getByRole('button')).toHaveClass('bg-[#E4E4E7]', 'text-[#18181B]');
 
       rerender(<Button variant="outline">Outline</Button>);
-      expect(screen.getByRole('button')).toHaveClass('border-slate-300', 'text-slate-700');
+      expect(screen.getByRole('button')).toHaveClass('border-[#E4E4E7]', 'text-[#27272A]');
 
       rerender(<Button variant="danger">Danger</Button>);
-      expect(screen.getByRole('button')).toHaveClass('bg-rose-600', 'text-white');
+      expect(screen.getByRole('button')).toHaveClass('bg-[#FEE2E2]', 'text-[#B91C1C]');
     });
   });
 
@@ -177,28 +177,28 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
         </Badge>
       );
       expect(screen.getByText('Low Risk')).toBeInTheDocument();
-      expect(container.firstChild).toHaveClass('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+      expect(container.firstChild).toHaveClass('bg-[#CFFAFE]', 'text-[#0E7490]', 'border-[#67E8F9]');
 
       rerender(
         <Badge variant="warning" dot>
           Moderate Risk
         </Badge>
       );
-      expect(container.firstChild).toHaveClass('bg-amber-50', 'text-amber-900', 'border-amber-300');
+      expect(container.firstChild).toHaveClass('bg-[#FEF3C7]', 'text-[#92400E]', 'border-[#FCD34D]');
 
       rerender(
         <Badge variant="danger" dot>
           High / Critical Risk
         </Badge>
       );
-      expect(container.firstChild).toHaveClass('bg-rose-50', 'text-rose-800', 'border-rose-200');
+      expect(container.firstChild).toHaveClass('bg-[#FEE2E2]', 'text-[#B91C1C]', 'border-[#FCA5A5]');
 
       rerender(
         <Badge variant="info" dot>
           Info State
         </Badge>
       );
-      expect(container.firstChild).toHaveClass('bg-sky-50', 'text-sky-800', 'border-sky-200');
+      expect(container.firstChild).toHaveClass('bg-[#DBEAFE]', 'text-[#1D4ED8]', 'border-[#93C5FD]');
     });
   });
 
@@ -214,15 +214,15 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
 
       const label = screen.getByText('Student Registration Code');
       expect(label).toBeInTheDocument();
-      expect(label).toHaveClass('text-slate-700');
+      expect(label).toHaveClass('text-[#27272A]');
 
       const input = screen.getByPlaceholderText('e.g. STU-2026-001');
       expect(input).toBeInTheDocument();
-      expect(input).toHaveClass('border-slate-300', 'placeholder:text-slate-500');
+      expect(input).toHaveClass('border-[#D4D4D8]', 'placeholder:text-[#A1A1AA]');
 
       const helper = screen.getByText('Enter official institution ID.');
       expect(helper).toBeInTheDocument();
-      expect(helper).toHaveClass('text-slate-600');
+      expect(helper).toHaveClass('text-[#71717A]');
     });
 
     it('maintains visible text in disabled state while signalling non-interactivity', () => {
@@ -236,7 +236,7 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
 
       const input = screen.getByDisplayValue('STU-LOCKED-999');
       expect(input).toBeDisabled();
-      expect(input).toHaveClass('disabled:bg-slate-100', 'disabled:text-slate-500');
+      expect(input).toHaveClass('disabled:bg-[#F4F4F5]', 'disabled:text-[#A1A1AA]');
     });
   });
 
@@ -252,10 +252,10 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
       );
 
       const title = screen.getByText('Cohort Academic Trajectory');
-      expect(title).toHaveClass('text-slate-900');
+      expect(title).toHaveClass('text-[#18181B]');
 
       const desc = screen.getByText('Deterministic rolling average across 7 operational domains.');
-      expect(desc).toHaveClass('text-slate-600');
+      expect(desc).toHaveClass('text-[#52525B]');
     });
   });
 
@@ -281,38 +281,36 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
     });
   });
 
-  describe('8. Dark Theme Styling (No Pure White)', () => {
-    it('uses non-white comfortable tints in dark mode for CardTitle', () => {
+  describe('8. Dark Theme Styling (Exact Design Tokens)', () => {
+    it('uses exact heading token in dark mode for CardTitle', () => {
       render(<CardTitle>Non-white Title</CardTitle>);
       const title = screen.getByText('Non-white Title');
-      expect(title).toHaveClass('dark:text-[#e2ece6]');
-      expect(title).not.toHaveClass('dark:text-white');
+      expect(title).toHaveClass('dark:text-[#FAFAFA]');
     });
 
-    it('uses non-white hover color in dark mode for outline Button', () => {
+    it('uses exact monochrome hover color in dark mode for outline Button', () => {
       render(<Button variant="outline">Outline</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('dark:hover:text-[#e2ece6]');
-      expect(button).not.toHaveClass('dark:hover:text-white');
+      expect(button).toHaveClass('dark:hover:text-[#FFFFFF]');
     });
   });
 
   describe('9. Table Theme Contrast & Readability (Problem A)', () => {
-    it('verifies Card has rounded-none and dark surface token #151C19 without pure white', () => {
+    it('verifies Card has rounded-none and dark surface token #141416 with #29292D border', () => {
       const { container } = render(
         <Card>
-          <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#35433B]">
+          <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#27272A]">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#EEF2F6] dark:bg-[#1D2722] border-b border-slate-200 dark:border-[#35433B] text-slate-700 dark:text-[#CBD5CF]">
+              <thead className="bg-[#EEF2F6] dark:bg-[#1C1C20] border-b border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-[#E4E4E7]">
                 <tr>
                   <th className="py-2.5 px-3">Department</th>
                   <th className="py-2.5 px-3">Students</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                 <tr>
-                  <td className="py-2 px-3 font-semibold text-slate-900 dark:text-[#E2ECE6]">Computer Science</td>
-                  <td className="py-2 px-3 text-slate-700 dark:text-[#CBD5CF]">120 students</td>
+                  <td className="py-2 px-3 font-semibold text-slate-900 dark:text-[#FAFAFA]">Computer Science</td>
+                  <td className="py-2 px-3 text-slate-700 dark:text-[#A1A1AA]">120 students</td>
                 </tr>
               </tbody>
             </table>
@@ -321,53 +319,43 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
       );
 
       const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass('rounded-none', 'dark:bg-[#151C19]', 'dark:text-[#E2ECE6]', 'dark:border-[#35433B]');
-      expect(card).not.toHaveClass('dark:bg-white', 'dark:text-white');
+      expect(card).toHaveClass('rounded-none', 'dark:bg-[#141416]', 'dark:text-[#E4E4E7]', 'dark:border-[#29292D]');
 
       const thead = container.querySelector('thead');
-      expect(thead).toHaveClass('bg-[#EEF2F6]', 'dark:bg-[#1D2722]', 'text-slate-700', 'dark:text-[#CBD5CF]');
+      expect(thead).toHaveClass('bg-[#EEF2F6]', 'dark:bg-[#1C1C20]', 'text-slate-700', 'dark:text-[#E4E4E7]');
 
       const deptCell = screen.getByText('Computer Science');
-      expect(deptCell).toHaveClass('font-semibold', 'text-slate-900', 'dark:text-[#E2ECE6]');
+      expect(deptCell).toHaveClass('font-semibold', 'text-slate-900', 'dark:text-[#FAFAFA]');
 
       const countCell = screen.getByText('120 students');
-      expect(countCell).toHaveClass('text-slate-700', 'dark:text-[#CBD5CF]');
+      expect(countCell).toHaveClass('text-slate-700', 'dark:text-[#A1A1AA]');
     });
   });
 
   describe('10. Sidebar Navigation Active & Badge Contrast (Problem B)', () => {
-    it('ensures active navigation uses high-contrast pale green in light mode and dark green in dark mode', () => {
-      const activeNavClasses = 'bg-[#E8F5F1] text-[#166B53] dark:bg-[#1D332A] dark:text-[#56B594] font-semibold shadow-2xs';
-      expect(activeNavClasses).toContain('bg-[#E8F5F1]');
-      expect(activeNavClasses).toContain('text-[#166B53]');
-      expect(activeNavClasses).toContain('dark:bg-[#1D332A]');
-      expect(activeNavClasses).toContain('dark:text-[#56B594]');
-      expect(activeNavClasses).not.toContain('text-white');
+    it('ensures active navigation uses exact tokens in dark mode', () => {
+      const activeNavClasses = 'bg-[#EEF2FF] text-[#4F46E5] dark:bg-[#27272A] dark:text-[#FFFFFF] font-semibold shadow-2xs';
+      expect(activeNavClasses).toContain('dark:bg-[#27272A]');
+      expect(activeNavClasses).toContain('dark:text-[#FFFFFF]');
     });
 
-    it('ensures active navigation badge uses readable contrasting tones', () => {
-      const badgeClasses = 'bg-[#D5EDE5] text-[#166B53] dark:bg-[#153E31] dark:text-[#56B594]';
-      expect(badgeClasses).toContain('bg-[#D5EDE5]');
-      expect(badgeClasses).toContain('text-[#166B53]');
-      expect(badgeClasses).toContain('dark:bg-[#153E31]');
-      expect(badgeClasses).toContain('dark:text-[#56B594]');
+    it('ensures badge uses readable contrasting status tokens', () => {
+      const badgeClasses = 'bg-cyan-50 text-cyan-700 dark:bg-[#083344] dark:text-[#67E8F9]';
+      expect(badgeClasses).toContain('dark:bg-[#083344]');
+      expect(badgeClasses).toContain('dark:text-[#67E8F9]');
     });
   });
 
   describe('11. AppShell Surface & Border Consistency (Problem C)', () => {
-    it('ensures header, sidebar, and breadcrumbs share synchronized dark surface #151C19 and border #35433B', () => {
-      const headerClasses = 'border-b border-slate-200 dark:border-[#35433B] bg-white/95 dark:bg-[#151C19]/95 backdrop-blur-xs';
-      const sidebarClasses = 'border-r border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19]';
-      const breadcrumbClasses = 'bg-white dark:bg-[#151C19] border-b border-slate-200 dark:border-[#35433B]';
+    it('ensures header and sidebar share synchronized dark surfaces and borders', () => {
+      const headerClasses = 'border-b border-slate-200 dark:border-[#27272A] bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xs';
+      const sidebarClasses = 'border-r border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#0D0D0F]';
 
-      expect(headerClasses).toContain('dark:bg-[#151C19]/95');
-      expect(headerClasses).toContain('dark:border-[#35433B]');
+      expect(headerClasses).toContain('dark:bg-[#0A0A0A]/95');
+      expect(headerClasses).toContain('dark:border-[#27272A]');
 
-      expect(sidebarClasses).toContain('dark:bg-[#151C19]');
-      expect(sidebarClasses).toContain('dark:border-[#35433B]');
-
-      expect(breadcrumbClasses).toContain('dark:bg-[#151C19]');
-      expect(breadcrumbClasses).toContain('dark:border-[#35433B]');
+      expect(sidebarClasses).toContain('dark:bg-[#0D0D0F]');
+      expect(sidebarClasses).toContain('dark:border-[#27272A]');
     });
   });
 
@@ -396,10 +384,10 @@ describe('UI Animation, Spinner Lifecycle, and Contrast Verification', () => {
         expect(link).not.toHaveClass('rounded-xl');
       });
 
-      expect(links[0]).toHaveClass('bg-emerald-50/50', 'dark:bg-[#142820]', 'border-emerald-200', 'dark:border-[#1D4633]');
-      expect(links[1]).toHaveClass('bg-blue-50/50', 'dark:bg-[#14252E]', 'border-blue-200', 'dark:border-[#1E3A4B]');
-      expect(links[2]).toHaveClass('bg-amber-50/50', 'dark:bg-[#261F14]', 'border-amber-200', 'dark:border-[#45331C]');
-      expect(links[3]).toHaveClass('bg-rose-50/50', 'dark:bg-[#281618]', 'border-rose-200', 'dark:border-[#4A1E24]');
+      expect(links[0]).toHaveClass('bg-[#CFFAFE]', 'dark:bg-[#083344]', 'border-[#67E8F9]', 'dark:border-[#155E75]');
+      expect(links[1]).toHaveClass('bg-[#DBEAFE]', 'dark:bg-[#172554]', 'border-[#93C5FD]', 'dark:border-[#1D4ED8]');
+      expect(links[2]).toHaveClass('bg-[#FEF3C7]', 'dark:bg-[#451A03]', 'border-[#FCD34D]', 'dark:border-[#92400E]');
+      expect(links[3]).toHaveClass('bg-[#FFE4E6]', 'dark:bg-[#4C0519]', 'border-[#FDA4AF]', 'dark:border-[#9F1239]');
     });
   });
 });

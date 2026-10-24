@@ -98,56 +98,66 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
       }
     };
 
-    void loadRiskNotifications();
-    const refreshId = window.setInterval(() => void loadRiskNotifications(), 60_000);
+    loadRiskNotifications();
     return () => {
       isMounted = false;
-      window.clearInterval(refreshId);
     };
   }, [isStudent]);
-
-  const submitStudentSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && event.currentTarget.value.trim()) {
-      navigate(`/students?search=${encodeURIComponent(event.currentTarget.value.trim())}`);
-      event.currentTarget.blur();
-    }
-  };
 
   const storePreference = (key: string, value: boolean) => {
     safeStorageSet(key, String(value));
   };
 
-  // Student navigation is strictly limited to their own private portal, campus overview, and support
-  const visibleNavItems = isStudent
-    ? [
-        { name: 'My Student Portal', to: '/student', icon: GraduationCap, badge: 'Personal' },
-        { name: 'Overview', to: '/', icon: LayoutDashboard },
-        { name: 'Help & Support', to: '/help', icon: HelpCircle },
-      ]
-    : navItems;
+  const getPageTitle = (pathname: string) => {
+    if (pathname === '/') return 'Cohort Risk & Placement Command Center';
+    if (pathname.startsWith('/students/')) return 'Student Dossier & Longitudinal Journey';
+    if (pathname === '/students') return 'Student Cohort Directory & Dual-Risk Filters';
+    if (pathname.startsWith('/journey')) return 'Longitudinal Trajectory & Dual Risk Matrix';
+    if (pathname === '/interventions') return 'Support Plans & Intervention Records';
+    if (pathname === '/analytics') return 'Cohort Risk Trends & Predictive Analytics';
+    if (pathname === '/csv-hub') return 'Multi-Domain CSV Ingestion & Quality Hub';
+    if (pathname === '/help') return 'Intelligence Governance & Support';
+    if (pathname === '/student') return 'Student Personalized Success Portal';
+    return 'EduNexus AI Portal';
+  };
 
-  const currentNav = visibleNavItems.find((item) =>
-    item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
-  );
-  const pageTitle = currentNav?.name || 'Overview';
+  const pageTitle = getPageTitle(location.pathname);
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!isStudent) return true;
+    return (
+      item.to === '/journey' ||
+      item.to === '/student' ||
+      item.to === '/help'
+    );
+  });
+
+  const submitStudentSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const q = e.currentTarget.value.trim();
+      if (q) {
+        navigate(`/students?search=${encodeURIComponent(q)}`);
+      }
+    }
+  };
 
   return (
-    <div className={cn('app-shell h-screen overflow-hidden bg-[#f6f8fa] dark:bg-[#101714] text-[#172033] dark:text-[#e2ece6] flex flex-col antialiased', compactNavigation && 'compact-navigation', reduceMotion && 'reduce-motion')}>
+    <div className={cn('app-shell h-screen overflow-hidden bg-[#F5F5F5] dark:bg-[#09090B] text-[#27272A] dark:text-[#E4E4E7] flex flex-col antialiased', compactNavigation && 'compact-navigation', reduceMotion && 'reduce-motion')}>
       {/* Skip to Main Content Link for A11y */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-none focus:shadow-lg focus:outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#18181B] dark:focus:bg-[#F4F4F5] focus:text-white dark:focus:text-[#09090B] focus:rounded-none focus:shadow-lg focus:outline-none"
       >
         Skip to main content
       </a>
 
       {/* Top Header */}
-      <header className="app-shell-header relative z-30 shrink-0 border-b border-slate-200 dark:border-[#35433B] bg-white/95 dark:bg-[#151C19]/95 backdrop-blur-xs">
+      <header className="app-shell-header relative z-30 shrink-0 border-b border-[#E4E4E7] dark:border-[#27272A] bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xs">
         <div className="flex min-h-16 items-center gap-3 px-3 sm:px-6">
           {/* Mobile hamburger menu toggle */}
           <button
             type="button"
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-none text-slate-600 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] hover:text-slate-900 dark:hover:text-[#E2ECE6] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-none text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20] hover:text-[#18181B] dark:hover:text-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
@@ -157,32 +167,32 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
 
           {/* Brand Logo & Title */}
           <div className="flex min-w-0 shrink-0 items-center gap-2.5">
-            <div className="w-9 h-9 rounded-none bg-indigo-600 flex items-center justify-center text-white shadow-xs">
+            <div className="w-9 h-9 rounded-none bg-[#18181B] dark:bg-[#27272A] border border-[#D4D4D8] dark:border-[#3F3F46] flex items-center justify-center text-white dark:text-[#FAFAFA] shadow-2xs">
               <GraduationCap className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-base tracking-tight text-slate-900 dark:text-[#E2ECE6]">
-                  EduNexus <span className="text-indigo-600 dark:text-[#56B594]">AI</span>
+                <span className="font-bold text-base tracking-tight text-[#18181B] dark:text-[#FAFAFA]">
+                  EduNexus <span className="text-[#4F46E5] dark:text-[#818CF8]">AI</span>
                 </span>
                 {session?.role && (
                   <span
                     className={cn(
                       'inline-flex items-center px-2 py-0.5 text-[10px] font-bold border uppercase tracking-wider',
                       isStudent
-                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                        ? 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D] dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]'
                         : session.role === 'admin'
-                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/70 dark:text-purple-300 border-purple-300 dark:border-purple-800'
+                        ? 'bg-[#EDE9FE] text-[#5B21B6] border-[#C4B5FD] dark:bg-[#2E1065] dark:text-[#C4B5FD] dark:border-[#7C3AED]'
                         : session.role === 'faculty'
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
-                        : 'bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border-blue-300 dark:border-blue-800'
+                        ? 'bg-[#CFFAFE] text-[#0E7490] border-[#67E8F9] dark:bg-[#083344] dark:text-[#67E8F9] dark:border-[#155E75]'
+                        : 'bg-[#DBEAFE] text-[#1D4ED8] border-[#93C5FD] dark:bg-[#172554] dark:text-[#93C5FD] dark:border-[#1D4ED8]'
                     )}
                   >
                     {session.role}{isStudent ? ' · Read-Only' : ''}
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-[#8FA89B] hidden xl:block">
+              <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] hidden xl:block">
                 Student Journey Intelligence
               </p>
             </div>
@@ -193,22 +203,21 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
           {/* Global search */}
           <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex max-w-md mx-auto">
             <div className="relative w-full">
-              <Search className="absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400 pointer-events-none" />
+              <Search className="absolute inset-y-0 left-3 my-auto h-4 w-4 text-[#71717A] dark:text-[#A1A1AA] pointer-events-none" />
               <input
                 type="search"
                 onKeyDown={submitStudentSearch}
                 placeholder="Search students by name or ID"
-                className="w-full border border-slate-200 dark:border-[#35433B] bg-slate-100 dark:bg-[#1D2722] py-1.5 pl-9 pr-4 text-xs text-slate-800 dark:text-[#E2ECE6] placeholder:text-slate-500 dark:placeholder:text-[#8FA89B] focus:border-indigo-500 focus:bg-white dark:focus:bg-[#151C19] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+                className="w-full border border-[#D4D4D8] dark:border-[#3F3F46] bg-slate-50 dark:bg-[#111113] py-1.5 pl-9 pr-4 text-xs text-[#18181B] dark:text-[#FAFAFA] placeholder:text-[#A1A1AA] dark:placeholder:text-[#71717A] focus:border-[#6366F1] dark:focus:border-[#818CF8] focus:bg-white dark:focus:bg-[#141416] focus:outline-none focus:ring-2 focus:ring-[#6366F1]/20 transition-colors"
                 aria-label="Quick search students"
               />
             </div>
           </div>
-
-
             </>
           )}
-          <div className="hidden xl:flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-none bg-slate-100 dark:bg-[#1D2722] text-[11px] font-medium text-slate-700 dark:text-[#CBD5CF]">
-            <span className="w-1.5 h-1.5 rounded-none bg-indigo-500 dark:bg-[#56B594]" aria-hidden="true" />
+
+          <div className="hidden xl:flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-none bg-slate-100 dark:bg-[#1C1C20] text-[11px] font-medium text-[#52525B] dark:text-[#A1A1AA]">
+            <span className="w-1.5 h-1.5 rounded-none bg-[#4F46E5] dark:bg-[#818CF8]" aria-hidden="true" />
             <span>Human-reviewed support</span>
           </div>
 
@@ -219,14 +228,14 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             <button
               type="button"
               onClick={() => setNotificationsOpen((open) => !open)}
-              className="relative flex h-10 w-10 items-center justify-center text-slate-600 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="relative flex h-10 w-10 items-center justify-center text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20] hover:text-[#18181B] dark:hover:text-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
               aria-label={`High-risk student notifications${highRiskStudents.length ? `, ${highRiskStudents.length} students` : ''}`}
               aria-expanded={notificationsOpen}
               aria-controls="high-risk-notifications"
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
               {highRiskStudents.length > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center bg-rose-600 dark:bg-[#9B2C2C] px-1 text-[10px] font-bold leading-none text-white dark:text-[#E2ECE6]">
+                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center bg-[#E11D48] dark:bg-[#FB7185] px-1 text-[10px] font-bold leading-none text-white dark:text-[#09090B]">
                   {highRiskStudents.length > 99 ? '99+' : highRiskStudents.length}
                 </span>
               )}
@@ -234,48 +243,48 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             {notificationsOpen && (
               <section
                 id="high-risk-notifications"
-                className="fixed right-3 top-[7.5rem] z-50 w-[min(22rem,calc(100vw-1.5rem))] border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] text-slate-800 dark:text-[#CBD5CF] shadow-xl md:absolute md:right-0 md:top-full md:mt-2"
+                className="fixed right-3 top-[7.5rem] z-50 w-[min(22rem,calc(100vw-1.5rem))] border border-[#E4E4E7] dark:border-[#3F3F46] bg-white dark:bg-[#18181B] text-[#27272A] dark:text-[#E4E4E7] shadow-xl md:absolute md:right-0 md:top-full md:mt-2"
                 aria-label="High-risk student notifications"
               >
-                <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-[#35433B] px-4 py-3">
+                <div className="flex items-center justify-between gap-3 border-b border-[#E4E4E7] dark:border-[#27272A] px-4 py-3">
                   <div>
-                    <h2 className="text-sm font-semibold text-slate-900 dark:text-[#E2ECE6]">High-risk students</h2>
-                    <p className="mt-0.5 text-xs text-slate-500 dark:text-[#8FA89B]">Current high and critical review flags</p>
+                    <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#FAFAFA]">High-risk students</h2>
+                    <p className="mt-0.5 text-xs text-[#71717A] dark:text-[#A1A1AA]">Current high and critical review flags</p>
                   </div>
-                  <span className="flex h-7 min-w-7 items-center justify-center bg-rose-50 dark:bg-[#281618] px-2 text-xs font-bold text-rose-700 dark:text-[#F87171] border border-rose-200 dark:border-[#4A1E24]">
+                  <span className="flex h-7 min-w-7 items-center justify-center bg-[#FEE2E2] dark:bg-[#450A0A] px-2 text-xs font-bold text-[#B91C1C] dark:text-[#FCA5A5] border border-[#FCA5A5] dark:border-[#991B1B]">
                     {highRiskStudents.length}
                   </span>
                 </div>
                 {notificationsLoading ? (
-                  <p className="px-4 py-5 text-sm text-slate-500 dark:text-[#8FA89B]" role="status">Loading current risk flags…</p>
+                  <p className="px-4 py-5 text-sm text-[#71717A] dark:text-[#A1A1AA]" role="status">Loading current risk flags…</p>
                 ) : notificationsError ? (
-                  <p className="px-4 py-5 text-sm text-amber-700 dark:text-[#F6D289]" role="alert">Risk notifications are unavailable right now.</p>
+                  <p className="px-4 py-5 text-sm text-[#92400E] dark:text-[#FCD34D]" role="alert">Risk notifications are unavailable right now.</p>
                 ) : highRiskStudents.length === 0 ? (
-                  <div className="flex items-start gap-2.5 px-4 py-5 text-sm text-slate-600 dark:text-[#CBD5CF]">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-[#56B594]" />
+                  <div className="flex items-start gap-2.5 px-4 py-5 text-sm text-[#52525B] dark:text-[#A1A1AA]">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0E7490] dark:text-[#67E8F9]" />
                     <p>No students currently have a high or critical baseline risk flag.</p>
                   </div>
                 ) : (
                   <ul className="max-h-[min(60vh,28rem)] overflow-y-auto">
                     {highRiskStudents.map((student) => (
-                      <li key={student.id} className="border-b border-slate-100 dark:border-[#25322B] last:border-b-0">
+                      <li key={student.id} className="border-b border-[#E4E4E7] dark:border-[#27272A] last:border-b-0">
                         <Link
                           to={`/journey?student_id=${encodeURIComponent(student.id)}`}
                           onClick={() => setNotificationsOpen(false)}
-                          className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#1D2722] focus:bg-slate-50 dark:focus:bg-[#1D2722] focus:outline-none"
+                          className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#1C1C20] focus:bg-slate-50 dark:focus:bg-[#1C1C20] focus:outline-none"
                         >
-                          <AlertTriangle className={cn('mt-0.5 h-4 w-4 shrink-0', student.risk_level === 'critical' ? 'text-rose-600 dark:text-[#F87171]' : 'text-orange-600 dark:text-[#FB923C]')} />
+                          <AlertTriangle className={cn('mt-0.5 h-4 w-4 shrink-0', student.risk_level === 'critical' ? 'text-[#B91C1C] dark:text-[#FDA4AF]' : 'text-[#D97706] dark:text-[#FCD34D]')} />
                           <span className="min-w-0 flex-1">
                             <span className="flex items-start justify-between gap-2">
-                              <span className="truncate text-sm font-semibold text-slate-900 dark:text-[#E2ECE6]">{student.name}</span>
-                              <span className={cn('shrink-0 text-[10px] font-bold uppercase', student.risk_level === 'critical' ? 'text-rose-700 dark:text-[#F87171]' : 'text-orange-700 dark:text-[#FB923C]')}>
+                              <span className="truncate text-sm font-semibold text-[#18181B] dark:text-[#FAFAFA]">{student.name}</span>
+                              <span className={cn('shrink-0 text-[10px] font-bold uppercase', student.risk_level === 'critical' ? 'text-[#B91C1C] dark:text-[#FDA4AF]' : 'text-[#D97706] dark:text-[#FCD34D]')}>
                                 {student.risk_level}
                               </span>
                             </span>
-                            <span className="mt-0.5 block text-xs text-slate-500 dark:text-[#8FA89B]">{student.student_id} · {student.risk_score == null ? 'Score unavailable' : `${student.risk_score.toFixed(1)} risk score`}</span>
-                            <span className="mt-1 block text-xs leading-relaxed text-slate-600 dark:text-[#CBD5CF]">{student.primary_risk_factor}</span>
+                            <span className="mt-0.5 block text-xs text-[#71717A] dark:text-[#A1A1AA]">{student.student_id} · {student.risk_score == null ? 'Score unavailable' : `${student.risk_score.toFixed(1)} risk score`}</span>
+                            <span className="mt-1 block text-xs leading-relaxed text-[#52525B] dark:text-[#D4D4D8]">{student.primary_risk_factor}</span>
                           </span>
-                          <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-[#8FA89B]" />
+                          <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-[#71717A] dark:text-[#A1A1AA]" />
                         </Link>
                       </li>
                     ))}
@@ -284,88 +293,116 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
               </section>
             )}
           </div>
-
-
             </>
           )}
-          {/* Profile, sign in, and display settings */}
-          <div className="flex shrink-0 items-center pl-2 border-l border-slate-200 dark:border-[#35433B]">
+
+          {/* Profile, sign in, and appearance settings */}
+          <div className="flex shrink-0 items-center pl-2 border-l border-[#E4E4E7] dark:border-[#27272A]">
             {!session && (
               <Link
                 to="/login"
-                className="mr-2 inline-flex min-h-8 items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                className="mr-2 inline-flex min-h-8 items-center gap-1.5 rounded-none bg-[#18181B] dark:bg-[#F4F4F5] px-3 py-1.5 text-xs font-semibold text-white dark:text-[#09090B] shadow-2xs hover:bg-[#27272A] dark:hover:bg-[#D4D4D8] focus:outline-none focus:ring-2 focus:ring-[#818CF8] transition-colors"
               >
                 <LogIn className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Log in</span>
               </Link>
             )}
             <details className="group relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2 p-1.5 text-slate-700 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <span className="flex h-8 w-8 items-center justify-center bg-slate-800 dark:bg-[#1D2722] text-xs font-semibold text-white dark:text-[#E2ECE6] border border-transparent dark:border-[#35433B]">
+              <summary className="flex cursor-pointer list-none items-center gap-2 p-1.5 text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20] focus:outline-none focus:ring-2 focus:ring-[#818CF8]">
+                <span className="flex h-8 w-8 items-center justify-center bg-[#18181B] dark:bg-[#27272A] text-xs font-semibold text-white dark:text-[#FAFAFA] border border-[#D4D4D8] dark:border-[#3F3F46]">
                   {session?.role ? session.role.slice(0, 2).toUpperCase() : 'AI'}
                 </span>
                 <span className="hidden text-xs font-medium sm:block">{session?.role ? session.role : 'Workspace'}</span>
-                <ChevronDown className="h-4 w-4 text-slate-500 dark:text-[#8FA89B] transition-transform group-open:rotate-180" />
+                <ChevronDown className="h-4 w-4 text-[#71717A] dark:text-[#A1A1AA] transition-transform group-open:rotate-180" />
               </summary>
-              <div className="absolute right-0 top-full z-50 mt-2 w-[min(19rem,calc(100vw-1.5rem))] border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] p-4 text-slate-800 dark:text-[#CBD5CF] shadow-xl">
-                <div className="border-b border-slate-200 dark:border-[#35433B] pb-3">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-[#E2ECE6]">
+              <div className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-1.5rem))] border border-[#E4E4E7] dark:border-[#3F3F46] bg-white dark:bg-[#18181B] p-4 text-[#27272A] dark:text-[#E4E4E7] shadow-xl">
+                <div className="border-b border-[#E4E4E7] dark:border-[#27272A] pb-3">
+                  <p className="text-sm font-semibold text-[#18181B] dark:text-[#FAFAFA]">
                     {session ? 'User Session' : 'EduNexus AI Workspace'}
                   </p>
-                  <p className="mt-1 break-all text-xs text-slate-600 dark:text-[#CBD5CF]">
+                  <p className="mt-1 break-all text-xs text-[#52525B] dark:text-[#A1A1AA]">
                     {session?.email || 'Direct Access Public Mode'}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-[#8FA89B]">
+                  <p className="mt-1 text-xs text-[#71717A] dark:text-[#71717A]">
                     {session ? `Role: ${session.role}` : 'Role: Public Viewer (Read-Only)'}
                   </p>
-                  {session?.isDemoSession && <p className="mt-1 text-[11px] text-indigo-700 dark:text-[#56B594]">Local demo session</p>}
+                  {session?.isDemoSession && <p className="mt-1 text-[11px] text-[#4F46E5] dark:text-[#A5B4FC]">Local demo session</p>}
                 </div>
-                <div className="space-y-3 py-3">
-                  <p className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-[#CBD5CF]">
-                    <SlidersHorizontal className="h-3.5 w-3.5" /> Display settings
-                  </p>
-                  <div className="flex items-center justify-between gap-3 text-xs text-slate-700 dark:text-[#CBD5CF]">
-                    <span className="font-medium">Appearance</span>
+
+                {/* Appearance Theme Selector */}
+                <div className="space-y-2 py-3 border-b border-[#E4E4E7] dark:border-[#27272A]">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#18181B] dark:text-[#FAFAFA]">
+                    <span className="flex items-center gap-2">
+                      <SlidersHorizontal className="h-3.5 w-3.5 text-[#52525B] dark:text-[#A1A1AA]" /> Appearance
+                    </span>
+                    <span className="text-[10px] font-medium text-[#71717A] dark:text-[#A1A1AA]">
+                      {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 p-1 bg-[#F4F4F5] dark:bg-[#111113] border border-[#E4E4E7] dark:border-[#27272A]">
                     <button
                       type="button"
-                      onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
-                      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-                      className="inline-flex min-h-9 items-center gap-2 border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-[#E2ECE6] hover:bg-slate-100 dark:hover:bg-[#25322B] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      {theme === 'dark' ? (
-                        <Sun className="h-3.5 w-3.5" aria-hidden="true" />
-                      ) : (
-                        <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+                      onClick={() => onThemeChange('dark')}
+                      className={cn(
+                        'flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium transition-all select-none rounded-none',
+                        theme === 'dark'
+                          ? 'bg-[#27272A] text-[#FFFFFF] border border-[#3F3F46] shadow-2xs font-semibold'
+                          : 'text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#FAFAFA] hover:bg-[#E4E4E7] dark:hover:bg-[#1C1C20]'
                       )}
-                      {theme === 'dark' ? 'Light theme' : 'Dark theme'}
+                      aria-pressed={theme === 'dark'}
+                      aria-label="Switch to Dark Mode"
+                    >
+                      <Moon className={cn('h-3.5 w-3.5', theme === 'dark' ? 'text-[#A5B4FC]' : 'text-[#71717A]')} />
+                      <span>Dark Mode</span>
+                      {theme === 'dark' && <span className="w-1.5 h-1.5 rounded-full bg-[#818CF8]" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onThemeChange('light')}
+                      className={cn(
+                        'flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium transition-all select-none rounded-none',
+                        theme === 'light'
+                          ? 'bg-white text-[#18181B] border border-[#D4D4D8] shadow-2xs font-semibold'
+                          : 'text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#FAFAFA] hover:bg-[#E4E4E7] dark:hover:bg-[#1C1C20]'
+                      )}
+                      aria-pressed={theme === 'light'}
+                      aria-label="Switch to Light Mode"
+                    >
+                      <Sun className={cn('h-3.5 w-3.5', theme === 'light' ? 'text-[#4F46E5]' : 'text-[#71717A]')} />
+                      <span>Light Mode</span>
+                      {theme === 'light' && <span className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />}
                     </button>
                   </div>
-                  <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-slate-700 dark:text-[#CBD5CF]">
-                    <span>Compact navigation</span>
-                    <input
-                      type="checkbox"
-                      checked={compactNavigation}
-                      onChange={(event) => {
-                        setCompactNavigation(event.target.checked);
-                        storePreference('edunexus_compact_navigation', event.target.checked);
-                      }}
-                      className="h-4 w-4 accent-indigo-600"
-                    />
-                  </label>
-                  <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-slate-700 dark:text-[#CBD5CF]">
-                    <span>Reduce motion</span>
-                    <input
-                      type="checkbox"
-                      checked={reduceMotion}
-                      onChange={(event) => {
-                        setReduceMotion(event.target.checked);
-                        storePreference('edunexus_reduce_motion', event.target.checked);
-                      }}
-                      className="h-4 w-4 accent-indigo-600"
-                    />
-                  </label>
+
+                  <div className="pt-2 space-y-2">
+                    <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-[#52525B] dark:text-[#A1A1AA]">
+                      <span>Compact navigation</span>
+                      <input
+                        type="checkbox"
+                        checked={compactNavigation}
+                        onChange={(event) => {
+                          setCompactNavigation(event.target.checked);
+                          storePreference('edunexus_compact_navigation', event.target.checked);
+                        }}
+                        className="h-4 w-4 accent-[#4F46E5] dark:accent-[#6366F1]"
+                      />
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-[#52525B] dark:text-[#A1A1AA]">
+                      <span>Reduce motion</span>
+                      <input
+                        type="checkbox"
+                        checked={reduceMotion}
+                        onChange={(event) => {
+                          setReduceMotion(event.target.checked);
+                          storePreference('edunexus_reduce_motion', event.target.checked);
+                        }}
+                        className="h-4 w-4 accent-[#4F46E5] dark:accent-[#6366F1]"
+                      />
+                    </label>
+                  </div>
                 </div>
-                <div className="border-t border-slate-200 dark:border-[#35433B] pt-3 space-y-2">
+
+                <div className="pt-3 space-y-2">
                   {!session ? (
                     <>
                       <Link
@@ -373,7 +410,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                         onClick={(event) => {
                           event.currentTarget.closest('details')?.removeAttribute('open');
                         }}
-                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-indigo-600 dark:text-[#56B594] hover:text-indigo-700 dark:hover:text-[#459b7e] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-[#4F46E5] dark:text-[#A5B4FC] hover:text-[#3730A3] dark:hover:text-[#C7D2FE] focus:outline-none focus:ring-2 focus:ring-[#818CF8] transition-colors"
                       >
                         <LogIn className="h-3.5 w-3.5" /> Sign in to account
                       </Link>
@@ -382,7 +419,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                         onClick={(event) => {
                           event.currentTarget.closest('details')?.removeAttribute('open');
                         }}
-                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#818CF8] transition-colors"
                       >
                         <UserPlus className="h-3.5 w-3.5" /> Create new account
                       </Link>
@@ -393,7 +430,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                           signOut();
                           navigate('/');
                         }}
-                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-slate-500 dark:text-[#8FA89B] hover:text-rose-600 dark:hover:text-[#F87171] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-[#71717A] dark:text-[#71717A] hover:text-[#B91C1C] dark:hover:text-[#FCA5A5] focus:outline-none focus:ring-2 focus:ring-[#818CF8] transition-colors"
                       >
                         <LogOut className="h-3.5 w-3.5" /> Sign out
                       </button>
@@ -405,7 +442,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                         onClick={(event) => {
                           event.currentTarget.closest('details')?.removeAttribute('open');
                         }}
-                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-indigo-600 dark:text-[#56B594] hover:underline"
+                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-[#4F46E5] dark:text-[#A5B4FC] hover:underline"
                       >
                         <Users className="h-3.5 w-3.5" /> Switch Role / Profiles
                       </Link>
@@ -416,9 +453,9 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                           signOut();
                           navigate('/');
                         }}
-                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-rose-600 dark:hover:text-[#F87171] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                        className="flex min-h-9 w-full items-center gap-2 text-left text-xs font-semibold text-[#52525B] dark:text-[#A1A1AA] hover:text-[#B91C1C] dark:hover:text-[#FCA5A5] focus:outline-none focus:ring-2 focus:ring-[#818CF8] transition-colors"
                       >
-                        <LogOut className="h-3.5 w-3.5 text-rose-500" /> Sign out
+                        <LogOut className="h-3.5 w-3.5 text-[#B91C1C] dark:text-[#FCA5A5]" /> Sign out
                       </button>
                     </>
                   )}
@@ -431,12 +468,12 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
         {!isStudent && (
         <div className="px-3 pb-3 md:hidden">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#71717A] dark:text-[#A1A1AA]" />
             <input
               type="search"
               onKeyDown={submitStudentSearch}
               placeholder="Search students by name or ID"
-              className="w-full border border-slate-200 dark:border-[#35433B] bg-slate-100 dark:bg-[#1D2722] py-2 pl-9 pr-3 text-sm text-slate-800 dark:text-[#E2ECE6] placeholder:text-slate-500 dark:placeholder:text-[#8FA89B] focus:border-indigo-500 focus:bg-white dark:focus:bg-[#151C19] focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full border border-[#D4D4D8] dark:border-[#3F3F46] bg-slate-100 dark:bg-[#111113] py-2 pl-9 pr-3 text-sm text-[#18181B] dark:text-[#FAFAFA] placeholder:text-[#A1A1AA] dark:placeholder:text-[#71717A] focus:border-[#6366F1] dark:focus:border-[#818CF8] focus:bg-white dark:focus:bg-[#141416] focus:outline-none focus:ring-2 focus:ring-[#6366F1]/20"
               aria-label="Quick search students"
             />
           </div>
@@ -447,12 +484,12 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Desktop Sidebar Navigation */}
         <aside
-          className="hidden h-full w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] md:flex"
+          className="hidden h-full w-64 shrink-0 flex-col overflow-y-auto border-r border-[#E4E4E7] dark:border-[#27272A] bg-white dark:bg-[#0D0D0F] md:flex"
           aria-label="Main sidebar navigation"
         >
           {/* Main Navigation Links */}
           <div className="flex-1 space-y-1 p-4">
-            <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#8FA89B]">
+            <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#71717A] dark:text-[#71717A]">
               Platform Modules
             </div>
             <nav className="space-y-1">
@@ -467,35 +504,39 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                       cn(
                         'flex items-center justify-between px-3 py-2 rounded-none text-sm font-medium transition-colors group',
                         isActive
-                          ? 'bg-[#E8F5F1] text-[#166B53] dark:bg-[#1D332A] dark:text-[#56B594] font-semibold shadow-2xs'
-                          : 'text-slate-600 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] hover:text-slate-900 dark:hover:text-[#E2ECE6]'
+                          ? 'bg-[#EEF2FF] text-[#3730A3] dark:bg-[#27272A] dark:text-[#FFFFFF] font-semibold shadow-2xs'
+                          : 'text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20] hover:text-[#18181B] dark:hover:text-[#FAFAFA]'
                       )
                     }
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" />
-                      <span>{item.name}</span>
-                    </div>
-                    {item.badge && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-none bg-[#D5EDE5] text-[#166B53] dark:bg-[#153E31] dark:text-[#56B594]">
-                        {item.badge}
-                      </span>
+                    {({ isActive }) => (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <Icon className={cn('w-4 h-4 shrink-0 transition-transform group-hover:scale-105', isActive ? 'text-[#4F46E5] dark:text-[#A5B4FC]' : 'text-[#71717A] dark:text-[#A1A1AA]')} />
+                          <span>{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <span className={cn('text-[10px] font-semibold px-1.5 py-0.2 rounded-none border', isActive ? 'bg-[#EEF2FF] text-[#3730A3] border-[#818CF8] dark:bg-[#27272A] dark:text-[#A5B4FC] dark:border-[#3F3F46]' : 'bg-[#F4F4F5] text-[#52525B] border-[#D4D4D8] dark:bg-[#1C1C20] dark:text-[#A1A1AA] dark:border-[#3F3F46]')}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
                     )}
                   </NavLink>
                 );
               })}
             </nav>
 
-            <div className="pt-6 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#8FA89B]">
+            <div className="pt-6 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#71717A] dark:text-[#71717A]">
               Governance & Integrity
             </div>
-            <div className="space-y-1 text-xs text-slate-600 dark:text-[#CBD5CF]">
-              <div className="p-3 bg-slate-50 dark:bg-[#1D2722] border border-slate-200 dark:border-[#35433B] rounded-none space-y-2">
-                <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-[#E2ECE6] text-xs">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-[#56B594]" />
+            <div className="space-y-1 text-xs text-[#52525B] dark:text-[#A1A1AA]">
+              <div className="p-3 bg-slate-50 dark:bg-[#111113] border border-[#E4E4E7] dark:border-[#27272A] rounded-none space-y-2">
+                <div className="flex items-center gap-1.5 font-semibold text-[#18181B] dark:text-[#FAFAFA] text-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#4F46E5] dark:text-[#818CF8]" />
                   <span>Explainable AI Principles</span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-[#8FA89B] leading-normal">
+                <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] leading-normal">
                   Risk scores are transparent, descriptive, and require human review. No punitive automated actions.
                 </p>
               </div>
@@ -503,17 +544,17 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
           </div>
 
           {/* Sidebar Footer with Active Account and Sign Out */}
-          <div className="p-3.5 border-t border-slate-200 dark:border-[#35433B] bg-slate-50/70 dark:bg-[#1A2320] space-y-2.5">
+          <div className="p-3.5 border-t border-[#E4E4E7] dark:border-[#27272A] bg-slate-50/70 dark:bg-[#0A0A0A] space-y-2.5">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-slate-800 dark:bg-[#1D2722] text-[11px] font-bold text-white dark:text-[#E2ECE6] border border-slate-700/50">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-[#18181B] dark:bg-[#27272A] text-[11px] font-bold text-white dark:text-[#FAFAFA] border border-[#D4D4D8] dark:border-[#3F3F46]">
                   {session?.role ? session.role.slice(0, 2).toUpperCase() : 'AI'}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-900 dark:text-[#E2ECE6] truncate">
+                  <p className="text-xs font-bold text-[#18181B] dark:text-[#FAFAFA] truncate">
                     {session?.email || 'Direct Workspace'}
                   </p>
-                  <p className="text-[10px] text-slate-500 dark:text-[#8FA89B] uppercase font-semibold">
+                  <p className="text-[10px] text-[#71717A] dark:text-[#71717A] uppercase font-semibold">
                     {session?.role || 'Guest'}{isStudent ? ' · Read-Only' : ''}
                   </p>
                 </div>
@@ -526,21 +567,21 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                   navigate('/');
                 }}
                 title="Sign out of workspace"
-                className="p-1.5 rounded-none text-slate-500 hover:text-rose-600 dark:text-[#8FA89B] dark:hover:text-[#F87171] hover:bg-slate-200/60 dark:hover:bg-[#25322B] transition-colors"
+                className="p-1.5 rounded-none text-[#71717A] hover:text-[#B91C1C] dark:text-[#A1A1AA] dark:hover:text-[#FCA5A5] hover:bg-slate-200/60 dark:hover:bg-[#1C1C20] transition-colors"
                 aria-label="Sign out"
               >
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-[#8FA89B] pt-2 border-t border-slate-200/60 dark:border-[#25322B]">
+            <div className="flex items-center justify-between text-[10px] text-[#71717A] dark:text-[#71717A] pt-2 border-t border-[#E4E4E7] dark:border-[#27272A]">
               <Link
                 to="/login"
-                className="font-semibold text-indigo-600 dark:text-[#56B594] hover:underline"
+                className="font-semibold text-[#4F46E5] dark:text-[#A5B4FC] hover:underline"
               >
                 Switch Role / Sign In
               </Link>
-              <span className="text-slate-400 dark:text-[#8FA89B]">
+              <span className="text-[#A1A1AA] dark:text-[#71717A]">
                 EduNexus AI
               </span>
             </div>
@@ -550,19 +591,19 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div
-            className="fixed inset-0 z-40 md:hidden bg-slate-900/40 backdrop-blur-2xs flex"
+            className="fixed inset-0 z-40 md:hidden bg-black/70 backdrop-blur-2xs flex"
             onClick={() => setMobileMenuOpen(false)}
           >
             <div
-              className="w-72 bg-white dark:bg-[#151C19] text-slate-900 dark:text-[#E2ECE6] h-full shadow-xl flex flex-col p-4 animate-in slide-in-from-left duration-200 border-r border-slate-200 dark:border-[#35433B]"
+              className="w-72 bg-white dark:bg-[#0D0D0F] text-[#27272A] dark:text-[#E4E4E7] h-full shadow-xl flex flex-col p-4 animate-in slide-in-from-left duration-200 border-r border-[#E4E4E7] dark:border-[#27272A]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-[#35433B] mb-4">
-                <span className="font-bold text-base text-slate-900 dark:text-[#E2ECE6]">EduNexus AI</span>
+              <div className="flex items-center justify-between pb-4 border-b border-[#E4E4E7] dark:border-[#27272A] mb-4">
+                <span className="font-bold text-base text-[#18181B] dark:text-[#FAFAFA]">EduNexus AI</span>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-none text-slate-500 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722]"
+                  className="p-1.5 rounded-none text-[#71717A] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20]"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -580,38 +621,32 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium',
+                          'flex items-center justify-between px-3 py-2.5 rounded-none text-sm font-medium transition-colors',
                           isActive
-                            ? 'bg-[#E8F5F1] text-[#166B53] font-semibold dark:bg-[#1D332A] dark:text-[#56B594]'
-                            : 'text-slate-600 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] hover:text-slate-900 dark:hover:text-[#E2ECE6]'
+                            ? 'bg-[#EEF2FF] text-[#3730A3] dark:bg-[#27272A] dark:text-[#FFFFFF] font-semibold'
+                            : 'text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#F4F4F5] dark:hover:bg-[#1C1C20] hover:text-[#18181B] dark:hover:text-[#FAFAFA]'
                         )
                       }
                     >
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.name}</span>
+                      {({ isActive }) => (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <Icon className={cn('w-4 h-4', isActive ? 'text-[#4F46E5] dark:text-[#A5B4FC]' : 'text-[#71717A] dark:text-[#A1A1AA]')} />
+                            <span>{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-none border', isActive ? 'bg-[#EEF2FF] text-[#3730A3] border-[#818CF8] dark:bg-[#27272A] dark:text-[#A5B4FC] dark:border-[#3F3F46]' : 'bg-[#F4F4F5] text-[#52525B] border-[#D4D4D8] dark:bg-[#1C1C20] dark:text-[#A1A1AA] dark:border-[#3F3F46]')}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </>
+                      )}
                     </NavLink>
                   );
                 })}
-                {!session && (
-                  <NavLink
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-semibold text-indigo-600 dark:text-[#56B594] hover:bg-slate-100 dark:hover:bg-[#1D2722]"
-                  >
-                    <LogIn className="w-4 h-4 shrink-0" />
-                    <span>Log in</span>
-                  </NavLink>
-                )}
               </nav>
 
-              <div className="pt-3 border-t border-slate-200 dark:border-[#35433B] space-y-2">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-indigo-600 dark:text-[#56B594] hover:bg-slate-100 dark:hover:bg-[#1D2722]"
-                >
-                  <Users className="w-4 h-4" /> Switch Role / Sign In
-                </Link>
+              <div className="pt-4 border-t border-[#E4E4E7] dark:border-[#27272A] space-y-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -619,7 +654,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                     signOut();
                     navigate('/');
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-[#F87171] hover:bg-rose-50 dark:hover:bg-[#281618]"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-[#B91C1C] dark:text-[#FCA5A5] hover:bg-[#FEE2E2] dark:hover:bg-[#450A0A]"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
@@ -631,14 +666,14 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
         {/* Main Content Viewport */}
         <main id="main-content" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {/* Breadcrumb / Section Banner */}
-          <div className="bg-white dark:bg-[#151C19] border-b border-slate-200 dark:border-[#35433B] px-4 sm:px-8 py-3.5 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#141416] border-b border-[#E4E4E7] dark:border-[#27272A] px-4 sm:px-8 py-3.5 flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-[#8FA89B] mb-0.5">
+              <div className="flex items-center gap-2 text-xs text-[#71717A] dark:text-[#71717A] mb-0.5">
                 <span>EduNexus</span>
                 <span>/</span>
-                <span className="font-medium text-slate-800 dark:text-[#CBD5CF]">{pageTitle}</span>
+                <span className="font-medium text-[#27272A] dark:text-[#A1A1AA]">{pageTitle}</span>
               </div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6] tracking-tight">
+              <h1 className="text-xl font-bold text-[#18181B] dark:text-[#FAFAFA] tracking-tight">
                 {pageTitle}
               </h1>
             </div>

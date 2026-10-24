@@ -367,38 +367,38 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-[#101714] text-slate-900 dark:text-[#E2ECE6] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#09090B] text-slate-900 dark:text-[#E4E4E7] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-5xl grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         {/* Main Registration Card */}
-        <div className="rounded-2xl border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] p-8 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] p-8 shadow-sm">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#35433B] pb-6">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#27272A] pb-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center bg-indigo-600 text-white rounded-xl shadow-xs">
                 <GraduationCap className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <div className="text-base font-bold">
-                  EduNexus <span className="text-indigo-600 dark:text-[#56B594]">AI</span>
+                <div className="text-base font-bold text-slate-900 dark:text-[#FAFAFA]">
+                  EduNexus <span className="text-indigo-600 dark:text-[#818CF8]">AI</span>
                 </div>
-                <div className="text-xs text-slate-500 dark:text-[#8FA89B]">
+                <div className="text-xs text-slate-500 dark:text-[#A1A1AA]">
                   Smart Campus Analytics & Student Success
                 </div>
               </div>
             </div>
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#A1A1AA] hover:text-indigo-600 dark:hover:text-[#818CF8] transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Return to Dashboard
             </Link>
           </div>
 
           <div className="mt-6">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#E2ECE6]">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#FAFAFA]">
               Create your institutional account
             </h1>
-            <p className="mt-1.5 text-sm text-slate-600 dark:text-[#CBD5CF]">
+            <p className="mt-1.5 text-sm text-slate-600 dark:text-[#A1A1AA]">
               Register to access student analytics, course performance, or your personal learning telemetry.
             </p>
 
@@ -408,10 +408,10 @@ export function RegisterPage() {
                 data-testid="db-status-badge"
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                   dbStatus.loading
-                    ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400'
+                    ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-[#92400E] dark:bg-[#451A03] dark:text-[#FCD34D]'
                     : dbStatus.connected
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400'
-                    : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400'
+                    ? 'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-[#155E75] dark:bg-[#083344] dark:text-[#67E8F9]'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-[#27272A] dark:bg-[#111113] dark:text-[#A1A1AA]'
                 }`}
               >
                 <Database className="h-3.5 w-3.5 shrink-0" />
@@ -421,7 +421,7 @@ export function RegisterPage() {
                       dbStatus.loading
                         ? 'bg-amber-400'
                         : dbStatus.connected
-                        ? 'bg-emerald-400'
+                        ? 'bg-cyan-400'
                         : 'bg-slate-400'
                     }`}
                   />
@@ -430,7 +430,7 @@ export function RegisterPage() {
                       dbStatus.loading
                         ? 'bg-amber-500'
                         : dbStatus.connected
-                        ? 'bg-emerald-500'
+                        ? 'bg-cyan-500'
                         : 'bg-slate-500'
                     }`}
                   />
@@ -444,7 +444,7 @@ export function RegisterPage() {
                 </span>
               </div>
               {dbStatus.connected && (
-                <span className="text-[11px] text-slate-500 dark:text-[#8FA89B]">
+                <span className="text-[11px] text-slate-500 dark:text-[#71717A]">
                   Registrations sync directly to campus tables
                 </span>
               )}
@@ -455,7 +455,7 @@ export function RegisterPage() {
           {error && (
             <div
               role="alert"
-              className="mt-6 flex items-start gap-3 rounded-lg border border-rose-300 bg-rose-50 dark:border-[#4A1E24] dark:bg-[#281618] p-3.5 text-sm text-rose-800 dark:text-[#F87171]"
+              className="mt-6 flex items-start gap-3 rounded-lg border border-rose-300 bg-rose-50 dark:border-[#9F1239] dark:bg-[#4C0519] p-3.5 text-sm text-rose-800 dark:text-[#FDA4AF]"
             >
               <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
               <div>{error}</div>
@@ -465,12 +465,12 @@ export function RegisterPage() {
           {successMessage && (
             <div
               role="status"
-              className="mt-6 flex items-start gap-3 rounded-lg border border-emerald-300 bg-emerald-50 dark:border-[#1E4A35] dark:bg-[#163026] p-4 text-sm text-emerald-800 dark:text-[#56B594]"
+              className="mt-6 flex items-start gap-3 rounded-lg border border-cyan-300 bg-cyan-50 dark:border-[#155E75] dark:bg-[#083344] p-4 text-sm text-cyan-800 dark:text-[#67E8F9]"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
               <div className="space-y-1">
-                <p className="font-semibold">Registration Confirmation</p>
-                <p className="text-xs leading-relaxed text-emerald-700 dark:text-[#8FA89B]">{successMessage}</p>
+                <p className="font-semibold text-cyan-900 dark:text-[#67E8F9]">Registration Confirmation</p>
+                <p className="text-xs leading-relaxed text-cyan-700 dark:text-[#E4E4E7]">{successMessage}</p>
                 <div className="pt-2">
                   <Link
                     to="/login"
@@ -488,7 +488,7 @@ export function RegisterPage() {
             <form onSubmit={handleRegisterSubmit} className="mt-6 space-y-5">
               {/* Institutional Role Selector */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA] mb-2">
                   Institutional Role
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -506,8 +506,8 @@ export function RegisterPage() {
                       onClick={() => setRole(option.id)}
                       className={`min-h-9 py-2 px-3 text-xs font-semibold rounded-lg border transition-all text-center ${
                         role === option.id
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:border-[#56B594] dark:bg-[#1D332A] dark:text-[#56B594]'
-                          : 'border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#25322B]'
+                          ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:border-[#818CF8] dark:bg-[#27272A] dark:text-[#FAFAFA]'
+                          : 'border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113] text-slate-700 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#1C1C20]'
                       }`}
                     >
                       {option.label}
@@ -521,7 +521,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="first-name"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                   >
                     First Name
                   </label>
@@ -532,13 +532,13 @@ export function RegisterPage() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="e.g. Aarav"
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="last-name"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                   >
                     Last Name
                   </label>
@@ -549,7 +549,7 @@ export function RegisterPage() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="e.g. Sharma"
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
               </div>
@@ -558,7 +558,7 @@ export function RegisterPage() {
               <div>
                 <label
                   htmlFor="institutional-email"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                 >
                   Institutional Email
                 </label>
@@ -570,19 +570,19 @@ export function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@college.edu"
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
               {/* Role-Specific Fields */}
               {role === 'student' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-[#1D4633] dark:bg-[#152720] p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-[#1D4ED8] dark:bg-[#172554] p-4">
                   <div>
                     <label
                       htmlFor="student-id"
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                     >
-                      <Hash className="h-3.5 w-3.5 text-indigo-600 dark:text-[#56B594]" /> Student ID / Roll No
+                      <Hash className="h-3.5 w-3.5 text-indigo-600 dark:text-[#818CF8]" /> Student ID / Roll No
                     </label>
                     <input
                       id="student-id"
@@ -591,21 +591,21 @@ export function RegisterPage() {
                       value={studentId}
                       onChange={(e) => setStudentId(e.target.value)}
                       placeholder="e.g. STU-1025"
-                      className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                   <div>
                     <label
                       htmlFor="student-semester"
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                     >
-                      <BookOpen className="h-3.5 w-3.5 text-indigo-600 dark:text-[#56B594]" /> Academic Term
+                      <BookOpen className="h-3.5 w-3.5 text-indigo-600 dark:text-[#818CF8]" /> Academic Term
                     </label>
                     <select
                       id="student-semester"
                       value={semester}
                       onChange={(e) => setSemester(e.target.value)}
-                      className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2 text-sm text-slate-900 dark:text-[#E2ECE6] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2 text-sm text-slate-900 dark:text-[#FAFAFA] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     >
                       {semesters.map((s) => (
                         <option key={s} value={s}>
@@ -621,15 +621,15 @@ export function RegisterPage() {
               <div>
                 <label
                   htmlFor="department"
-                  className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                  className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                 >
-                  <Building className="h-3.5 w-3.5 text-indigo-600 dark:text-[#56B594]" /> Department / Academic Unit
+                  <Building className="h-3.5 w-3.5 text-indigo-600 dark:text-[#818CF8]" /> Department / Academic Unit
                 </label>
                 <select
                   id="department"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#E2ECE6] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 text-sm text-slate-900 dark:text-[#FAFAFA] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 >
                   {departments.map((d) => (
                     <option key={d} value={d}>
@@ -644,7 +644,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="registration-password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                   >
                     Password
                   </label>
@@ -657,13 +657,13 @@ export function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min 8 characters"
-                      className="w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 dark:text-[#8FA89B] dark:hover:text-[#E2ECE6]"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 dark:text-[#71717A] dark:hover:text-[#FAFAFA]"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
@@ -673,7 +673,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="registration-confirm-password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                   >
                     Confirm Password
                   </label>
@@ -686,14 +686,14 @@ export function RegisterPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter password"
-                      className="w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#35433B] dark:bg-[#1D2722] px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-[#E2ECE6] placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full rounded-lg border border-slate-300 bg-slate-50 dark:border-[#3F3F46] dark:bg-[#111113] px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-[#FAFAFA] placeholder:text-slate-400 dark:placeholder:text-[#71717A] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Ethical AI & Governance Consent */}
-              <div className="rounded-xl border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] p-4">
+              <div className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113] p-4">
                 <div className="flex items-start gap-3">
                   <input
                     type="checkbox"
@@ -703,9 +703,9 @@ export function RegisterPage() {
                     onChange={(e) => setConsentAgreed(e.target.checked)}
                     className="mt-1 h-4 w-4 accent-indigo-600 rounded cursor-pointer"
                   />
-                  <label htmlFor="consent-checkbox" className="text-xs leading-relaxed text-slate-600 dark:text-[#CBD5CF] cursor-pointer">
-                    <span className="font-semibold text-slate-800 dark:text-[#E2ECE6] flex items-center gap-1.5">
-                      <ShieldCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-[#56B594]" /> Ethical AI & Data
+                  <label htmlFor="consent-checkbox" className="text-xs leading-relaxed text-slate-600 dark:text-[#A1A1AA] cursor-pointer">
+                    <span className="font-semibold text-slate-800 dark:text-[#FAFAFA] flex items-center gap-1.5">
+                      <ShieldCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-[#818CF8]" /> Ethical AI & Data
                       Governance Consent
                     </span>
                     I acknowledge that EduNexus AI provides predictive decision-support indicators under the core
@@ -728,11 +728,11 @@ export function RegisterPage() {
           )}
 
           {/* Bottom Login Link */}
-          <div className="mt-6 border-t border-slate-200 dark:border-[#35433B] pt-4 text-center text-xs text-slate-600 dark:text-[#CBD5CF]">
+          <div className="mt-6 border-t border-slate-200 dark:border-[#27272A] pt-4 text-center text-xs text-slate-600 dark:text-[#A1A1AA]">
             Already have an institutional account?{' '}
             <Link
               to="/login"
-              className="font-semibold text-indigo-600 dark:text-[#56B594] hover:underline transition-colors"
+              className="font-semibold text-indigo-600 dark:text-[#A5B4FC] hover:underline transition-colors"
             >
               Sign in here
             </Link>

@@ -37,18 +37,18 @@ export const StudentRadarFingerprint: React.FC<StudentRadarFingerprintProps> = (
     : 70;
 
   return (
-    <Card className="border-slate-200">
+    <Card className="border-[#E4E4E7] dark:border-[#29292D]">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-teal-50 text-teal-700 border border-teal-100">
+            <div className="p-2 rounded-none bg-indigo-50 dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC] border border-[#E4E4E7] dark:border-[#3F3F46]">
               <Compass className="w-4 h-4" />
             </div>
             <div>
-              <CardTitle className="text-sm font-bold text-slate-900">
+              <CardTitle className="text-sm font-bold text-[#18181B] dark:text-[#FAFAFA]">
                 7-Domain Competency Radar
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500">
+              <CardDescription className="text-xs text-[#52525B] dark:text-[#A1A1AA]">
                 Holistic multi-dimensional fingerprint for {studentName}
               </CardDescription>
             </div>
@@ -62,31 +62,31 @@ export const StudentRadarFingerprint: React.FC<StudentRadarFingerprintProps> = (
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-              <PolarGrid stroke="#e2e8f0" />
+              <PolarGrid stroke="var(--chart-grid, #27272A)" />
               <PolarAngleAxis
                 dataKey="subject"
-                tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }}
+                tick={{ fill: 'var(--chart-axis, #A1A1AA)', fontSize: 10, fontWeight: 600 }}
               />
               <PolarRadiusAxis
                 angle={30}
                 domain={[0, 100]}
-                tick={{ fill: '#94a3b8', fontSize: 9 }}
+                tick={{ fill: 'var(--chart-axis, #71717A)', fontSize: 9 }}
               />
               <Radar
                 name={studentName}
                 dataKey="score"
-                stroke="#0d9488"
-                fill="#0d9488"
-                fillOpacity={0.35}
+                stroke="var(--chart-1, #818CF8)"
+                fill="var(--chart-1, #818CF8)"
+                fillOpacity={0.25}
                 strokeWidth={2}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                  backgroundColor: 'var(--chart-tooltip-bg, #18181B)',
                   borderRadius: 0,
-                  border: '1px solid var(--tooltip-border, #e2e8f0)',
-                  color: 'var(--tooltip-text, #1e293b)',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  border: '1px solid var(--chart-tooltip-border, #3F3F46)',
+                  color: 'var(--chart-tooltip-text, #FAFAFA)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
                   fontSize: '11px',
                 }}
                 formatter={(val: any, _name: any, item: any) => [

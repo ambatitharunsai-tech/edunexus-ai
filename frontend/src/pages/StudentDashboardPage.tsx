@@ -141,19 +141,19 @@ export const StudentDashboardPage: React.FC = () => {
   if (!session) {
     return (
       <div className="mx-auto max-w-2xl py-12 px-4">
-        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+        <Card className="border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-sm">
           <CardContent className="space-y-6 p-6 sm:p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-600 dark:text-[#56B594] border border-indigo-100 dark:border-[#1D4633]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#18181B] text-indigo-600 dark:text-[#818CF8] border border-indigo-100 dark:border-[#27272A]">
               <GraduationCap className="h-7 w-7" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-[#FAFAFA]">
                 Student Learning & Advisory Portal
               </h2>
-              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-[#56B594]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-[#818CF8]">
                 Confidential & Strict Role Isolation
               </p>
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#CBD5CF] max-w-lg mx-auto">
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#A1A1AA] max-w-lg mx-auto">
                 Student learning dashboards contain personal academic records, attendance history, and tailored guidance. Each student's portal is strictly isolated to protect educational privacy. Peer records, ranks, and other students' details are never accessible.
               </p>
             </div>
@@ -174,7 +174,7 @@ export const StudentDashboardPage: React.FC = () => {
                     isDemoSession: true,
                   });
                 }}
-                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E2ECE6] hover:bg-slate-100 dark:hover:bg-[#25322B] transition-colors cursor-pointer"
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#3F3F46] bg-slate-50 dark:bg-[#18181B] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E4E4E7] hover:bg-slate-100 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
               >
                 Explore Demo Student (Aarav Sharma)
               </button>
@@ -189,16 +189,16 @@ export const StudentDashboardPage: React.FC = () => {
   if (session && !isStudent) {
     return (
       <div className="mx-auto max-w-2xl py-12 px-4">
-        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+        <Card className="border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-sm">
           <CardContent className="space-y-5 p-6 sm:p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-[#281618] text-amber-700 dark:text-[#FB923C] border border-amber-200 dark:border-[#4A1E24]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-[#451A03] text-amber-700 dark:text-[#FCD34D] border border-amber-200 dark:border-[#92400E]">
               <ShieldCheck className="h-7 w-7" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-[#FAFAFA]">
                 Staff Account Notice
               </h2>
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#CBD5CF] max-w-lg mx-auto">
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#A1A1AA] max-w-lg mx-auto">
                 You are currently signed in with an institutional staff role ({session.role}). The Student Dashboard is an individual, student-owned view restricted to enrolled students.
               </p>
             </div>
@@ -212,7 +212,7 @@ export const StudentDashboardPage: React.FC = () => {
               </Link>
               <Link
                 to="/"
-                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E2ECE6] hover:bg-slate-100 dark:hover:bg-[#25322B] transition-colors"
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#3F3F46] bg-slate-50 dark:bg-[#18181B] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E4E4E7] hover:bg-slate-100 dark:hover:bg-[#27272A] transition-colors"
               >
                 Dashboard Overview
               </Link>
@@ -467,16 +467,16 @@ export const StudentDashboardPage: React.FC = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-slate-200 dark:border-[#35433B] text-[10px] uppercase tracking-wide text-slate-500 dark:text-[#CBD5CF]">
+                  <thead className="border-b border-slate-200 dark:border-[#27272A] text-[10px] uppercase tracking-wide text-slate-500 dark:text-[#A1A1AA]">
                     <tr><th className="py-2 pr-3">Subject</th><th className="py-2 pr-3">Assessment</th><th className="py-2 pr-3">Result</th><th className="py-2 text-right">Date</th></tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                     {recent_assessments.map((assessment, index) => (
-                      <tr key={`${assessment.subject}-${assessment.date ?? index}-${index}`} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
-                        <td className="py-3 pr-3 font-semibold text-slate-800 dark:text-[#E2ECE6]">{assessment.subject}</td>
-                        <td className="py-3 pr-3 text-slate-600 dark:text-[#CBD5CF]">{assessment.assessment_type}</td>
-                        <td className="py-3 pr-3 font-bold text-slate-800 dark:text-[#E2ECE6]">{formatScore(assessment.percentage)}</td>
-                        <td className="py-3 text-right text-slate-500 dark:text-[#8FA89B]">{formatDate(assessment.date)}</td>
+                      <tr key={`${assessment.subject}-${assessment.date ?? index}-${index}`} className="hover:bg-slate-50/70 dark:hover:bg-[#242428] transition-colors">
+                        <td className="py-3 pr-3 font-semibold text-slate-800 dark:text-[#FAFAFA]">{assessment.subject}</td>
+                        <td className="py-3 pr-3 text-slate-600 dark:text-[#A1A1AA]">{assessment.assessment_type}</td>
+                        <td className="py-3 pr-3 font-bold text-slate-800 dark:text-[#FAFAFA]">{formatScore(assessment.percentage)}</td>
+                        <td className="py-3 text-right text-slate-500 dark:text-[#71717A]">{formatDate(assessment.date)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -486,25 +486,25 @@ export const StudentDashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 dark:border-[#35433B]">
+        <Card className="border-slate-200 dark:border-[#29292D]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-[#E2ECE6]">
-              <CalendarCheck className="h-4 w-4 text-emerald-600 dark:text-[#56B594]" /> Recent attendance
+            <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-[#FAFAFA]">
+              <CalendarCheck className="h-4 w-4 text-cyan-600 dark:text-[#67E8F9]" /> Recent attendance
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 dark:text-[#8FA89B]">Attendance entries most recently recorded for you.</CardDescription>
+            <CardDescription className="text-xs text-slate-500 dark:text-[#A1A1AA]">Attendance entries most recently recorded for you.</CardDescription>
           </CardHeader>
           <CardContent>
             {recent_attendance.length === 0 ? (
-              <p className="rounded-none border border-dashed border-slate-200 dark:border-[#35433B] p-4 text-sm text-slate-500 dark:text-[#8FA89B]">No attendance sessions have been recorded yet.</p>
+              <p className="rounded-none border border-dashed border-slate-200 dark:border-[#27272A] p-4 text-sm text-slate-500 dark:text-[#71717A]">No attendance sessions have been recorded yet.</p>
             ) : (
               <div className="space-y-2">
                 {recent_attendance.map((row, index) => (
-                  <div key={`${row.date ?? index}-${index}`} className="flex items-center justify-between gap-3 rounded-none border border-slate-100 dark:border-[#35433B] px-3 py-2.5 bg-slate-50/50 dark:bg-[#1D2722]/50">
+                  <div key={`${row.date ?? index}-${index}`} className="flex items-center justify-between gap-3 rounded-none border border-slate-100 dark:border-[#27272A] px-3 py-2.5 bg-slate-50/50 dark:bg-[#111113]">
                     <div className="flex items-center gap-2">
-                      <CalendarCheck className="h-4 w-4 text-slate-400 dark:text-[#8FA89B]" />
-                      <span className="text-xs font-medium text-slate-700 dark:text-[#CBD5CF]">{formatDate(row.date)}</span>
+                      <CalendarCheck className="h-4 w-4 text-slate-400 dark:text-[#71717A]" />
+                      <span className="text-xs font-medium text-slate-700 dark:text-[#D4D4D8]">{formatDate(row.date)}</span>
                     </div>
-                    <span className={`rounded-none border px-2 py-1 text-[10px] font-bold uppercase ${row.status === 'present' || row.status === 'late' ? 'border-emerald-200 dark:border-[#1D4633] bg-emerald-50 dark:bg-[#142820] text-emerald-800 dark:text-[#83D9A9]' : row.status === 'absent' ? 'border-rose-200 dark:border-[#4A1E24] bg-rose-50 dark:bg-[#281618] text-rose-800 dark:text-[#F87171]' : 'border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] text-slate-600 dark:text-[#CBD5CF]'}`}>
+                    <span className={`rounded-none border px-2 py-1 text-[10px] font-bold uppercase ${row.status === 'present' || row.status === 'late' ? 'border-cyan-200 dark:border-[#155E75] bg-cyan-50 dark:bg-[#083344] text-cyan-800 dark:text-[#67E8F9]' : row.status === 'absent' ? 'border-rose-200 dark:border-[#9F1239] bg-rose-50 dark:bg-[#4C0519] text-rose-800 dark:text-[#FDA4AF]' : 'border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#111113] text-slate-600 dark:text-[#A1A1AA]'}`}>
                       {prettyLabel(row.status)}
                     </span>
                   </div>

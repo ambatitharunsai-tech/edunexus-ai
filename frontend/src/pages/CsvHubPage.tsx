@@ -259,10 +259,10 @@ export const CsvHubPage: React.FC = () => {
       {/* Page Title & Context Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6] tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#FAFAFA] tracking-tight">
             Data Hub & CSV Ingestion Engine
           </h2>
-          <p className="text-xs text-slate-500 dark:text-[#8FA89B]">
+          <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
             Validated bulk data ingestion with line-numbered schema checks, deduplication safeguards, and synthetic demo reset.
           </p>
         </div>
@@ -274,7 +274,7 @@ export const CsvHubPage: React.FC = () => {
             size="sm"
             onClick={() => setShowResetConfirmModal(true)}
             disabled={resetting}
-            className="min-h-9 whitespace-nowrap text-xs text-indigo-700 border-indigo-300 hover:bg-indigo-50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md self-start sm:self-auto motion-reduce:transform-none motion-reduce:transition-none"
+            className="min-h-9 whitespace-nowrap text-xs text-indigo-700 dark:text-[#A5B4FC] border-indigo-300 dark:border-[#3F3F46] hover:bg-indigo-50 dark:hover:bg-[#18181B] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md self-start sm:self-auto motion-reduce:transform-none motion-reduce:transition-none"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
             <span>Reset Synthetic Demo Data (1-Click)</span>
@@ -284,11 +284,11 @@ export const CsvHubPage: React.FC = () => {
 
       {/* Demo Reset Confirmation Toast */}
       {resetSuccessMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3 text-emerald-900 text-xs animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+        <div className="p-4 bg-cyan-50 dark:bg-[#083344] border border-cyan-200 dark:border-[#155E75] rounded-xl flex items-start gap-3 text-cyan-900 dark:text-[#67E8F9] text-xs animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 text-cyan-600 dark:text-[#67E8F9] shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <span className="font-bold text-emerald-950">Synthetic Demo Environment Restored</span>
-            <p className="text-emerald-800 leading-normal">{resetSuccessMessage}</p>
+            <span className="font-bold text-cyan-950 dark:text-[#67E8F9]">Synthetic Demo Environment Restored</span>
+            <p className="text-cyan-800 dark:text-[#E4E4E7] leading-normal">{resetSuccessMessage}</p>
           </div>
         </div>
       )}
@@ -387,7 +387,7 @@ export const CsvHubPage: React.FC = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-[#A1A1AA] mb-1.5">
                 Upload CSV File
               </label>
               <div className="flex flex-col gap-1.5">
@@ -396,10 +396,10 @@ export const CsvHubPage: React.FC = () => {
                   accept=".csv,text/csv"
                   onChange={handleFileChange}
                   disabled={isStudent}
-                  className={`block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold rounded-lg border ${
+                  className={`block w-full text-xs text-slate-500 dark:text-[#A1A1AA] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold rounded-lg border ${
                     isStudent
-                      ? 'opacity-50 cursor-not-allowed bg-slate-100 border-slate-200 file:bg-slate-200 file:text-slate-500'
-                      : 'file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border-slate-200 bg-slate-50'
+                      ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-[#18181B] border-slate-200 dark:border-[#27272A] file:bg-slate-200 dark:file:bg-[#27272A] file:text-slate-500'
+                      : 'file:bg-indigo-50 dark:file:bg-[#18181B] file:text-indigo-700 dark:file:text-[#A5B4FC] hover:file:bg-indigo-100 cursor-pointer border-slate-200 dark:border-[#52525B] bg-slate-50 dark:bg-[#111113] hover:border-indigo-400 dark:hover:border-[#818CF8]'
                   }`}
                 />
                 {isStudent && (
@@ -408,7 +408,7 @@ export const CsvHubPage: React.FC = () => {
                   </span>
                 )}
                 {selectedFile && (
-                  <span className="text-[11px] font-mono text-slate-500">
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-[#A1A1AA]">
                     Loaded: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                   </span>
                 )}
@@ -420,9 +420,9 @@ export const CsvHubPage: React.FC = () => {
                       variant="secondary"
                       onClick={handleLoadSampleData}
                       disabled={validating}
-                      className="text-xs py-1 h-auto flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200"
+                      className="text-xs py-1 h-auto flex items-center gap-1.5 bg-indigo-50 dark:bg-[#18181B] hover:bg-indigo-100 dark:hover:bg-[#27272A] text-indigo-700 dark:text-[#A5B4FC] border border-indigo-200 dark:border-[#3F3F46]"
                     >
-                      <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600" />
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600 dark:text-[#A5B4FC]" />
                       <span>Load Sample Test Data</span>
                     </Button>
                   </div>
@@ -435,7 +435,7 @@ export const CsvHubPage: React.FC = () => {
           {validating && (
             <div className="py-8 flex flex-col items-center justify-center space-y-2">
               <Spinner size="md" label="Parsing headers, evaluating row boundaries, and checking relational integrity…" />
-              <p className="text-xs text-slate-700 dark:text-slate-200">
+              <p className="text-xs text-slate-700 dark:text-[#A1A1AA]">
                 Parsing headers, evaluating row boundaries, and checking relational integrity…
               </p>
             </div>
@@ -443,8 +443,8 @@ export const CsvHubPage: React.FC = () => {
 
           {/* Fatal Validation Error */}
           {validationError && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3 text-rose-900 text-xs">
-              <FileX className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="p-4 bg-rose-50 dark:bg-[#4C0519] border border-rose-200 dark:border-[#9F1239] rounded-xl flex items-start gap-3 text-rose-900 dark:text-[#FDA4AF] text-xs">
+              <FileX className="w-5 h-5 text-rose-600 dark:text-[#FDA4AF] shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <span className="font-bold">CSV Schema Rejection</span>
                 <p>{validationError}</p>
@@ -452,16 +452,15 @@ export const CsvHubPage: React.FC = () => {
             </div>
           )}
 
-          {/* Preview Results Banner */}
           {previewResult && (
-            <div className="space-y-4 pt-4 border-t border-slate-200">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border bg-slate-50/70">
+            <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-[#27272A]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#141416]">
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold ${
                       previewResult.can_import
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
+                        ? 'bg-cyan-100 text-cyan-800 dark:bg-[#083344] dark:text-[#67E8F9]'
+                        : 'bg-rose-100 text-rose-800 dark:bg-[#4C0519] dark:text-[#FDA4AF]'
                     }`}
                   >
                     {previewResult.can_import ? (
@@ -471,13 +470,13 @@ export const CsvHubPage: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-[#FAFAFA]">
                       {previewResult.file_name} •{' '}
-                      <span className={previewResult.can_import ? 'text-emerald-700' : 'text-rose-700'}>
+                      <span className={previewResult.can_import ? 'text-cyan-700 dark:text-[#67E8F9]' : 'text-rose-700 dark:text-[#FDA4AF]'}>
                         {previewResult.can_import ? 'Validation Passed' : 'Validation Failed'}
                       </span>
                     </h4>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
                       {previewResult.total_rows} total rows analyzed • {previewResult.valid_rows} valid •{' '}
                       {previewResult.failed_rows} errors
                     </p>
@@ -494,33 +493,33 @@ export const CsvHubPage: React.FC = () => {
               {/* Line-Numbered Errors Table */}
               {previewResult.errors.length > 0 && (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-rose-800">
-                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-rose-800 dark:text-[#FDA4AF]">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-[#FDA4AF]" />
                     <span>Line-Numbered Row Validation Failures ({previewResult.errors.length}):</span>
                   </div>
-                  <div className="overflow-x-auto rounded-none border border-rose-200 dark:border-[#4A1E24] bg-rose-50/40 dark:bg-[#281618]/40">
+                  <div className="overflow-x-auto rounded-none border border-rose-200 dark:border-[#9F1239] bg-rose-50/40 dark:bg-[#4C0519]/40">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-rose-200 dark:border-[#4A1E24] bg-rose-100/60 dark:bg-[#341C20] text-rose-900 dark:text-[#FECDD3] uppercase text-[10px] font-bold">
+                        <tr className="border-b border-rose-200 dark:border-[#9F1239] bg-rose-100/60 dark:bg-[#4C0519] text-rose-900 dark:text-[#FDA4AF] uppercase text-[10px] font-bold">
                           <th className="py-2 px-3 w-16 text-center">Line</th>
                           <th className="py-2 px-3 w-32">Column / Field</th>
                           <th className="py-2 px-3">Validation Rule Violation</th>
                           <th className="py-2 px-3 w-40">Sample Value</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-rose-100 dark:divide-[#4A1E24] text-slate-700 dark:text-[#CBD5CF]">
+                      <tbody className="divide-y divide-rose-100 dark:divide-[#9F1239] text-slate-700 dark:text-[#D4D4D8]">
                         {previewResult.errors.map((err: CsvRowError, idx: number) => (
-                          <tr key={idx} className="hover:bg-rose-100/30 dark:hover:bg-[#341C20]/50">
-                            <td className="py-2 px-3 text-center font-mono font-bold text-rose-700 dark:text-[#F87171]">
+                          <tr key={idx} className="hover:bg-rose-100/30 dark:hover:bg-[#4C0519]/50">
+                            <td className="py-2 px-3 text-center font-mono font-bold text-rose-700 dark:text-[#FDA4AF]">
                               #{err.line}
                             </td>
-                            <td className="py-2 px-3 font-semibold text-slate-800 dark:text-[#E2ECE6]">
+                            <td className="py-2 px-3 font-semibold text-slate-800 dark:text-[#FAFAFA]">
                               {err.column || 'General'}
                             </td>
-                            <td className="py-2 px-3 text-rose-800 dark:text-[#FECDD3] font-medium">
+                            <td className="py-2 px-3 text-rose-800 dark:text-[#FDA4AF] font-medium">
                               {err.message}
                             </td>
-                            <td className="py-2 px-3 font-mono text-[11px] text-slate-500 dark:text-[#8FA89B] truncate max-w-xs">
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-500 dark:text-[#A1A1AA] truncate max-w-xs">
                               {err.raw_value || '—'}
                             </td>
                           </tr>
@@ -534,13 +533,13 @@ export const CsvHubPage: React.FC = () => {
               {/* Sample Data Table Preview */}
               {previewResult.sample_data.length > 0 && (
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-700 dark:text-[#CBD5CF]">
+                  <span className="text-xs font-bold text-slate-700 dark:text-[#A1A1AA]">
                     Verified Rows Sample Preview ({previewResult.valid_rows} rows):
                   </span>
-                  <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19]">
+                  <div className="overflow-x-auto rounded-none border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#141416]">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] uppercase text-[10px] font-bold">
+                        <tr className="border-b border-slate-200 dark:border-[#27272A] bg-[#EEF2F6] dark:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] uppercase text-[10px] font-bold">
                           {Object.keys(previewResult.sample_data[0]).map((col) => (
                             <th key={col} className="py-2 px-3">
                               {col}
@@ -548,11 +547,11 @@ export const CsvHubPage: React.FC = () => {
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                         {previewResult.sample_data.slice(0, 5).map((row: Record<string, string>, idx: number) => (
-                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#1D2722]/60">
+                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#242428]">
                             {Object.values(row).map((val: unknown, cIdx: number) => (
-                              <td key={cIdx} className="py-2 px-3 font-mono text-[11px] text-slate-800 dark:text-[#E2ECE6]">
+                              <td key={cIdx} className="py-2 px-3 font-mono text-[11px] text-slate-800 dark:text-[#FAFAFA]">
                                 {String(val ?? '')}
                               </td>
                             ))}
@@ -566,13 +565,13 @@ export const CsvHubPage: React.FC = () => {
 
               {/* Deduplication & Commit Import Controls */}
               {previewResult.can_import && (
-                <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-3">
+                <div className="p-4 rounded-xl border border-cyan-200 dark:border-[#155E75] bg-cyan-50/50 dark:bg-[#083344] space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <span className="font-bold text-xs text-emerald-950">
+                      <span className="font-bold text-xs text-cyan-950 dark:text-[#67E8F9]">
                         Deduplication Strategy:
                       </span>
-                      <div className="flex items-center gap-4 text-xs text-slate-700">
+                      <div className="flex items-center gap-4 text-xs text-slate-700 dark:text-[#E4E4E7]">
                         <label className="flex items-center gap-1.5 cursor-pointer">
                           <input
                             type="radio"
@@ -602,7 +601,7 @@ export const CsvHubPage: React.FC = () => {
                       size="sm"
                       onClick={handleCommitImport}
                       disabled={importing || isStudent}
-                      className="min-h-10 whitespace-nowrap bg-emerald-600 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="min-h-10 whitespace-nowrap bg-[#6366F1] hover:bg-[#4F46E5] text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {importing && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                       <span>Commit {previewResult.valid_rows} Records to System</span>
@@ -613,26 +612,26 @@ export const CsvHubPage: React.FC = () => {
 
               {/* Ingestion Output Result */}
               {importResult && (
-                <div className="p-4 bg-white border border-emerald-300 rounded-xl shadow-xs space-y-2 animate-in fade-in">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="p-4 bg-white dark:bg-[#141416] border border-cyan-300 dark:border-[#155E75] rounded-xl shadow-xs space-y-2 animate-in fade-in">
+                  <div className="flex items-center gap-2 text-cyan-800 dark:text-[#67E8F9] font-bold text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" />
                     <span>{importResult.status === "rejected" ? "Batch rejected — no records changed" : "Batch ingestion completed"}</span>
                   </div>
-                  <p className="text-xs">{importResult.message}</p>
-                  <p className="text-xs">Inserted: {importResult.inserted} · Updated: {importResult.updated} · Rejected: {importResult.rejected}</p>
-                  {importResult.errors.map((e, i) => <p className="text-xs text-rose-700" key={i}>Line {e.line}: {e.message}</p>)}
+                  <p className="text-xs text-slate-600 dark:text-[#A1A1AA]">{importResult.message}</p>
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">Inserted: {importResult.inserted} · Updated: {importResult.updated} · Rejected: {importResult.rejected}</p>
+                  {importResult.errors.map((e, i) => <p className="text-xs text-rose-700 dark:text-[#FDA4AF]" key={i}>Line {e.line}: {e.message}</p>)}
                   <div className="grid grid-cols-3 gap-3 text-center pt-2">
-                    <div className="p-2 rounded bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] text-slate-500 uppercase font-bold">Imported</span>
-                      <div className="text-base font-bold text-emerald-700">{importResult.imported}</div>
+                    <div className="p-2 rounded bg-slate-50 dark:bg-[#111113] border border-slate-100 dark:border-[#27272A]">
+                      <span className="text-[10px] text-slate-500 dark:text-[#A1A1AA] uppercase font-bold">Imported</span>
+                      <div className="text-base font-bold text-cyan-700 dark:text-[#67E8F9]">{importResult.imported}</div>
                     </div>
-                    <div className="p-2 rounded bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] text-slate-500 uppercase font-bold">Duplicates Skipped</span>
-                      <div className="text-base font-bold text-slate-700">{importResult.skipped}</div>
+                    <div className="p-2 rounded bg-slate-50 dark:bg-[#111113] border border-slate-100 dark:border-[#27272A]">
+                      <span className="text-[10px] text-slate-500 dark:text-[#A1A1AA] uppercase font-bold">Duplicates Skipped</span>
+                      <div className="text-base font-bold text-slate-700 dark:text-[#E4E4E7]">{importResult.skipped}</div>
                     </div>
-                    <div className="p-2 rounded bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] text-slate-500 uppercase font-bold">Total Evaluated</span>
-                      <div className="text-base font-bold text-indigo-700">{importResult.total_processed}</div>
+                    <div className="p-2 rounded bg-slate-50 dark:bg-[#111113] border border-slate-100 dark:border-[#27272A]">
+                      <span className="text-[10px] text-slate-500 dark:text-[#A1A1AA] uppercase font-bold">Total Evaluated</span>
+                      <div className="text-base font-bold text-indigo-700 dark:text-[#818CF8]">{importResult.total_processed}</div>
                     </div>
                   </div>
                 </div>

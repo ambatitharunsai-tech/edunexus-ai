@@ -288,10 +288,10 @@ export const InterventionsPage: React.FC = () => {
       {/* Page Header and Quick Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6] tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#FAFAFA] tracking-tight">
             Intervention Planning & Outcome Tracking
           </h2>
-          <p className="text-xs text-slate-500 dark:text-[#8FA89B]">
+          <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
             Lifecycle tracking of multi-disciplinary student support plans with verified baseline vs follow-up comparisons.
           </p>
         </div>
@@ -301,9 +301,9 @@ export const InterventionsPage: React.FC = () => {
             size="sm"
             onClick={() => fetchInterventions({ bypassCache: true })}
             disabled={loading}
-            className="text-xs text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900 dark:hover:text-[#E2ECE6] flex items-center gap-1.5"
+            className="text-xs text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#FAFAFA] flex items-center gap-1.5"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600 dark:text-[#818CF8]' : ''}`} />
             <span>Refresh</span>
           </Button>
 
@@ -322,36 +322,36 @@ export const InterventionsPage: React.FC = () => {
 
       {/* Metric Cards Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs">
-          <span className="text-[11px] font-medium text-slate-500">Active Plans</span>
-          <div className="text-xl font-bold text-indigo-600 mt-1">{inProgressCount}</div>
-          <span className="text-[10px] text-slate-400">Under current execution</span>
+        <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-2xs">
+          <span className="text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">Active Plans</span>
+          <div className="text-xl font-bold text-indigo-600 dark:text-[#818CF8] mt-1">{inProgressCount}</div>
+          <span className="text-[10px] text-slate-400 dark:text-[#71717A]">Under current execution</span>
         </div>
 
-        <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs">
-          <span className="text-[11px] font-medium text-slate-500">Overdue Follow-ups</span>
-          <div className={`text-xl font-bold mt-1 ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-700'}`}>
+        <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-2xs">
+          <span className="text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">Overdue Follow-ups</span>
+          <div className={`text-xl font-bold mt-1 ${overdueCount > 0 ? 'text-rose-600 dark:text-[#FDA4AF]' : 'text-slate-700 dark:text-[#D4D4D8]'}`}>
             {overdueCount}
           </div>
-          <span className="text-[10px] text-slate-400">Target review date elapsed</span>
+          <span className="text-[10px] text-slate-400 dark:text-[#71717A]">Target review date elapsed</span>
         </div>
 
-        <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs">
-          <span className="text-[11px] font-medium text-slate-500">Outcomes Measured</span>
-          <div className="text-xl font-bold text-teal-600 mt-1">{outcomesCount}</div>
-          <span className="text-[10px] text-slate-400">With verified delta metrics</span>
+        <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-2xs">
+          <span className="text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">Outcomes Measured</span>
+          <div className="text-xl font-bold text-cyan-600 dark:text-[#67E8F9] mt-1">{outcomesCount}</div>
+          <span className="text-[10px] text-slate-400 dark:text-[#71717A]">With verified delta metrics</span>
         </div>
 
-        <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs">
-          <span className="text-[11px] font-medium text-slate-500">Completed Successfully</span>
-          <div className="text-xl font-bold text-emerald-600 mt-1">{completedCount}</div>
-          <span className="text-[10px] text-slate-400">Closed support workflows</span>
+        <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] shadow-2xs">
+          <span className="text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">Completed Successfully</span>
+          <div className="text-xl font-bold text-cyan-600 dark:text-[#67E8F9] mt-1">{completedCount}</div>
+          <span className="text-[10px] text-slate-400 dark:text-[#71717A]">Closed support workflows</span>
         </div>
       </div>
 
       {/* Outcome Tracking Scientific Guidance Banner */}
-      <div className="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-xl flex items-start gap-3 text-xs text-indigo-950">
-        <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+      <div className="p-4 bg-indigo-50/70 dark:bg-[#172554] border border-indigo-200/80 dark:border-[#1D4ED8] rounded-xl flex items-start gap-3 text-xs text-indigo-950 dark:text-[#FAFAFA]">
+        <Info className="w-4 h-4 text-indigo-600 dark:text-[#93C5FD] shrink-0 mt-0.5" />
         <div className="space-y-0.5">
           <p className="font-semibold text-indigo-900">
             Responsible Outcome Tracking & Non-Causation Standard (KPMG Challenge Integrity)
@@ -546,38 +546,38 @@ export const InterventionsPage: React.FC = () => {
 
                   {/* Outcome Comparison Block (if recorded) */}
                   {primaryOutcome && (
-                    <div className="mt-3 p-3 rounded-xl bg-teal-50/70 border border-teal-200/80 space-y-2 text-xs">
+                    <div className="mt-3 p-3 rounded-xl bg-cyan-50/70 dark:bg-[#083344] border border-cyan-200/80 dark:border-[#155E75] space-y-2 text-xs">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 font-bold text-teal-900 text-xs">
-                          <Scale className="w-3.5 h-3.5 text-teal-700" />
+                        <div className="flex items-center gap-1.5 font-bold text-cyan-900 dark:text-[#67E8F9] text-xs">
+                          <Scale className="w-3.5 h-3.5 text-cyan-700 dark:text-[#67E8F9]" />
                           <span>Recorded Outcome: {primaryOutcome.metric_name}</span>
                         </div>
-                        <span className="text-[10px] text-teal-700">
+                        <span className="text-[10px] text-cyan-700 dark:text-[#67E8F9]">
                           {primaryOutcome.measurement_date}
                         </span>
                       </div>
 
                       {/* Before / After comparison */}
                       <div className="flex items-center justify-between font-mono text-xs">
-                        <div className="bg-white px-2.5 py-1 rounded-md border border-teal-200 text-slate-700">
-                          Baseline: <strong className="text-slate-900">{(primaryOutcome.baseline_value ?? primaryOutcome.baseline_metric_value ?? 0).toFixed(1)}</strong>
+                        <div className="bg-white dark:bg-[#111113] px-2.5 py-1 rounded-md border border-cyan-200 dark:border-[#155E75] text-slate-700 dark:text-[#E4E4E7]">
+                          Baseline: <strong className="text-slate-900 dark:text-[#FAFAFA]">{(primaryOutcome.baseline_value ?? primaryOutcome.baseline_metric_value ?? 0).toFixed(1)}</strong>
                         </div>
-                        <span className="text-teal-600 font-bold">→</span>
-                        <div className="bg-white px-2.5 py-1 rounded-md border border-teal-200 text-slate-700">
-                          Observed: <strong className="text-teal-800">{(primaryOutcome.post_value ?? primaryOutcome.follow_up_metric_value ?? 0).toFixed(1)}</strong>
+                        <span className="text-cyan-600 dark:text-[#67E8F9] font-bold">→</span>
+                        <div className="bg-white dark:bg-[#111113] px-2.5 py-1 rounded-md border border-cyan-200 dark:border-[#155E75] text-slate-700 dark:text-[#E4E4E7]">
+                          Observed: <strong className="text-cyan-800 dark:text-[#67E8F9]">{(primaryOutcome.post_value ?? primaryOutcome.follow_up_metric_value ?? 0).toFixed(1)}</strong>
                         </div>
                       </div>
 
                       {/* Deltas */}
-                      <div className="flex items-center justify-between pt-1 border-t border-teal-200/60 text-[11px]">
-                        <span className="text-teal-800 font-medium">Observed Trajectory:</span>
+                      <div className="flex items-center justify-between pt-1 border-t border-cyan-200/60 dark:border-[#155E75] text-[11px]">
+                        <span className="text-cyan-800 dark:text-[#67E8F9] font-medium">Observed Trajectory:</span>
                         <div className="flex items-center gap-1.5">
                           {primaryOutcome.absolute_change !== undefined && (
                             <span
                               className={`px-1.5 py-0.2 rounded font-bold ${
                                 primaryOutcome.absolute_change >= 0
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-rose-100 text-rose-800'
+                                  ? 'bg-cyan-100 dark:bg-[#083344] text-cyan-800 dark:text-[#67E8F9] border border-cyan-300 dark:border-[#155E75]'
+                                  : 'bg-rose-100 dark:bg-[#4C0519] text-rose-800 dark:text-[#FDA4AF] border border-rose-300 dark:border-[#9F1239]'
                               }`}
                             >
                               {primaryOutcome.absolute_change >= 0
@@ -590,8 +590,8 @@ export const InterventionsPage: React.FC = () => {
                             <span
                               className={`px-1.5 py-0.2 rounded font-bold ${
                                 primaryOutcome.percentage_change >= 0
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-rose-100 text-rose-800'
+                                  ? 'bg-cyan-100 dark:bg-[#083344] text-cyan-800 dark:text-[#67E8F9] border border-cyan-300 dark:border-[#155E75]'
+                                  : 'bg-rose-100 dark:bg-[#4C0519] text-rose-800 dark:text-[#FDA4AF] border border-rose-300 dark:border-[#9F1239]'
                               }`}
                             >
                               {primaryOutcome.percentage_change >= 0
@@ -603,13 +603,13 @@ export const InterventionsPage: React.FC = () => {
                       </div>
 
                       {primaryOutcome.notes && (
-                        <p className="text-[10px] text-slate-600 italic">
+                        <p className="text-[10px] text-slate-600 dark:text-[#A1A1AA] italic">
                           "{primaryOutcome.notes}"
                         </p>
                       )}
 
-                      <div className="pt-1 text-[9px] text-teal-800 leading-tight flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-teal-600 shrink-0" />
+                      <div className="pt-1 text-[9px] text-cyan-800 dark:text-[#67E8F9] leading-tight flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-cyan-600 dark:text-[#67E8F9] shrink-0" />
                         <span>Correlation only: not definitive mathematical proof of sole causation.</span>
                       </div>
                     </div>
@@ -617,10 +617,10 @@ export const InterventionsPage: React.FC = () => {
                 </div>
 
                 {/* Lifecycle Transition Actions Row */}
-                <div className="pt-3 border-t border-slate-100 dark:border-[#25322B] flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-slate-100 dark:border-[#27272A] flex items-center justify-between gap-2">
                   {isStudent ? (
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8FA89B] italic">
-                      <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#71717A] italic">
+                      <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-[#FCD34D]" />
                       <span>Read-only support plan · Modifications restricted to staff</span>
                     </div>
                   ) : (
@@ -633,7 +633,7 @@ export const InterventionsPage: React.FC = () => {
                             variant="secondary"
                             disabled={isBusy}
                             onClick={() => handleStatusTransition(item.id, 'in_progress')}
-                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200"
+                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-indigo-700 dark:text-[#818CF8] bg-indigo-50 dark:bg-[#18181B] hover:bg-indigo-100 dark:hover:bg-[#27272A] border border-indigo-200 dark:border-[#3F3F46]"
                           >
                             <Play className="w-3 h-3" />
                             <span>Start Plan</span>
@@ -647,7 +647,7 @@ export const InterventionsPage: React.FC = () => {
                             variant="secondary"
                             disabled={isBusy}
                             onClick={() => handleStatusTransition(item.id, 'completed')}
-                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
+                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-cyan-700 dark:text-[#67E8F9] bg-cyan-50 dark:bg-[#083344] hover:bg-cyan-100 dark:hover:bg-[#155E75] border border-cyan-200 dark:border-[#155E75]"
                           >
                             <CheckCircle2 className="w-3 h-3" />
                             <span>Complete</span>
@@ -661,7 +661,7 @@ export const InterventionsPage: React.FC = () => {
                             variant="ghost"
                             disabled={isBusy}
                             onClick={() => setPlanToCancel(item)}
-                            className="text-xs h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                            className="text-xs h-7 px-2 text-slate-400 dark:text-[#71717A] hover:text-rose-600 dark:hover:text-[#FDA4AF] hover:bg-rose-50 dark:hover:bg-[#4C0519]"
                           >
                             <XCircle className="w-3 h-3" />
                             <span>Cancel</span>
@@ -678,7 +678,7 @@ export const InterventionsPage: React.FC = () => {
                             setSelectedIntervention(item);
                             setOutcomeModalOpen(true);
                           }}
-                          className="text-xs h-7 px-2.5 flex items-center gap-1 text-teal-700 border-teal-200 hover:bg-teal-50"
+                          className="text-xs h-7 px-2.5 flex items-center gap-1 text-cyan-700 dark:text-[#67E8F9] border-cyan-200 dark:border-[#155E75] hover:bg-cyan-50 dark:hover:bg-[#083344]"
                         >
                           <Scale className="w-3 h-3" />
                           <span>{hasOutcomes ? 'Record Follow-up' : 'Record Outcome'}</span>

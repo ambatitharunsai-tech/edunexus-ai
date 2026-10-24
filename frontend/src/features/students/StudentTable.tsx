@@ -31,18 +31,18 @@ export const StudentTable: React.FC<StudentTableProps> = ({
   const showSelect = typeof onToggleSelect === 'function';
 
   return (
-    <div className="bg-white dark:bg-[#151C19] rounded-none border border-slate-200 dark:border-[#35433B] overflow-hidden shadow-2xs">
+    <div className="bg-white dark:bg-[#141416] rounded-none border border-[#E4E4E7] dark:border-[#27272A] overflow-hidden shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-[#E4E4E7] dark:border-[#27272A] bg-[#F4F4F5] dark:bg-[#1C1C20] text-[#18181B] dark:text-[#E4E4E7] font-semibold uppercase tracking-wider text-[11px]">
               {showSelect && (
                 <th className="py-3 px-3 text-center w-10">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
                     onChange={onToggleSelectAll}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    className="rounded-none border-[#D4D4D8] dark:border-[#3F3F46] accent-[#4F46E5] dark:accent-[#6366F1] cursor-pointer"
                     aria-label="Select all students on current page"
                   />
                 </th>
@@ -58,12 +58,12 @@ export const StudentTable: React.FC<StudentTableProps> = ({
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+          <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#27272A] text-[#27272A] dark:text-[#D4D4D8]">
             {students.map((student) => {
               const isSelected = selectedIds?.includes(student.id) || false;
               const acadRiskVariant = {
                 insufficient_data: 'neutral',
-    critical: 'danger',
+                critical: 'danger',
                 high: 'warning',
                 moderate: 'warning',
                 medium: 'warning',
@@ -72,7 +72,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
 
               const placeRiskVariant = {
                 insufficient_data: 'neutral',
-    critical: 'danger',
+                critical: 'danger',
                 high: 'warning',
                 moderate: 'warning',
                 medium: 'warning',
@@ -80,35 +80,35 @@ export const StudentTable: React.FC<StudentTableProps> = ({
               }[student.placement_risk_tier || 'low'] as 'danger' | 'warning' | 'success';
 
               const trendIcon = {
-                improving: <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-[#5EEAD4]" />,
-                declining: <TrendingDown className="w-3.5 h-3.5 text-rose-600 dark:text-[#F87171]" />,
-                stable: <Minus className="w-3.5 h-3.5 text-slate-400 dark:text-[#8FA89B]" />,
+                improving: <TrendingUp className="w-3.5 h-3.5 text-[#0E7490] dark:text-[#67E8F9]" />,
+                declining: <TrendingDown className="w-3.5 h-3.5 text-[#B91C1C] dark:text-[#FCA5A5]" />,
+                stable: <Minus className="w-3.5 h-3.5 text-[#71717A] dark:text-[#71717A]" />,
               }[student.trend || 'stable'];
 
               const trendBadgeClass = {
-                improving: 'bg-emerald-50 dark:bg-[#142820] text-emerald-700 dark:text-[#5EEAD4] border-emerald-200 dark:border-[#1D4633]',
-                declining: 'bg-rose-50 dark:bg-[#281618] text-rose-700 dark:text-[#F87171] border-rose-200 dark:border-[#4A1E24]',
-                stable: 'bg-slate-50 dark:bg-[#1D2722] text-slate-600 dark:text-[#CBD5CF] border-slate-200 dark:border-[#35433B]',
+                improving: 'bg-[#CFFAFE] dark:bg-[#083344] text-[#0E7490] dark:text-[#67E8F9] border-[#67E8F9] dark:border-[#155E75]',
+                declining: 'bg-[#FEE2E2] dark:bg-[#450A0A] text-[#B91C1C] dark:text-[#FCA5A5] border-[#FCA5A5] dark:border-[#991B1B]',
+                stable: 'bg-[#F4F4F5] dark:bg-[#27272A] text-[#52525B] dark:text-[#A1A1AA] border-[#D4D4D8] dark:border-[#52525B]',
               }[student.trend || 'stable'];
 
               const initials = `${student.first_name[0] || ''}${student.last_name[0] || ''}`.toUpperCase();
 
               const successScoreColor =
                 student.success_score === null || student.success_score === undefined
-                  ? 'text-slate-400 dark:text-[#8FA89B] bg-slate-50 dark:bg-[#1D2722] border-slate-200 dark:border-[#35433B]'
+                  ? 'text-[#71717A] dark:text-[#71717A] bg-[#F4F4F5] dark:bg-[#27272A] border-[#D4D4D8] dark:border-[#3F3F46]'
                   : student.success_score >= 80
-                  ? 'text-emerald-700 dark:text-[#5EEAD4] bg-emerald-50 dark:bg-[#142820] border-emerald-200 dark:border-[#1D4633]'
+                  ? 'text-[#0E7490] dark:text-[#67E8F9] bg-[#CFFAFE] dark:bg-[#083344] border-[#67E8F9] dark:border-[#155E75]'
                   : student.success_score >= 65
-                  ? 'text-teal-700 dark:text-[#5EEAD4] bg-teal-50 dark:bg-[#122824] border-teal-200 dark:border-[#1E4B41]'
+                  ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#DBEAFE] dark:bg-[#172554] border-[#93C5FD] dark:border-[#1D4ED8]'
                   : student.success_score >= 50
-                  ? 'text-amber-700 dark:text-[#F6D289] bg-amber-50 dark:bg-[#261F14] border-amber-200 dark:border-[#45331C]'
-                  : 'text-rose-700 dark:text-[#F87171] bg-rose-50 dark:bg-[#281618] border-rose-200 dark:border-[#4A1E24]';
+                  ? 'text-[#92400E] dark:text-[#FCD34D] bg-[#FEF3C7] dark:bg-[#451A03] border-[#FCD34D] dark:border-[#92400E]'
+                  : 'text-[#B91C1C] dark:text-[#FCA5A5] bg-[#FEE2E2] dark:bg-[#450A0A] border-[#FCA5A5] dark:border-[#991B1B]';
 
               return (
                 <tr
                   key={student.id}
-                  className={`hover:bg-slate-50/75 dark:hover:bg-[#1D2722]/60 transition-colors group ${
-                    isSelected ? 'bg-indigo-50/40 dark:bg-[#153E31]/20' : ''
+                  className={`hover:bg-[#F4F4F5] dark:hover:bg-[#242428] transition-colors group ${
+                    isSelected ? 'bg-[#EEF2FF] dark:bg-[#27272A]' : ''
                   }`}
                 >
                   {showSelect && (
@@ -117,7 +117,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => onToggleSelect?.(student.id)}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        className="rounded-none border-[#D4D4D8] dark:border-[#3F3F46] accent-[#4F46E5] dark:accent-[#6366F1] cursor-pointer"
                         aria-label={`Select ${student.first_name} ${student.last_name}`}
                       />
                     </td>
@@ -125,32 +125,32 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                   {/* Student Code & Name */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-none bg-indigo-50 dark:bg-[#1D332A] text-indigo-700 dark:text-[#56B594] font-bold flex items-center justify-center shrink-0 border border-indigo-100 dark:border-[#1D4633] select-none">
+                      <div className="w-9 h-9 rounded-none bg-[#F4F4F5] dark:bg-[#1C1C20] text-[#18181B] dark:text-[#FAFAFA] font-bold flex items-center justify-center shrink-0 border border-[#E4E4E7] dark:border-[#3F3F46] select-none">
                         {initials}
                       </div>
                       <div>
                         <Link
                           to={`/journey?student_id=${student.id}`}
-                          className="font-bold text-slate-900 dark:text-[#E2ECE6] group-hover:text-indigo-600 dark:group-hover:text-[#56B594] transition-colors"
+                          className="font-bold text-[#18181B] dark:text-[#FAFAFA] group-hover:text-[#4F46E5] dark:group-hover:text-[#A5B4FC] transition-colors"
                         >
                           {student.first_name} {student.last_name}
                         </Link>
-                        <div className="font-mono text-[11px] text-slate-400 dark:text-[#8FA89B]">
+                        <div className="font-mono text-[11px] text-[#71717A] dark:text-[#71717A]">
                           {student.student_id}
                         </div>
                         {student.segment_label && (
                           <div className="mt-0.5">
                             <span
-                              className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded-none ${
+                              className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded-none border ${
                                 student.segment_badge_color === 'emerald'
-                                  ? 'bg-emerald-50 dark:bg-[#142820] text-emerald-700 dark:text-[#5EEAD4] border border-emerald-200 dark:border-[#1D4633]'
+                                  ? 'bg-[#CFFAFE] dark:bg-[#083344] text-[#0E7490] dark:text-[#67E8F9] border-[#67E8F9] dark:border-[#155E75]'
                                   : student.segment_badge_color === 'blue'
-                                  ? 'bg-blue-50 dark:bg-[#14252E] text-blue-700 dark:text-[#7DD3FC] border border-blue-200 dark:border-[#1E3A4B]'
+                                  ? 'bg-[#DBEAFE] dark:bg-[#172554] text-[#1D4ED8] dark:text-[#93C5FD] border-[#93C5FD] dark:border-[#1D4ED8]'
                                   : student.segment_badge_color === 'amber'
-                                  ? 'bg-amber-50 dark:bg-[#261F14] text-amber-700 dark:text-[#F6D289] border border-amber-200 dark:border-[#45331C]'
+                                  ? 'bg-[#FEF3C7] dark:bg-[#451A03] text-[#92400E] dark:text-[#FCD34D] border-[#FCD34D] dark:border-[#92400E]'
                                   : student.segment_badge_color === 'rose'
-                                  ? 'bg-rose-50 dark:bg-[#281618] text-rose-700 dark:text-[#F87171] border border-rose-200 dark:border-[#4A1E24]'
-                                  : 'bg-purple-50 dark:bg-[#172A30] text-purple-700 dark:text-[#9BD3DC] border border-purple-200 dark:border-[#284C55]'
+                                  ? 'bg-[#FEE2E2] dark:bg-[#450A0A] text-[#B91C1C] dark:text-[#FCA5A5] border-[#FCA5A5] dark:border-[#991B1B]'
+                                  : 'bg-[#EDE9FE] dark:bg-[#2E1065] text-[#5B21B6] dark:text-[#C4B5FD] border-[#C4B5FD] dark:border-[#7C3AED]'
                               }`}
                             >
                               {student.segment_label}
@@ -163,10 +163,10 @@ export const StudentTable: React.FC<StudentTableProps> = ({
 
                   {/* Department & Cohort */}
                   <td className="py-3.5 px-4">
-                    <div className="font-semibold text-slate-800 dark:text-[#E2ECE6]">
+                    <div className="font-semibold text-[#18181B] dark:text-[#E4E4E7]">
                       {student.department || 'General Academics'}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-[#8FA89B]">
+                    <div className="text-[11px] text-[#71717A] dark:text-[#71717A]">
                       {student.current_grade} • Sec {student.section || 'A'}
                     </div>
                   </td>
@@ -178,12 +178,12 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                         <span className={`inline-block px-2 py-0.5 rounded-none text-xs font-bold border ${successScoreColor}`}>
                           {student.success_score.toFixed(1)}/100
                         </span>
-                        <div className="text-[10px] text-slate-400 dark:text-[#8FA89B] capitalize mt-0.5">
+                        <div className="text-[10px] text-[#71717A] dark:text-[#71717A] capitalize mt-0.5">
                           {student.success_tier || 'active'}
                         </div>
                       </div>
                     ) : (
-                      <span className="text-[11px] text-slate-400 dark:text-[#8FA89B] font-medium italic">
+                      <span className="text-[11px] text-[#71717A] dark:text-[#71717A] font-medium italic">
                         Insufficient Data
                       </span>
                     )}
@@ -194,25 +194,25 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                     <div
                       className={`font-bold ${
                         (student.attendance_rate || 0) < 80.0
-                          ? 'text-amber-600 dark:text-[#F6D289]'
-                          : 'text-emerald-600 dark:text-[#5EEAD4]'
+                          ? 'text-[#92400E] dark:text-[#FCD34D]'
+                          : 'text-[#0E7490] dark:text-[#67E8F9]'
                       }`}
                     >
                       {student.attendance_rate != null ? `${student.attendance_rate.toFixed(1)}%` : 'N/A'}
                     </div>
-                    <span className="text-[10px] text-slate-400 dark:text-[#8FA89B]">
+                    <span className="text-[10px] text-[#71717A] dark:text-[#71717A]">
                       {student.attendance_rate == null ? 'Awaiting records' : student.attendance_rate < 80 ? 'Below benchmark' : 'Benchmark met'}
                     </span>
                   </td>
 
                   {/* Latest Assessment Score */}
                   <td className="py-3.5 px-4 text-center">
-                    <span className="font-bold text-slate-900 dark:text-[#E2ECE6]">
+                    <span className="font-bold text-[#18181B] dark:text-[#FAFAFA]">
                       {student.latest_assessment_percentage != null
                         ? `${student.latest_assessment_percentage.toFixed(1)}%`
                         : student.average_score == null ? 'N/A' : `${student.average_score.toFixed(1)}%`}
                     </span>
-                    <div className="text-[10px] text-slate-400 dark:text-[#8FA89B]">
+                    <div className="text-[10px] text-[#71717A] dark:text-[#71717A]">
                       Avg: {student.average_score == null ? 'N/A' : `${student.average_score.toFixed(1)}%`}
                     </div>
                   </td>
@@ -231,13 +231,13 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                   <td className="py-3.5 px-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-medium text-slate-400 dark:text-[#8FA89B] w-10">Acad:</span>
+                        <span className="text-[10px] font-medium text-[#71717A] dark:text-[#71717A] w-10">Acad:</span>
                         <Badge variant={acadRiskVariant} size="sm">
                           {(student.academic_risk_tier || student.risk_tier || 'low').toUpperCase()}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-medium text-slate-400 dark:text-[#8FA89B] w-10">Place:</span>
+                        <span className="text-[10px] font-medium text-[#71717A] dark:text-[#71717A] w-10">Place:</span>
                         <Badge variant={placeRiskVariant} size="sm">
                           {(student.placement_risk_tier || 'low').toUpperCase()}
                         </Badge>
@@ -250,10 +250,10 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                     <span
                       className={`text-xs font-semibold ${
                         student.review_status === 'Needs Review'
-                          ? 'text-amber-600 dark:text-[#F6D289]'
+                          ? 'text-[#92400E] dark:text-[#FCD34D]'
                           : student.review_status === 'Active Support Plan'
-                          ? 'text-indigo-600 dark:text-[#56B594]'
-                          : 'text-slate-600 dark:text-[#CBD5CF]'
+                          ? 'text-[#4F46E5] dark:text-[#A5B4FC]'
+                          : 'text-[#52525B] dark:text-[#A1A1AA]'
                       }`}
                     >
                       {student.review_status || 'On Track'}
@@ -269,18 +269,18 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                           size="sm"
                           onClick={() => onOpenIntervention(student)}
                           title="Assign Student Support Plan"
-                          className="text-indigo-600 hover:text-indigo-800 p-1.5 h-auto"
+                          className="text-[#4F46E5] dark:text-[#A5B4FC] hover:text-[#3730A3] dark:hover:text-[#FFFFFF] p-1.5 h-auto"
                         >
                           <ClipboardList className="w-4 h-4" />
                         </Button>
                       )}
                       <Link
                         to={`/journey?student_id=${student.id}`}
-                        className="inline-flex items-center gap-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs px-2.5 py-1.5 font-medium transition-colors group cursor-pointer"
+                        className="inline-flex items-center gap-1 bg-[#F4F4F5] dark:bg-[#18181B] hover:bg-[#E4E4E7] dark:hover:bg-[#27272A] text-[#27272A] dark:text-[#E4E4E7] border border-[#E4E4E7] dark:border-[#27272A] text-xs px-2.5 py-1.5 font-medium transition-colors group cursor-pointer"
                         title="View Student Journey Dossier"
                       >
                         <span>Journey</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#71717A] dark:text-[#71717A] group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </div>
                   </td>

@@ -17,26 +17,26 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const variants = {
     neutral:
-      'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800/90 dark:text-slate-200 dark:border-slate-700',
+      'bg-[#F4F4F5] text-[#3F3F46] border-[#D4D4D8] dark:bg-[#27272A] dark:text-[#D4D4D8] dark:border-[#52525B]',
     primary:
-      'bg-indigo-50 text-indigo-800 border-indigo-200 dark:bg-indigo-950/70 dark:text-indigo-300 dark:border-indigo-800/80',
+      'bg-[#EEF2FF] text-[#3730A3] border-[#818CF8] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] dark:border-[#4338CA]',
     success:
-      'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800/80',
+      'bg-[#CFFAFE] text-[#0E7490] border-[#67E8F9] dark:bg-[#083344] dark:text-[#67E8F9] dark:border-[#155E75]',
     warning:
-      'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800/80',
+      'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D] dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]',
     danger:
-      'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800/80',
+      'bg-[#FEE2E2] text-[#B91C1C] border-[#FCA5A5] dark:bg-[#450A0A] dark:text-[#FCA5A5] dark:border-[#991B1B]',
     info:
-      'bg-sky-50 text-sky-800 border-sky-200 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800/80',
+      'bg-[#DBEAFE] text-[#1D4ED8] border-[#93C5FD] dark:bg-[#172554] dark:text-[#93C5FD] dark:border-[#1D4ED8]',
   };
 
   const dotColors = {
-    neutral: 'bg-slate-500 dark:bg-slate-400',
-    primary: 'bg-indigo-600 dark:bg-indigo-400',
-    success: 'bg-emerald-600 dark:bg-emerald-400',
-    warning: 'bg-amber-600 dark:bg-amber-400',
-    danger: 'bg-rose-600 dark:bg-rose-400',
-    info: 'bg-sky-600 dark:bg-sky-400',
+    neutral: 'bg-[#71717A] dark:bg-[#A1A1AA]',
+    primary: 'bg-[#4F46E5] dark:bg-[#818CF8]',
+    success: 'bg-[#0E7490] dark:bg-[#67E8F9]',
+    warning: 'bg-[#92400E] dark:bg-[#FCD34D]',
+    danger: 'bg-[#B91C1C] dark:bg-[#FCA5A5]',
+    info: 'bg-[#1D4ED8] dark:bg-[#93C5FD]',
   };
 
   const sizes = {

@@ -280,19 +280,19 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#101714] text-slate-900 dark:text-[#e2ece6] flex flex-col justify-center px-4 py-10 antialiased">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090B] text-slate-900 dark:text-[#E4E4E7] flex flex-col justify-center px-4 py-10 antialiased">
       <div className="w-full max-w-5xl mx-auto space-y-6">
         {/* Top Branding Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-[#25322B]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-[#27272A]">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center bg-indigo-600 text-white shadow-xs">
               <GraduationCap className="h-6 w-6" aria-hidden="true" />
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#E2ECE6]">
-                EduNexus <span className="text-indigo-600 dark:text-[#56B594]">AI</span>
+              <div className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#FAFAFA]">
+                EduNexus <span className="text-indigo-600 dark:text-[#818CF8]">AI</span>
               </div>
-              <div className="text-xs text-slate-500 dark:text-[#8FA89B]">
+              <div className="text-xs text-slate-500 dark:text-[#A1A1AA]">
                 Student Success & Educational Intelligence Platform
               </div>
             </div>
@@ -301,13 +301,13 @@ export function LoginPage() {
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors px-2.5 py-1.5 border border-slate-200 dark:border-[#35433B]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#A1A1AA] hover:text-indigo-600 dark:hover:text-[#818CF8] transition-colors px-2.5 py-1.5 border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#141416]"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Return to Dashboard
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-[#8FA89B]">Institutional Mode:</span>
-              <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-[#56B594] border border-emerald-500/30">
+              <span className="text-xs text-slate-500 dark:text-[#A1A1AA]">Institutional Mode:</span>
+              <span className="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-700 dark:text-[#67E8F9] dark:bg-[#083344] border border-cyan-500/30 dark:border-[#155E75]">
                 Role-Based RBAC Active
               </span>
             </div>
@@ -317,18 +317,18 @@ export function LoginPage() {
 
         {/* Active Session Notification if already authenticated */}
         {isAuthenticated && session && (
-          <div className="p-4 bg-indigo-50/80 dark:bg-[#152720] border border-indigo-200 dark:border-[#1D4633] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 bg-indigo-50/80 dark:bg-[#172554] border border-indigo-200 dark:border-[#1D4ED8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <UserCheck className="w-5 h-5 text-indigo-600 dark:text-[#56B594] shrink-0" />
+              <UserCheck className="w-5 h-5 text-indigo-600 dark:text-[#93C5FD] shrink-0" />
               <div>
-                <div className="text-xs font-semibold text-indigo-900 dark:text-[#E2ECE6]">
+                <div className="text-xs font-semibold text-indigo-900 dark:text-[#FAFAFA]">
                   Active Session: Signed in as{' '}
-                  <span className="uppercase font-bold text-indigo-700 dark:text-[#56B594]">
+                  <span className="uppercase font-bold text-indigo-700 dark:text-[#93C5FD]">
                     {session.role}
                   </span>{' '}
                   ({session.email})
                 </div>
-                <div className="text-[11px] text-indigo-700 dark:text-[#8FA89B]">
+                <div className="text-[11px] text-indigo-700 dark:text-[#A1A1AA]">
                   {session.role === 'student'
                     ? 'Student Read-Only Mode is currently active.'
                     : 'Staff permissions are currently active.'}
@@ -349,7 +349,7 @@ export function LoginPage() {
                   signOut();
                   navigate('/');
                 }}
-                className="px-3.5 py-1.5 text-xs font-semibold border border-slate-300 dark:border-[#35433B] hover:bg-slate-100 dark:hover:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] flex items-center gap-1.5 transition-colors"
+                className="px-3.5 py-1.5 text-xs font-semibold border border-slate-300 dark:border-[#3F3F46] hover:bg-slate-100 dark:hover:bg-[#1C1C20] text-slate-700 dark:text-[#E4E4E7] flex items-center gap-1.5 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" /> Sign Out
               </button>
@@ -360,11 +360,11 @@ export function LoginPage() {
         {/* Main Grid: Form on Left, Quick Role Sign-in on Right */}
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           {/* Left Column: Form with Role Selector */}
-          <div className="rounded-xl border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] p-6 sm:p-8 shadow-xs">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#E2ECE6]">
+          <div className="rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] p-6 sm:p-8 shadow-xs">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#FAFAFA]">
               Sign in to EduNexus AI
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-[#CBD5CF]">
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA]">
               Select your institutional role to access analytics, student dossiers, or personal academic journey.
             </p>
 
@@ -383,7 +383,7 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="user-role-select"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF] mb-2"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA] mb-2"
                 >
                   Select Institutional Role
                 </label>
@@ -400,14 +400,14 @@ export function LoginPage() {
                         onClick={() => handleRoleChange(role.id)}
                         className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-center transition-all ${
                           isSelected
-                            ? 'border-indigo-600 bg-indigo-50/70 text-indigo-950 dark:border-[#56B594] dark:bg-[#18352A] dark:text-[#E2ECE6] font-semibold ring-2 ring-indigo-500/20'
-                            : 'border-slate-200 dark:border-[#35433B] bg-slate-50/50 dark:bg-[#1D2722] text-slate-600 dark:text-[#CBD5CF] hover:border-slate-300 dark:hover:border-[#4A5D52]'
+                            ? 'border-indigo-600 bg-indigo-50/70 text-indigo-950 dark:border-[#818CF8] dark:bg-[#27272A] dark:text-[#FAFAFA] font-semibold ring-2 ring-indigo-500/20'
+                            : 'border-slate-200 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#111113] text-slate-600 dark:text-[#A1A1AA] hover:border-slate-300 dark:hover:border-[#71717A]'
                         }`}
                       >
-                        <Icon className={`w-4 h-4 mb-1.5 ${isSelected ? 'text-indigo-600 dark:text-[#56B594]' : 'text-slate-500'}`} />
+                        <Icon className={`w-4 h-4 mb-1.5 ${isSelected ? 'text-indigo-600 dark:text-[#818CF8]' : 'text-slate-500 dark:text-[#71717A]'}`} />
                         <span className="text-xs leading-tight">{role.label}</span>
                         {role.isReadOnly && (
-                          <span className="mt-1 text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 px-1 py-0.2 rounded">
+                          <span className="mt-1 text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-[#451A03] px-1 py-0.2 rounded">
                             Read-Only
                           </span>
                         )}
@@ -422,7 +422,7 @@ export function LoginPage() {
                   name="role"
                   value={selectedRole}
                   onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-900 dark:border-[#35433B] dark:bg-[#1D2722] dark:text-[#E2ECE6] focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-900 dark:border-[#3F3F46] dark:bg-[#111113] dark:text-[#FAFAFA] focus:border-indigo-500 focus:outline-none"
                   aria-label="Institutional Role Selection"
                 >
                   <option value="admin">Administrator (admin@edunexus.ai) - Full Platform Governance</option>
@@ -434,8 +434,8 @@ export function LoginPage() {
 
               {/* Dynamic Status / Permission Notice */}
               {currentRoleConfig.isReadOnly ? (
-                <div className="flex items-start gap-2.5 p-3.5 rounded-lg border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs">
-                  <Lock className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div className="flex items-start gap-2.5 p-3.5 rounded-lg border border-amber-300/80 bg-amber-50/90 dark:border-[#92400E] dark:bg-[#451A03] text-amber-900 dark:text-[#FCD34D] text-xs">
+                  <Lock className="w-4 h-4 shrink-0 text-amber-600 dark:text-[#FCD34D] mt-0.5" />
                   <div>
                     <span className="font-semibold block sm:inline">Student Read-Only Mode Enforced: </span>
                     Students have read-only access to view performance, radar domains, and support plans.
@@ -443,8 +443,8 @@ export function LoginPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start gap-2.5 p-3 rounded-lg border border-emerald-300/80 bg-emerald-50/80 dark:border-[#1D4633] dark:bg-[#142820] text-emerald-900 dark:text-[#83D9A9] text-xs">
-                  <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600 dark:text-[#56B594] mt-0.5" />
+                <div className="flex items-start gap-2.5 p-3 rounded-lg border border-cyan-300/80 bg-cyan-50/80 dark:border-[#155E75] dark:bg-[#083344] text-cyan-900 dark:text-[#67E8F9] text-xs">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-cyan-600 dark:text-[#67E8F9] mt-0.5" />
                   <div>
                     <span className="font-semibold block sm:inline">{currentRoleConfig.label} Access: </span>
                     Authorized for academic reviews, intervention planning, and clinical risk tier adjustments.
@@ -456,7 +456,7 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="institutional-email"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                 >
                   Institutional Email
                 </label>
@@ -469,7 +469,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@college.edu"
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 dark:border-[#35433B] dark:bg-[#1D2722] dark:text-[#E2ECE6] focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 dark:border-[#3F3F46] dark:bg-[#111113] dark:text-[#FAFAFA] focus:border-indigo-500 focus:outline-none"
                 />
               </div>
 
@@ -477,7 +477,7 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="institutional-password"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF]"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
                 >
                   Password
                 </label>
@@ -491,13 +491,13 @@ export function LoginPage() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Enter password"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:border-[#35433B] dark:bg-[#1D2722] dark:text-[#E2ECE6] focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:border-[#3F3F46] dark:bg-[#111113] dark:text-[#FAFAFA] focus:border-indigo-500 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((val) => !val)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 dark:hover:text-[#E2ECE6]"
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 dark:hover:text-[#FAFAFA]"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -515,23 +515,23 @@ export function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 border-t border-slate-200 dark:border-[#35433B] pt-4 text-center text-xs text-slate-600 dark:text-[#CBD5CF]">
+            <div className="mt-6 border-t border-slate-200 dark:border-[#27272A] pt-4 text-center text-xs text-slate-600 dark:text-[#A1A1AA]">
               Don't have an institutional account?{' '}
-              <Link to="/register" className="font-semibold text-indigo-600 dark:text-[#56B594] hover:underline transition-colors">
+              <Link to="/register" className="font-semibold text-indigo-600 dark:text-[#A5B4FC] hover:underline transition-colors">
                 Register here
               </Link>
             </div>
           </div>
 
           {/* Right Column: 1-Click Fast Role Sign-in Cards */}
-          <div className="rounded-xl border border-slate-200 dark:border-[#35433B] bg-slate-900 text-white p-6 sm:p-8 flex flex-col justify-between shadow-xs">
+          <div className="rounded-xl border border-slate-200 dark:border-[#29292D] bg-[#141416] text-[#FAFAFA] p-6 sm:p-8 flex flex-col justify-between shadow-xs">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 dark:text-[#67E8F9]">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Instant Evaluation Sign-In</span>
               </div>
               <h2 className="mt-2 text-lg sm:text-xl font-bold">Quick Role Previews</h2>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
+              <p className="mt-1.5 text-xs leading-relaxed text-[#A1A1AA]">
                 Click any role to immediately test permissions, dashboards, and student read-only restrictions.
               </p>
 
@@ -543,28 +543,28 @@ export function LoginPage() {
                       key={role.id}
                       type="button"
                       onClick={() => handleQuickRoleLogin(role)}
-                      className="group flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/90 p-3.5 text-left transition-all hover:border-indigo-400 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="group flex w-full items-center justify-between rounded-lg border border-slate-700 dark:border-[#27272A] bg-slate-800/90 dark:bg-[#1C1C20] p-3.5 text-left transition-all hover:border-indigo-400 dark:hover:border-[#818CF8] hover:bg-slate-800 dark:hover:bg-[#27272A] focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-md ${role.isReadOnly ? 'bg-amber-900/40 text-amber-400' : 'bg-indigo-950 text-indigo-400'}`}>
+                        <div className={`p-2 rounded-md ${role.isReadOnly ? 'bg-amber-900/40 text-amber-400 dark:bg-[#451A03] dark:text-[#FCD34D]' : 'bg-indigo-950 text-indigo-400 dark:bg-[#172554] dark:text-[#93C5FD]'}`}>
                           <Icon className="w-4 h-4" />
                         </div>
                         <div>
                           <div className="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-white flex items-center gap-2">
                             <span>{role.label}</span>
                             {role.isReadOnly && (
-                              <span className="text-[10px] font-bold text-amber-300 bg-amber-900/60 px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] font-bold text-amber-300 dark:text-[#FCD34D] bg-amber-900/60 dark:bg-[#451A03] px-1.5 py-0.2 rounded">
                                 Read-Only
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400 line-clamp-1">
+                          <div className="text-[11px] text-[#A1A1AA] line-clamp-1">
                             {role.sublabel} · {role.email}
                           </div>
                         </div>
                       </div>
 
-                      <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 dark:group-hover:text-[#818CF8] transition-transform group-hover:translate-x-0.5" />
                     </button>
                   );
                 })}
@@ -572,12 +572,12 @@ export function LoginPage() {
             </div>
 
             {/* Security note */}
-            <div className="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
-              <div className="flex items-center gap-1.5 font-medium text-slate-300">
-                <Lock className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="mt-6 pt-4 border-t border-slate-800 dark:border-[#27272A] text-[11px] text-[#A1A1AA] space-y-1">
+              <div className="flex items-center gap-1.5 font-medium text-[#FAFAFA]">
+                <Lock className="w-3.5 h-3.5 text-indigo-400 dark:text-[#818CF8]" />
                 <span>Strict Student Read-Only Policy</span>
               </div>
-              <p className="text-[10px] text-slate-400 leading-normal">
+              <p className="text-[10px] text-[#A1A1AA] leading-normal">
                 Student accounts are verified with cryptographic tokens. Modifying interventions, tier overrides, or data imports returns HTTP 403 Forbidden.
               </p>
             </div>
@@ -585,56 +585,56 @@ export function LoginPage() {
         </div>
 
         {/* Roles and Permissions Matrix */}
-        <div className="rounded-xl border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] p-6 shadow-xs">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-[#E2ECE6] mb-3">
+        <div className="rounded-xl border border-slate-200 dark:border-[#29292D] bg-white dark:bg-[#141416] p-6 shadow-xs">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-[#FAFAFA] mb-3">
             Roles & Permissions Matrix
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-[#35433B] text-slate-500 dark:text-[#8FA89B]">
+                <tr className="border-b border-slate-200 dark:border-[#27272A] text-slate-500 dark:text-[#A1A1AA]">
                   <th className="py-2.5 pr-4 font-semibold">Capability</th>
                   <th className="py-2.5 px-3 font-semibold">Administrator</th>
                   <th className="py-2.5 px-3 font-semibold">Advisor</th>
                   <th className="py-2.5 px-3 font-semibold">Faculty</th>
-                  <th className="py-2.5 px-3 font-semibold text-amber-700 dark:text-amber-400">Student (Read-Only)</th>
+                  <th className="py-2.5 px-3 font-semibold text-amber-700 dark:text-[#FCD34D]">Student (Read-Only)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-slate-700 dark:text-[#D4D4D8]">
                 <tr>
                   <td className="py-2.5 pr-4 font-medium">Dashboard & AI Analytics</td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-amber-600 dark:text-amber-400 font-semibold">Read-Only View</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-amber-600 dark:text-[#FCD34D] font-semibold">Read-Only View</span></td>
                 </tr>
                 <tr>
                   <td className="py-2.5 pr-4 font-medium">Student Journey & Radar Profiles</td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-emerald-600 dark:text-[#56B594] font-semibold">Full Access</span></td>
-                  <td className="py-2.5 px-3"><span className="text-amber-600 dark:text-amber-400 font-semibold">Read-Only View</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-cyan-600 dark:text-[#67E8F9] font-semibold">Full Access</span></td>
+                  <td className="py-2.5 px-3"><span className="text-amber-600 dark:text-[#FCD34D] font-semibold">Read-Only View</span></td>
                 </tr>
                 <tr>
                   <td className="py-2.5 pr-4 font-medium">Create & Manage Interventions</td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-rose-400 font-bold">Disabled (Blocked)</span></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-[#FDA4AF] font-bold">Disabled (Blocked)</span></td>
                 </tr>
                 <tr>
                   <td className="py-2.5 pr-4 font-medium">Adjust / Override Risk Tiers</td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><span className="text-slate-400">—</span></td>
-                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-rose-400 font-bold">Disabled (Blocked)</span></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><span className="text-[#71717A]">—</span></td>
+                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-[#FDA4AF] font-bold">Disabled (Blocked)</span></td>
                 </tr>
                 <tr>
                   <td className="py-2.5 pr-4 font-medium">CSV Ingestion & Dataset Reset</td>
-                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#56B594]" /></td>
-                  <td className="py-2.5 px-3"><span className="text-slate-400">Download only</span></td>
-                  <td className="py-2.5 px-3"><span className="text-slate-400">Download only</span></td>
-                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-rose-400 font-bold">Disabled (Blocked)</span></td>
+                  <td className="py-2.5 px-3"><CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-[#67E8F9]" /></td>
+                  <td className="py-2.5 px-3"><span className="text-[#71717A]">Download only</span></td>
+                  <td className="py-2.5 px-3"><span className="text-[#71717A]">Download only</span></td>
+                  <td className="py-2.5 px-3"><span className="text-rose-600 dark:text-[#FDA4AF] font-bold">Disabled (Blocked)</span></td>
                 </tr>
               </tbody>
             </table>

@@ -21,27 +21,27 @@ interface StudentMetricTrendsChartProps {
 
 export const StudentMetricTrendsChart: React.FC<StudentMetricTrendsChartProps> = ({ metricsTrend }) => {
   return (
-    <Card className="border-slate-200">
+    <Card className="border-[#E4E4E7] dark:border-[#29292D]">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-base font-bold text-slate-900">
+          <CardTitle className="text-base font-bold text-[#18181B] dark:text-[#FAFAFA]">
             Student Metric Trajectories Over Time
           </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
+          <CardDescription className="text-xs text-[#52525B] dark:text-[#A1A1AA]">
             Attendance consistency vs evaluation marks progression across semester cycles
           </CardDescription>
         </div>
-        <div className="flex items-center gap-3 text-xs text-slate-500">
+        <div className="flex items-center gap-3 text-xs text-[#71717A] dark:text-[#A1A1AA]">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#818CF8] inline-block" />
             <span>Attendance %</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-600 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#22D3EE] inline-block" />
             <span>Assessment Score %</span>
           </span>
-          <span className="flex items-center gap-1.5 text-rose-600 font-medium">
-            <span className="w-2.5 h-0.5 bg-rose-500 inline-block" />
+          <span className="flex items-center gap-1.5 text-[#FB7185] font-medium">
+            <span className="w-2.5 h-0.5 bg-[#FB7185] inline-block" />
             <span>80% Min</span>
           </span>
         </div>
@@ -53,27 +53,27 @@ export const StudentMetricTrendsChart: React.FC<StudentMetricTrendsChartProps> =
               data={metricsTrend}
               margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #27272A)" vertical={false} />
               <XAxis
                 dataKey="period"
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                tick={{ fontSize: 11, fill: 'var(--chart-axis, #A1A1AA)' }}
                 tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: 'var(--chart-grid, #27272A)' }}
               />
               <YAxis
                 domain={[50, 100]}
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                tick={{ fontSize: 11, fill: 'var(--chart-axis, #A1A1AA)' }}
                 tickFormatter={(val) => `${val}%`}
                 tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: 'var(--chart-grid, #27272A)' }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                  backgroundColor: 'var(--chart-tooltip-bg, #18181B)',
                   borderRadius: 0,
-                  border: '1px solid var(--tooltip-border, #e2e8f0)',
-                  color: 'var(--tooltip-text, #1e293b)',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  border: '1px solid var(--chart-tooltip-border, #3F3F46)',
+                  color: 'var(--chart-tooltip-text, #FAFAFA)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
                   fontSize: '12px',
                 }}
                 formatter={(val: any, name: any) => [
@@ -83,12 +83,12 @@ export const StudentMetricTrendsChart: React.FC<StudentMetricTrendsChartProps> =
               />
               <ReferenceLine
                 y={80}
-                stroke="#ef4444"
+                stroke="var(--chart-6, #FB7185)"
                 strokeDasharray="4 4"
                 label={{
                   value: '80% Benchmark',
                   position: 'top',
-                  fill: '#ef4444',
+                  fill: 'var(--chart-6, #FB7185)',
                   fontSize: 10,
                   fontWeight: 600,
                 }}
@@ -97,18 +97,18 @@ export const StudentMetricTrendsChart: React.FC<StudentMetricTrendsChartProps> =
                 type="monotone"
                 dataKey="attendance"
                 name="attendance"
-                stroke="#4338ca"
+                stroke="var(--chart-1, #818CF8)"
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: '#4338ca' }}
+                dot={{ r: 4, fill: 'var(--chart-1, #818CF8)' }}
                 activeDot={{ r: 6 }}
               />
               <Line
                 type="monotone"
                 dataKey="score"
                 name="score"
-                stroke="#0f766e"
+                stroke="var(--chart-2, #22D3EE)"
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: '#0f766e' }}
+                dot={{ r: 4, fill: 'var(--chart-2, #22D3EE)' }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>

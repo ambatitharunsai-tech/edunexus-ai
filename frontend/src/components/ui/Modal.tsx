@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-2xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-2xs flex items-center justify-center p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -55,19 +55,19 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         className={cn(
-          'w-full bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all',
+          'w-full bg-white dark:bg-[#18181B] rounded-none shadow-2xl border border-[#E4E4E7] dark:border-[#3F3F46] overflow-hidden transform transition-all',
           maxWidthClass
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-slate-100 bg-slate-50/50 gap-3">
+        <div className="flex items-start justify-between p-5 border-b border-[#E4E4E7] dark:border-[#27272A] bg-[#FAFAFA] dark:bg-[#141416] gap-3">
           <div className="min-w-0 flex-1 pr-2">
-            <h3 id="modal-title" className="text-base font-bold text-slate-900 leading-snug">
+            <h3 id="modal-title" className="text-base font-bold text-[#18181B] dark:text-[#FAFAFA] leading-snug">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed break-words">
+              <p className="text-xs text-[#52525B] dark:text-[#A1A1AA] mt-1 leading-relaxed break-words">
                 {description}
               </p>
             )}
@@ -75,7 +75,7 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="shrink-0 p-1.5 rounded-none text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#FAFAFA] hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
