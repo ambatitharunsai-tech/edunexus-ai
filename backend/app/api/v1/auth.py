@@ -320,27 +320,35 @@ async def register_account(
 async def list_users(
     admin: AuthenticatedUser = Depends(require_admin_user),
 ) -> List[UserListItem]:
-    """Admin-only listing of all system users."""
+    """List users from the selected source without mixing synthetic and live records."""
     if is_database_configured():
         try:
             client = get_db_client()
-            res = client.table("user_profiles").select("id,email,full_name,role,is_active,created_at").order("created_at", desc=True).execute()
-            if res.data:
-                return [
-                    UserListItem(
-                        id=str(row["id"]),
-                        email=row["email"],
-                        full_name=row["full_name"],
-                        role=row["role"],
-                        is_active=bool(row.get("is_active", True)),
-                        created_at=row.get("created_at"),
-                    )
-                    for row in res.data
-                ]
+            res = (
+                client.table("user_profiles")
+                .select("id,email,full_name,role,is_active,created_at")
+                .order("created_at", desc=True)
+                .execute()
+            )
         except Exception:
-            pass
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Live institutional user directory is unavailable.",
+            )
 
-    # Fall back to synthetic users
+        return [
+            UserListItem(
+                id=str(row["id"]),
+                email=row["email"],
+                full_name=row["full_name"],
+                role=row["role"],
+                is_active=bool(row.get("is_active", True)),
+                created_at=row.get("created_at"),
+            )
+            for row in (res.data or [])
+        ]
+
+    # Synthetic users are available only when persistent storage is not configured.
     return [
         UserListItem(
             id=u["id"],
