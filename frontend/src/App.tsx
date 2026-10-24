@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context';
 import { AppShell } from './layouts/AppShell';
+import { safeStorageGet, safeStorageSet } from './lib/utils';
 import {
   AnalyticsPage,
   CsvHubPage,
@@ -49,11 +50,7 @@ export function AppRoutes({
 
 export function App() {
   const [theme, setTheme] = useState<AppTheme>(() => {
-    try {
-      return localStorage.getItem('edunexus_theme') === 'light' ? 'light' : 'dark';
-    } catch {
-      return 'dark';
-    }
+    return safeStorageGet('edunexus_theme') === 'light' ? 'light' : 'dark';
   });
 
   useEffect(() => {
@@ -65,11 +62,7 @@ export function App() {
 
   const handleThemeChange = (nextTheme: AppTheme) => {
     setTheme(nextTheme);
-    try {
-      localStorage.setItem('edunexus_theme', nextTheme);
-    } catch {
-      // Keep the current theme in memory when browser storage is unavailable.
-    }
+    safeStorageSet('edunexus_theme', nextTheme);
   };
 
   return (

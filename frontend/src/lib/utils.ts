@@ -64,6 +64,39 @@ export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function safeStorageGet(key: string): string | null {
+  try {
+    if (typeof window === 'undefined' || !('localStorage' in window)) {
+      return null;
+    }
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+export function safeStorageSet(key: string, value: string): void {
+  try {
+    if (typeof window === 'undefined' || !('localStorage' in window)) {
+      return;
+    }
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage failures in privacy-restricted or non-browser contexts.
+  }
+}
+
+export function safeStorageRemove(key: string): void {
+  try {
+    if (typeof window === 'undefined' || !('localStorage' in window)) {
+      return;
+    }
+    window.localStorage.removeItem(key);
+  } catch {
+    // Ignore storage failures in privacy-restricted or non-browser contexts.
+  }
+}
+
 /** Full name from first + last */
 export function fullName(first: string, last: string): string {
   return `${first} ${last}`;

@@ -1,6 +1,7 @@
 // EduNexus AI — frontend auth utilities
 
 import { DEMO_BEARER_TOKEN, getAuthToken, setAuthToken } from './api';
+import { safeStorageGet, safeStorageRemove, safeStorageSet } from './utils';
 
 export type AuthRole = 'student' | 'advisor' | 'admin' | 'faculty' | 'staff' | 'evaluator' | 'auditor' | 'viewer' | string;
 
@@ -78,7 +79,7 @@ export function normalizeAuthSession(token: string, overrides?: Partial<AuthSess
 }
 
 export function getStoredAuthSession(): AuthSession | null {
-  const raw = safeJsonParse<AuthSession>(localStorage.getItem(STORAGE_KEY));
+  const raw = safeJsonParse<AuthSession>(safeStorageGet(STORAGE_KEY));
 
   // Purge any stale legacy demo sessions from visitor browser storage
   if (raw?.isDemoSession || raw?.token?.startsWith('edunexus-demo-')) {
@@ -98,13 +99,13 @@ export function getStoredAuthSession(): AuthSession | null {
 export function saveAuthSession(session: AuthSession): AuthSession {
   const normalized = normalizeAuthSession(session.token, session);
   setAuthToken(normalized.token);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(normalized));
   return normalized;
 }
 
 export function clearAuthSession(): void {
   setAuthToken('');
-  localStorage.removeItem(STORAGE_KEY);
+  safeStorageRemove(STORAGE_KEY);
 }
 
 export function signInWithToken(token: string, userOverrides?: Partial<AuthSession>): AuthSession {

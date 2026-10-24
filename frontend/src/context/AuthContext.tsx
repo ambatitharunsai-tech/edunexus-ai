@@ -9,6 +9,7 @@ import {
 
 import { clearAuthSession, getStoredAuthSession, signInWithToken, type AuthSession, isStaffRole } from '../lib/auth';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { safeStorageSet } from '../lib/utils';
 
 export interface AuthContextValue {
   session: AuthSession | null;
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!session) return;
-    localStorage.setItem('edunexus_auth_session', JSON.stringify(session));
+    safeStorageSet('edunexus_auth_session', JSON.stringify(session));
   }, [session]);
 
   // Keep the API bearer token synchronized with Supabase token refresh and sign-out events.

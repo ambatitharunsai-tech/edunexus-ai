@@ -23,7 +23,7 @@ import {
   Moon,
   HelpCircle,
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, safeStorageGet, safeStorageSet } from '../lib/utils';
 import { useAuth } from '../context';
 import { api } from '../lib/api';
 import type { DashboardOverviewResponse, FollowUpStudentItem } from '../types';
@@ -54,18 +54,10 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [notificationsError, setNotificationsError] = useState(false);
   const [compactNavigation, setCompactNavigation] = useState(() => {
-    try {
-      return localStorage.getItem('edunexus_compact_navigation') === 'true';
-    } catch {
-      return false;
-    }
+    return safeStorageGet('edunexus_compact_navigation') === 'true';
   });
   const [reduceMotion, setReduceMotion] = useState(() => {
-    try {
-      return localStorage.getItem('edunexus_reduce_motion') === 'true';
-    } catch {
-      return false;
-    }
+    return safeStorageGet('edunexus_reduce_motion') === 'true';
   });
   const location = useLocation();
   const navigate = useNavigate();
@@ -120,11 +112,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   };
 
   const storePreference = (key: string, value: boolean) => {
-    try {
-      localStorage.setItem(key, String(value));
-    } catch {
-      // Keep the in-memory setting when browser storage is unavailable.
-    }
+    safeStorageSet(key, String(value));
   };
 
   // In restored direct-access mode, all platform modules are accessible from the navigation
