@@ -742,6 +742,9 @@ async def create_student_record(
 
     now = datetime.now(timezone.utc).isoformat()
     record = payload.model_dump(mode="json")
+    record["student_id"] = student_code
+    if email:
+        record["email"] = email
     record.update({"id": str(uuid4()), "created_at": now, "updated_at": now})
     from app.services.dataset_service import commit_records
 
