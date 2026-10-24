@@ -40,7 +40,7 @@ describe('RegisterPage Component', () => {
     renderRegisterPage();
     expect(screen.getByText(/Create your institutional account/i)).toBeInTheDocument();
     expect(screen.getByText(/Smart Campus Analytics & Student Success/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Return to Dashboard/i })).toHaveAttribute('href', '/');
+    expect(screen.queryByRole('link', { name: /Return to Dashboard/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Sign in here/i })).toHaveAttribute('href', '/login');
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthContext, type AuthContextValue } from '../context/AuthContext';
 import { AppRoutes } from '../App';
@@ -146,12 +146,12 @@ describe('Direct Route Refresh & Access Control Verification', () => {
   });
 
   describe('Direct Unauthenticated Dashboard Access', () => {
-    it('direct load of "/" by unauthenticated visitor renders Dashboard without login', async () => {
+    it('redirects unauthenticated direct dashboard access to login', async () => {
       renderAppRoute('/', undefined);
       await waitFor(() => {
-        expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument();
       });
-      expect(screen.queryByText(/Sign in to the student intelligence workspace/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Executive Student Success Dashboard/i)).not.toBeInTheDocument();
     });
 
     it('direct load of "/login" renders dedicated Login Page with role selection', async () => {
@@ -172,54 +172,39 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       });
     });
 
-    it('direct load of "/help" by unauthenticated visitor renders Help & Support Center', async () => {
+    it('redirects unauthenticated help access to login', async () => {
       renderAppRoute('/help', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Help & Support Center/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of "/analytics" renders Analytics & Trends directly', async () => {
+    it('redirects unauthenticated analytics access to login', async () => {
       renderAppRoute('/analytics', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Campus Analytics & Strategic Segmentation/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of "/students" renders Students Directory directly', async () => {
+    it('redirects unauthenticated student-directory access to login', async () => {
       renderAppRoute('/students', undefined);
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { level: 2, name: /Students Directory/i })).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of "/journey" renders Student Journey directly', async () => {
+    it('redirects unauthenticated journey access to login', async () => {
       renderAppRoute('/journey', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Refresh Journey/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of "/interventions" renders Interventions page directly', async () => {
+    it('redirects unauthenticated interventions access to login', async () => {
       renderAppRoute('/interventions', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Intervention Planning & Outcome Tracking/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of "/csv-hub" renders Data & CSV Hub directly', async () => {
+    it('redirects unauthenticated CSV-hub access to login', async () => {
       renderAppRoute('/csv-hub', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Data Hub & CSV Ingestion Engine/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
 
-    it('direct load of genuinely invalid route renders NotFoundPage', async () => {
+    it('redirects unauthenticated unknown routes to login before showing protected content', async () => {
       renderAppRoute('/not-a-valid-route', undefined);
-      await waitFor(() => {
-        expect(screen.getByText(/Page Not Found/i)).toBeInTheDocument();
-        expect(screen.getByText(/Return to Dashboard/i)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument());
     });
   });
 
@@ -253,9 +238,12 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       });
     });
 
-    it('profile dropdown contains a Sign out button', async () => {
-      renderAppRoute('/', undefined);
-      expect(screen.getAllByRole('button', { name: /Sign out/i })[0]).toBeInTheDocument();
+    it('authenticated profile dropdown contains a Sign out button', async () => {
+      const { container } = renderAppRoute('/', 'advisor');
+      const profileSummary = container.querySelector('summary');
+      expect(profileSummary).toBeTruthy();
+      fireEvent.click(profileSummary!);
+      expect(screen.getAllByRole('button', { name: /Sign out/i }).length).toBeGreaterThan(0);
     });
   });
 });

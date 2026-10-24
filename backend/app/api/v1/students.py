@@ -5,8 +5,8 @@ and comprehensive chronological Student Journey profiles.
 """
 
 from typing import Optional, List, Dict, Any, Literal
-from uuid import UUID
-from datetime import datetime
+from uuid import UUID, uuid4
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Query, Header, status, Depends
 from pydantic import BaseModel, Field, field_validator
 
@@ -14,6 +14,7 @@ from app.schemas.student import (
     StudentCreate,
     StudentResponse,
     StudentInDB,
+    StudentUpdate,
     StudentJourneyProfileResponse,
     JourneyTimelineEvent,
     MissingDataNotice,
@@ -274,6 +275,7 @@ async def list_students(
     sort_dir: Literal["asc", "desc"] = Query("desc", description="Sort direction: asc or desc"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(12, ge=1, le=100, description="Items per page"),
+    include_archived: bool = Query(False, description="Include inactive/archived student records"),
     authorization: Optional[str] = Header(None),
     x_user_role: Optional[str] = Header(None),
 ) -> StudentListEnvelope:
@@ -284,6 +286,8 @@ async def list_students(
     else:
         data = dashboard_service._load_pure_synthetic_data()
     raw_students: List[Dict[str, Any]] = data.get("students", [])
+    if not include_archived:
+        raw_students = [s for s in raw_students if str(s.get("status", "active")).lower() == "active"]
     attendance_records = data.get("attendance", [])
     assessment_records = data.get("assessments", [])
     engagement_records = data.get("engagement_events", [])
@@ -710,3 +714,104 @@ async def clear_student_risk_override(
         commit_records(data, "risk_overrides", [cleared], current_user, "FLAG_REVIEW")
     risk_engine.clear_human_override(target_id)
     return {"message": "Advisor override cleared successfully.", "student_id": student_id}
+
+
+# Student record management
+# Mutations go through the same transactional persistence + audit RPC as the other
+# institutional workflows. DELETE is intentionally a soft archive to retain academic history.
+
+@router.post(
+    "",
+    response_model=StudentInDB,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Student Record",
+)
+async def create_student_record(
+    payload: StudentCreate,
+    current_user: AuthenticatedUser = Depends(require_staff_user),
+) -> StudentInDB:
+    data = dashboard_service._load_synthetic_data()
+    student_code = payload.student_id.strip()
+    email = str(payload.email).strip().lower() if payload.email else None
+
+    for row in data.get("students", []):
+        if str(row.get("student_id", "")).strip().lower() == student_code.lower():
+            raise HTTPException(status_code=409, detail="A student with this institution ID already exists.")
+        if email and str(row.get("email", "")).strip().lower() == email:
+            raise HTTPException(status_code=409, detail="A student with this email address already exists.")
+
+    now = datetime.now(timezone.utc).isoformat()
+    record = payload.model_dump(mode="json")
+    record["student_id"] = student_code
+    if email:
+        record["email"] = email
+    record.update({"id": str(uuid4()), "created_at": now, "updated_at": now})
+    from app.services.dataset_service import commit_records
+
+    commit_records(data, "students", [record], current_user, "CREATE")
+    return StudentInDB(**record)
+
+
+@router.patch(
+    "/{student_id}",
+    response_model=StudentInDB,
+    summary="Update Student Record",
+)
+async def update_student_record(
+    student_id: str,
+    payload: StudentUpdate,
+    current_user: AuthenticatedUser = Depends(require_staff_user),
+) -> StudentInDB:
+    data = dashboard_service._load_synthetic_data()
+    existing = next(
+        (row for row in data.get("students", [])
+         if str(row.get("id", "")) == student_id or str(row.get("student_id", "")) == student_id),
+        None,
+    )
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Student record not found.")
+
+    changes = payload.model_dump(mode="json", exclude_unset=True)
+    if changes.get("email"):
+        changes["email"] = str(changes["email"]).strip().lower()
+        duplicate = next(
+            (row for row in data.get("students", [])
+             if row is not existing and str(row.get("email", "")).strip().lower() == changes["email"]),
+            None,
+        )
+        if duplicate:
+            raise HTTPException(status_code=409, detail="Another student already uses this email address.")
+
+    updated = {**existing, **changes, "updated_at": datetime.now(timezone.utc).isoformat()}
+    from app.services.dataset_service import commit_records
+
+    commit_records(data, "students", [updated], current_user, "UPDATE")
+    return StudentInDB(**updated)
+
+
+@router.delete(
+    "/{student_id}",
+    response_model=StudentInDB,
+    summary="Archive Student Record",
+    description="Soft-archives a student while retaining historical academic and intervention records.",
+)
+async def archive_student_record(
+    student_id: str,
+    current_user: AuthenticatedUser = Depends(require_staff_user),
+) -> StudentInDB:
+    data = dashboard_service._load_synthetic_data()
+    existing = next(
+        (row for row in data.get("students", [])
+         if str(row.get("id", "")) == student_id or str(row.get("student_id", "")) == student_id),
+        None,
+    )
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Student record not found.")
+    if str(existing.get("status", "active")).lower() != "active":
+        return StudentInDB(**existing)
+
+    archived = {**existing, "status": "inactive", "updated_at": datetime.now(timezone.utc).isoformat()}
+    from app.services.dataset_service import commit_records
+
+    commit_records(data, "students", [archived], current_user, "UPDATE")
+    return StudentInDB(**archived)

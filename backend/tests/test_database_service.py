@@ -275,3 +275,120 @@ def test_intervention_with_outcomes_joined():
     assert res.outcomes[0].baseline_value == 54.0
     assert res.outcomes[0].post_value == 68.0
     assert "causal relationship not established" in res.outcomes[0].causation_disclaimer
+
+
+# ── Transactional Write Audit Regression Tests ────────────────────────
+
+def test_commit_records_emits_audit_for_delete_only(monkeypatch):
+    """Delete-only transactions must satisfy the database RPC audit-row contract."""
+    from app.services import dataset_service
+    from app.core.auth import AuthenticatedUser
+
+    mock_client = MagicMock()
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: True)
+    monkeypatch.setattr(dataset_service, "get_db_client", lambda: mock_client)
+
+    target_id = str(uuid4())
+    actor = AuthenticatedUser(
+        user_id=str(uuid4()),
+        email="advisor@example.edu",
+        role="advisor",
+        is_demo_session=False,
+    )
+
+    dataset_service.commit_records(
+        {},
+        "interventions",
+        [],
+        actor=actor,
+        delete_ids=[target_id],
+    )
+
+    mock_client.rpc.assert_called_once()
+    rpc_name, payload = mock_client.rpc.call_args.args
+    assert rpc_name == "edunexus_commit"
+    assert payload["p_records"] == []
+    assert payload["p_delete_ids"] == [target_id]
+    assert len(payload["p_audits"]) == 1
+    assert payload["p_audits"][0]["entity_id"] == target_id
+    assert payload["p_audits"][0]["action"] == "DELETE"
+
+
+def test_commit_records_audits_every_record_and_deleted_id(monkeypatch):
+    """Mixed writes and deletes must carry one independent audit event per change."""
+    from app.services import dataset_service
+    from app.core.auth import AuthenticatedUser
+
+    mock_client = MagicMock()
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: True)
+    monkeypatch.setattr(dataset_service, "get_db_client", lambda: mock_client)
+
+    record_id = str(uuid4())
+    delete_id = str(uuid4())
+    actor = AuthenticatedUser(
+        user_id=str(uuid4()),
+        email="advisor@example.edu",
+        role="advisor",
+        is_demo_session=False,
+    )
+
+    dataset_service.commit_records(
+        {},
+        "interventions",
+        [{"id": record_id, "status": "completed"}],
+        actor=actor,
+        action="UPDATE",
+        delete_ids=[delete_id],
+    )
+
+    payload = mock_client.rpc.call_args.args[1]
+    audits = payload["p_audits"]
+    assert len(audits) == 2
+    by_id = {audit["entity_id"]: audit for audit in audits}
+    assert by_id[record_id]["action"] == "UPDATE"
+    assert by_id[delete_id]["action"] == "DELETE"
+    assert all(audit["performed_by"] == actor.user_id for audit in audits)
+
+
+def test_student_create_update_archive_endpoints_use_the_write_service(client, monkeypatch):
+    """Staff student actions save through the shared data mutation service."""
+    from uuid import uuid4
+    from app.services.dashboard_service import dashboard_service
+    from app.services import dataset_service
+
+    data = {"students": [], "audit_events": []}
+    monkeypatch.setattr(dashboard_service, "_load_synthetic_data", lambda: data)
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: False)
+
+    unique = uuid4().hex[:10]
+    payload = {
+        "student_id": f"TEST-{unique}",
+        "first_name": "Test",
+        "last_name": "Student",
+        "email": f"test.{unique}@example.edu",
+        "current_grade": "Year 1",
+        "academic_term": "AY 2026-27 Term 1",
+        "section": "A",
+        "department": "Computer Science & Engineering",
+        "status": "active",
+    }
+
+    created_response = client.post("/api/v1/students", json=payload)
+    assert created_response.status_code == 201, created_response.text
+    created = created_response.json()
+    assert created["student_id"] == payload["student_id"]
+    assert len(data["audit_events"]) == 1
+
+    update_response = client.patch(
+        f"/api/v1/students/{created['id']}",
+        json={"first_name": "Updated"},
+    )
+    assert update_response.status_code == 200, update_response.text
+    assert update_response.json()["first_name"] == "Updated"
+    assert len(data["audit_events"]) == 2
+
+    archive_response = client.delete(f"/api/v1/students/{created['id']}")
+    assert archive_response.status_code == 200, archive_response.text
+    assert archive_response.json()["status"] == "inactive"
+    assert data["students"][0]["status"] == "inactive"
+    assert len(data["audit_events"]) == 3

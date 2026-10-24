@@ -55,17 +55,27 @@ def commit_records(data, table, records, actor=None, action='UPDATE', delete_ids
     if table not in TABLES or table == 'audit_events':
         raise ValueError('Unsupported mutation table')
     delete_ids = delete_ids or []
-    audits = [{
-        'id': str(uuid4()), 'entity_type': table, 'entity_id': r['id'], 'action': action,
-        'performed_by': actor.user_id if actor and not actor.is_demo_session else None,
-        'performed_by_name': actor.email if actor else 'Synthetic import',
-        'details': {'storage_mode': 'persistent' if is_database_configured() else 'synthetic',
-                    'actor_id': actor.user_id if actor else None,
-                    'changes': {k: r[k] for k in ('status','is_overridden','original_tier','override_tier','override_reason') if k in r}},
-        'created_at': datetime.now(timezone.utc).isoformat(),
-    } for r in records]
-    audits.extend({**audits[0], 'id': str(uuid4()), 'entity_id': rid, 'action': 'DELETE'}
-                  for rid in delete_ids) if audits else None
+    def build_audit(entity_id, audit_action, record=None):
+        changed_fields = ('status', 'is_overridden', 'original_tier', 'override_tier', 'override_reason')
+        return {
+            'id': str(uuid4()),
+            'entity_type': table,
+            'entity_id': entity_id,
+            'action': audit_action,
+            'performed_by': actor.user_id if actor and not actor.is_demo_session else None,
+            'performed_by_name': actor.email if actor else 'Synthetic import',
+            'details': {
+                'storage_mode': 'persistent' if is_database_configured() else 'synthetic',
+                'actor_id': actor.user_id if actor else None,
+                'changes': {k: record[k] for k in changed_fields if record and k in record},
+            },
+            'created_at': datetime.now(timezone.utc).isoformat(),
+        }
+
+    # The database RPC requires exactly one audit row for every create/update/delete.
+    # Build delete audits independently so delete-only requests are valid too.
+    audits = [build_audit(r['id'], action, r) for r in records]
+    audits.extend(build_audit(rid, 'DELETE') for rid in delete_ids)
     if is_database_configured():
         try:
             get_db_client().rpc('edunexus_commit', {

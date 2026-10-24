@@ -47,8 +47,10 @@ const templateCards: Array<{
 ];
 
 export const CsvHubPage: React.FC = () => {
-  const { isStaff, session } = useAuth();
-  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+  const { session } = useAuth();
+  const role = session?.role?.toLowerCase() || '';
+  const canManageData = ['admin', 'administrator', 'advisor', 'counselor', 'faculty', 'staff', 'evaluator', 'evaluator_role'].includes(role);
+  const isReadOnly = !canManageData;
 
   // Template download states
   const [downloadingTemplate, setDownloadingTemplate] = useState<string | null>(null);
@@ -131,7 +133,7 @@ export const CsvHubPage: React.FC = () => {
 
   // 3. Batch Ingestion Commitment Handler
   const handleCommitImport = async () => {
-    if (!selectedFile || !previewResult || !previewResult.can_import) return;
+    if (!canManageData || !selectedFile || !previewResult || !previewResult.can_import) return;
     setImporting(true);
     setImportResult(null);
 
@@ -156,6 +158,7 @@ export const CsvHubPage: React.FC = () => {
 
   // 4. One-Click Demo Reset Handler
   const handleResetDemo = async () => {
+    if (!canManageData) return;
     setResetting(true);
     setResetSuccessMessage(null);
     setShowResetConfirmModal(false);
@@ -194,13 +197,12 @@ export const CsvHubPage: React.FC = () => {
   return (
     <div className="csv-hub space-y-8">
       {/* Student Read-Only Mode Banner */}
-      {isStudent && (
+      {isReadOnly && (
         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
           <ShieldCheck className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
           <div>
-            <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
-            CSV data ingestion, dataset modification, and demo resets require staff or administrator privileges.
-            You may download standard CSV templates below for educational reference.
+            <span className="font-bold block sm:inline">Read-Only Access: </span>
+            CSV uploads, dataset modifications, and demo resets require staff or administrator privileges. You may download the standard CSV templates below.
           </div>
         </div>
       )}
@@ -217,12 +219,12 @@ export const CsvHubPage: React.FC = () => {
         </div>
 
         {/* Demo Reset Trigger (Disabled for Student) */}
-        {!isStudent && (
+        {!isReadOnly && (
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowResetConfirmModal(true)}
-            disabled={resetting}
+            disabled={resetting || isReadOnly}
             className="min-h-9 whitespace-nowrap text-xs text-indigo-700 border-indigo-300 hover:bg-indigo-50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md self-start sm:self-auto motion-reduce:transform-none motion-reduce:transition-none"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
@@ -344,14 +346,14 @@ export const CsvHubPage: React.FC = () => {
                   type="file"
                   accept=".csv,text/csv"
                   onChange={handleFileChange}
-                  disabled={isStudent}
+                  disabled={isReadOnly}
                   className={`block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold rounded-lg border ${
-                    isStudent
+                    isReadOnly
                       ? 'opacity-50 cursor-not-allowed bg-slate-100 border-slate-200 file:bg-slate-200 file:text-slate-500'
                       : 'file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border-slate-200 bg-slate-50'
                   }`}
                 />
-                {isStudent && (
+                {isReadOnly && (
                   <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
                     CSV file upload disabled in Student Read-Only mode.
                   </span>
@@ -535,7 +537,7 @@ export const CsvHubPage: React.FC = () => {
                     <Button
                       size="sm"
                       onClick={handleCommitImport}
-                      disabled={importing || isStudent}
+                      disabled={importing || isReadOnly}
                       className="min-h-10 whitespace-nowrap bg-emerald-600 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {importing && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
@@ -608,7 +610,7 @@ export const CsvHubPage: React.FC = () => {
                 variant="secondary"
                 size="sm"
                 onClick={() => setShowResetConfirmModal(false)}
-                disabled={resetting}
+                disabled={resetting || isReadOnly}
                 className="min-h-9 whitespace-nowrap transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none motion-reduce:transition-none"
               >
                 Cancel
@@ -616,7 +618,7 @@ export const CsvHubPage: React.FC = () => {
               <Button
                 size="sm"
                 onClick={handleResetDemo}
-                disabled={resetting}
+                disabled={resetting || isReadOnly}
                 className="min-h-9 whitespace-nowrap bg-indigo-600 text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none"
               >
                 {resetting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}

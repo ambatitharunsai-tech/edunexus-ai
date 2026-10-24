@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context';
+import { useEffect, useState, type ReactNode } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context';
 import { AppShell } from './layouts/AppShell';
 import { safeStorageGet, safeStorageSet } from './lib/utils';
 import {
@@ -19,6 +19,48 @@ import {
 
 type AppTheme = 'light' | 'dark';
 
+function RequireAuth({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  return isAuthenticated
+    ? <>{children}</>
+    : <Navigate to="/login" replace state={{ from: location }} />;
+}
+
+function RequireStaff({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isStaff, session } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  if (!isStaff) {
+    return <Navigate to={session?.role?.toLowerCase() === 'student' ? '/student' : '/'} replace />;
+  }
+  return <>{children}</>;
+}
+
+function RequireStudent({ children }: { children: ReactNode }) {
+  const { isAuthenticated, session } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  if (session?.role?.toLowerCase() !== 'student') {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+}
+
+function HomeRoute() {
+  const { session } = useAuth();
+  return session?.role?.toLowerCase() === 'student'
+    ? <Navigate to="/student" replace />
+    : <DashboardPage />;
+}
+
 export function AppRoutes({
   theme = 'dark',
   onThemeChange = () => {},
@@ -28,25 +70,27 @@ export function AppRoutes({
 }) {
   return (
     <Routes>
-      {/* Authentication & Registration routes for staff and students */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Main direct-access application layout */}
       <Route
         path="/"
-        element={<AppShell theme={theme} onThemeChange={onThemeChange} />}
+        element={
+          <RequireAuth>
+            <AppShell theme={theme} onThemeChange={onThemeChange} />
+          </RequireAuth>
+        }
       >
-        <Route index element={<DashboardPage />} />
-        <Route path="students" element={<StudentsPage />} />
-        <Route path="students/:id" element={<StudentJourneyPage />} />
-        <Route path="journey" element={<StudentJourneyPage />} />
-        <Route path="journey/:id" element={<StudentJourneyPage />} />
-        <Route path="interventions" element={<InterventionsPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
-        <Route path="csv-hub" element={<CsvHubPage />} />
+        <Route index element={<HomeRoute />} />
+        <Route path="students" element={<RequireStaff><StudentsPage /></RequireStaff>} />
+        <Route path="students/:id" element={<RequireStaff><StudentJourneyPage /></RequireStaff>} />
+        <Route path="journey" element={<RequireStaff><StudentJourneyPage /></RequireStaff>} />
+        <Route path="journey/:id" element={<RequireStaff><StudentJourneyPage /></RequireStaff>} />
+        <Route path="interventions" element={<RequireStaff><InterventionsPage /></RequireStaff>} />
+        <Route path="analytics" element={<RequireStaff><AnalyticsPage /></RequireStaff>} />
+        <Route path="csv-hub" element={<RequireStaff><CsvHubPage /></RequireStaff>} />
         <Route path="help" element={<HelpPage />} />
-        <Route path="student" element={<StudentDashboardPage />} />
+        <Route path="student" element={<RequireStudent><StudentDashboardPage /></RequireStudent>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

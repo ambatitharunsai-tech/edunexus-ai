@@ -16,7 +16,7 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isStaff: boolean;
   signIn: (token: string, overrides?: Partial<AuthSession>) => AuthSession;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   refreshSession: () => AuthSession | null;
 }
 
@@ -38,11 +38,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let active = true;
     void supabase.auth.getSession().then(({ data }) => {
-      if (!active || !data.session?.access_token) return;
-      const nextSession = signInWithToken(data.session.access_token);
-      setSession(nextSession);
+      if (!active) return;
+      if (data.session?.access_token) {
+        const nextSession = signInWithToken(data.session.access_token, {
+          userId: data.session.user?.id,
+          email: data.session.user?.email,
+        });
+        setSession(nextSession);
+      } else {
+        // In hosted mode, only a real Supabase session can restore authentication.
+        clearAuthSession();
+        setSession(null);
+      }
     }).catch(() => {
-      // An unavailable auth session must not create a fallback/demo session.
+      // If the provider is unreachable, remove stale browser-only auth state.
+      if (!active) return;
+      clearAuthSession();
+      setSession(null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, authSession) => {
@@ -69,9 +81,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return nextSession;
   }, []);
 
-  const signOut = useCallback(() => {
-    clearAuthSession();
-    setSession(null);
+  const signOut = useCallback(async () => {
+    try {
+      if (isSupabaseConfigured()) {
+        await supabase.auth.signOut();
+      }
+    } catch {
+      // Always clear this app's local auth state even when the provider is unreachable.
+    } finally {
+      clearAuthSession();
+      setSession(null);
+    }
   }, []);
 
   const refreshSession = useCallback(() => {

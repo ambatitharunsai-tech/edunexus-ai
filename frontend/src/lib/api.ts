@@ -16,9 +16,9 @@ export function getAuthToken(): string {
     if (token && token.trim()) {
       return token.trim();
     }
-    return DEMO_BEARER_TOKEN;
+    return '';
   } catch {
-    return DEMO_BEARER_TOKEN;
+    return '';
   }
 }
 

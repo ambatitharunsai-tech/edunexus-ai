@@ -6,6 +6,8 @@ import {
   Minus,
   ChevronRight,
   HeartHandshake,
+  PencilLine,
+  Archive,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -14,11 +16,15 @@ import type { StudentListItem } from '../../types';
 interface StudentTableProps {
   students: StudentListItem[];
   onOpenIntervention?: (student: StudentListItem) => void;
+  onEditStudent?: (student: StudentListItem) => void;
+  onArchiveStudent?: (student: StudentListItem) => void;
 }
 
 export const StudentTable: React.FC<StudentTableProps> = ({
   students,
   onOpenIntervention,
+  onEditStudent,
+  onArchiveStudent,
 }) => {
   return (
     <div className="bg-white dark:bg-[#151C19] rounded-none border border-slate-200 dark:border-[#35433B] overflow-hidden shadow-2xs">
@@ -234,6 +240,28 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                           className="text-indigo-600 hover:text-indigo-800 p-1.5 h-auto"
                         >
                           <HeartHandshake className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {onEditStudent && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditStudent(student)}
+                          title={`Edit ${student.first_name} ${student.last_name}`}
+                          className="text-slate-600 hover:text-indigo-700 p-1.5 h-auto"
+                        >
+                          <PencilLine className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {onArchiveStudent && student.status === 'active' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onArchiveStudent(student)}
+                          title={`Archive ${student.first_name} ${student.last_name}`}
+                          className="text-rose-600 hover:text-rose-800 p-1.5 h-auto"
+                        >
+                          <Archive className="w-4 h-4" />
                         </Button>
                       )}
                       <Link to={`/journey?student_id=${student.id}`}>
