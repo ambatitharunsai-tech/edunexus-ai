@@ -285,6 +285,7 @@ export function LoginPage() {
 
             <form onSubmit={handleCredentialsSubmit} className="mt-6 space-y-5">
               {!supabaseConfigured && !import.meta.env.PROD && (
+                <>
               {/* Role Selection Tabs / Selector */}
               <div>
                 <label
@@ -358,6 +359,7 @@ export function LoginPage() {
                 </div>
               )}
 
+                </>
               )}
 
               {/* Institutional Email Field */}
@@ -418,7 +420,7 @@ export function LoginPage() {
                 disabled={submitting}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors shadow-xs"
               >
-                {submitting ? 'Authenticating…' : `Sign In as ${currentRoleConfig.label}`}
+                {submitting ? 'Authenticating…' : (supabaseConfigured || import.meta.env.PROD ? 'Sign In' : `Sign In as ${currentRoleConfig.label}`)}
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
