@@ -45,6 +45,7 @@ import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useDashboardData } from '../hooks/useDashboardData';
+import { useAuth } from '../context';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
 import { StudentQuickProfileModal } from '../features/dashboard/StudentQuickProfileModal';
 import { DomainRadarOverview } from '../features/dashboard/DomainRadarOverview';
@@ -56,6 +57,7 @@ import type { FollowUpStudentItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isStaff } = useAuth();
   const { data, loading, error, refetch, createIntervention } = useDashboardData();
 
   // Local state for interactive controls
@@ -273,15 +275,17 @@ export const DashboardPage: React.FC = () => {
             <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
           </Button>
 
-          {/* Create Intervention Action */}
-          <Button
-            size="sm"
-            onClick={() => handleOpenIntervention()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-2xs"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Create Intervention</span>
-          </Button>
+          {/* Create Intervention Action (Staff authorized only) */}
+          {isStaff && (
+            <Button
+              size="sm"
+              onClick={() => handleOpenIntervention()}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-2xs"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Create Intervention</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -1146,16 +1150,18 @@ export const DashboardPage: React.FC = () => {
                             >
                               Profile
                             </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 text-xs px-2 flex items-center gap-1"
-                              onClick={() => handleOpenIntervention(student)}
-                              title="Assign Intervention Support Plan"
-                            >
-                              <HeartHandshake className="w-3.5 h-3.5" />
-                              <span>Intervene</span>
-                            </Button>
+                            {isStaff && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 text-xs px-2 flex items-center gap-1"
+                                onClick={() => handleOpenIntervention(student)}
+                                title="Assign Intervention Support Plan"
+                              >
+                                <HeartHandshake className="w-3.5 h-3.5" />
+                                <span>Intervene</span>
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -1284,7 +1290,7 @@ export const DashboardPage: React.FC = () => {
         isOpen={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
         student={selectedStudentForProfile}
-        onOpenIntervention={handleOpenIntervention}
+        onOpenIntervention={isStaff ? handleOpenIntervention : undefined}
       />
     </div>
   );

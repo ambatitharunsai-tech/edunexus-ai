@@ -80,6 +80,12 @@ export function normalizeAuthSession(token: string, overrides?: Partial<AuthSess
 export function getStoredAuthSession(): AuthSession | null {
   const raw = safeJsonParse<AuthSession>(localStorage.getItem(STORAGE_KEY));
 
+  // Purge any stale legacy demo sessions from visitor browser storage
+  if (raw?.isDemoSession || raw?.token?.startsWith('edunexus-demo-')) {
+    clearAuthSession();
+    return null;
+  }
+
   if (!raw?.token) {
     const token = getAuthToken();
     if (!token) return null;

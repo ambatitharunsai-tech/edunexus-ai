@@ -42,8 +42,23 @@ class DashboardService:
         self._cached_synthetic_data: Optional[Dict[str, Any]] = None
         self._demo_interventions: List[Dict[str, Any]] = []
 
+    def _load_pure_synthetic_data(self) -> Dict[str, Any]:
+        """Loads and caches synthetic demonstration dataset from disk."""
+        if self._cached_synthetic_data is None:
+            if SEED_DATA_PATH.exists():
+                try:
+                    with open(SEED_DATA_PATH, "r", encoding="utf-8") as f:
+                        self._cached_synthetic_data = json.load(f)
+                except Exception:
+                    self._cached_synthetic_data = {}
+            else:
+                self._cached_synthetic_data = {}
+
+        self._hydrate_overrides(self._cached_synthetic_data or {})
+        return self._cached_synthetic_data if self._cached_synthetic_data is not None else {}
+
     def _load_synthetic_data(self) -> Dict[str, Any]:
-        """Loads and caches synthetic dataset from disk."""
+        """Loads live dataset if configured and allowed, or synthetic demo dataset."""
         from app.db.client import is_database_configured
         from app.services.dataset_service import read_live_dataset
         if settings.is_production and not is_database_configured():
@@ -58,40 +73,47 @@ class DashboardService:
             data = read_live_dataset()
             self._hydrate_overrides(data)
             return data
-        if self._cached_synthetic_data is None:
-            if SEED_DATA_PATH.exists():
-                try:
-                    with open(SEED_DATA_PATH, "r", encoding="utf-8") as f:
-                        self._cached_synthetic_data = json.load(f)
-                except Exception:
-                    self._cached_synthetic_data = {}
-            else:
-                self._cached_synthetic_data = {}
-
-        self._hydrate_overrides(self._cached_synthetic_data or {})
-        return self._cached_synthetic_data if self._cached_synthetic_data is not None else {}
+        return self._load_pure_synthetic_data()
 
     def _hydrate_overrides(self, data):
         from app.services.risk_engine import risk_engine, HumanOverrideRecord
         risk_engine._overrides_store = {r['student_id']: HumanOverrideRecord(**r)
             for r in data.get('risk_overrides', []) if r.get('is_overridden')}
 
-    def get_dashboard_overview(self) -> DashboardOverviewResponse:
+    def get_dashboard_overview(
+        self, current_user: Optional[Any] = None
+    ) -> DashboardOverviewResponse:
         """
         Generates full dashboard response.
-        If live Supabase is configured and connected, queries database.
-        Otherwise, derives clean aggregates dynamically from the synthetic seed dataset.
+        If user is verified staff AND database is configured, returns live Supabase analytics.
+        Otherwise (for public unauthenticated visitors or demonstration mode),
+        derives safe, clean aggregates dynamically from the synthetic seed dataset.
         """
-        return self._generate_from_synthetic()
+        from app.db.client import is_database_configured
+        from app.core.auth import STAFF_ROLES
+
+        is_staff = current_user is not None and getattr(current_user, "role", "").lower() in STAFF_ROLES
+        if is_staff and is_database_configured():
+            from app.services.dataset_service import read_live_dataset
+            data = read_live_dataset()
+            self._hydrate_overrides(data)
+            return self._generate_from_data(data, is_live_db=True)
+        else:
+            data = self._load_pure_synthetic_data()
+            return self._generate_from_data(data, is_live_db=False)
 
     def _generate_from_synthetic(self) -> DashboardOverviewResponse:
+        """Backward-compatible helper for synthetic overview."""
+        from app.db.client import is_database_configured
+        data = self._load_synthetic_data()
+        return self._generate_from_data(data, is_live_db=is_database_configured())
+
+    def _generate_from_data(self, data: Dict[str, Any], is_live_db: bool = False) -> DashboardOverviewResponse:
         """Aggregate the selected data source using the authoritative student engine."""
         from collections import defaultdict, Counter
-        from app.db.client import is_database_configured
         from app.services.student_analytics_service import _compute_student_metrics
         from app.services.history_service import build_history
         from app.services.risk_engine import risk_engine, HumanOverrideRecord
-        data = self._load_synthetic_data()
         # Never retain another data source's overrides.
         risk_engine._overrides_store = {r['student_id']: HumanOverrideRecord(**r)
             for r in data.get('risk_overrides', []) if r.get('is_overridden')}
@@ -195,8 +217,13 @@ class DashboardService:
             academic_risk_distribution=distribution('academic_risk_tier'), placement_risk_distribution=distribution('placement_risk_tier'),
             recent_activity=sorted(activity,key=lambda a:a.timestamp,reverse=True)[:10], follow_up_students=sorted(followups,key=lambda f:f.risk_score or 0,reverse=True),
             intervention_summary=int_summary,
-            metadata=DashboardMetadata(is_demo=not is_database_configured(), data_source='Supabase PostgreSQL' if is_database_configured() else 'Synthetic in-memory dataset',
-                dataset_size=len(students), generated_at=datetime.now(timezone.utc).isoformat(), disclaimer='Deterministic prototype indicators for human review. No predictive validation or causal effect is claimed.'),
+            metadata=DashboardMetadata(
+                is_demo=not is_live_db,
+                data_source='Supabase PostgreSQL' if is_live_db else 'Public Demonstration (Synthetic Cohort)',
+                dataset_size=len(students),
+                generated_at=datetime.now(timezone.utc).isoformat(),
+                disclaimer='Deterministic prototype indicators for human review. No predictive validation or causal effect is claimed.' if is_live_db else 'Public demonstration mode with safe fictional test data. Real student records require authenticated staff review.',
+            ),
             domain_averages={d:mean(v) for d,v in domain_values.items()},
             domain_coverage={d:sum(v is not None for v in values) for d,values in domain_values.items()},
             placement_readiness_summary={'average_aptitude':mean([p.get('aptitude_score') for p in placement]), 'average_coding':mean([p.get('coding_score') for p in placement]),

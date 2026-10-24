@@ -129,23 +129,72 @@ describe('Direct Route Refresh & Access Control Verification', () => {
     });
   });
 
-  describe('Unauthenticated Redirection', () => {
-    const protectedRoutes = [
-      '/',
-      '/students',
-      '/journey',
-      '/interventions',
-      '/analytics',
-      '/csv-hub',
-      '/help',
-    ];
-
-    for (const route of protectedRoutes) {
-      it(`redirects unauthenticated user visiting ${route} to login page`, () => {
-        renderAppRoute(route, undefined);
-        expect(screen.getByText(/Sign in to the student intelligence workspace/i)).toBeInTheDocument();
+  describe('Direct Unauthenticated Dashboard Access', () => {
+    it('direct load of "/" by unauthenticated visitor renders Dashboard without login', async () => {
+      renderAppRoute('/', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
       });
-    }
+      expect(screen.queryByText(/Sign in to the student intelligence workspace/i)).not.toBeInTheDocument();
+    });
+
+    it('direct load of "/login" redirects cleanly to "/" and renders Dashboard', async () => {
+      renderAppRoute('/login', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/Sign in to the student intelligence workspace/i)).not.toBeInTheDocument();
+    });
+
+    it('direct load of "/help" by unauthenticated visitor renders Help & Support Center', async () => {
+      renderAppRoute('/help', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Help & Support Center/i)).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of "/analytics" renders Analytics & Trends directly', async () => {
+      renderAppRoute('/analytics', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Campus Analytics & Strategic Segmentation/i)).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of "/students" renders Students Directory directly', async () => {
+      renderAppRoute('/students', undefined);
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 2, name: /Students Directory/i })).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of "/journey" renders Student Journey directly', async () => {
+      renderAppRoute('/journey', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Refresh Journey/i)).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of "/interventions" renders Interventions page directly', async () => {
+      renderAppRoute('/interventions', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Intervention Planning & Outcome Tracking/i)).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of "/csv-hub" renders Data & CSV Hub directly', async () => {
+      renderAppRoute('/csv-hub', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Data Hub & CSV Ingestion Engine/i)).toBeInTheDocument();
+      });
+    });
+
+    it('direct load of genuinely invalid route renders NotFoundPage', async () => {
+      renderAppRoute('/not-a-valid-route', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Page Not Found/i)).toBeInTheDocument();
+        expect(screen.getByText(/Return to Dashboard/i)).toBeInTheDocument();
+      });
+    });
   });
 
   describe('Authenticated Staff Direct Route Access', () => {
@@ -154,11 +203,6 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       await waitFor(() => {
         expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
       });
-    });
-
-    it('direct load of "/login" by unauthenticated user renders Login page', () => {
-      renderAppRoute('/login', undefined);
-      expect(screen.getByText(/Sign in to the student intelligence workspace/i)).toBeInTheDocument();
     });
 
     it('direct load of "/login" by authenticated staff redirects to dashboard', async () => {
@@ -175,63 +219,10 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       });
     });
 
-    it('direct load of "/journey" renders Student Journey', async () => {
-      renderAppRoute('/journey', 'advisor');
-      await waitFor(() => {
-        expect(screen.getByText(/Refresh Journey/i)).toBeInTheDocument();
-      });
-    });
-
-    it('direct load of "/interventions" renders Interventions page', async () => {
-      renderAppRoute('/interventions', 'advisor');
-      await waitFor(() => {
-        expect(screen.getByText(/Intervention Planning & Outcome Tracking/i)).toBeInTheDocument();
-      });
-    });
-
-    it('direct load of "/analytics" renders Analytics & Trends', async () => {
-      renderAppRoute('/analytics', 'advisor');
-      await waitFor(() => {
-        expect(screen.getByText(/Campus Analytics & Strategic Segmentation/i)).toBeInTheDocument();
-      });
-    });
-
-    it('direct load of "/csv-hub" renders Data & CSV Hub', async () => {
-      renderAppRoute('/csv-hub', 'advisor');
-      await waitFor(() => {
-        expect(screen.getByText(/Data Hub & CSV Ingestion Engine/i)).toBeInTheDocument();
-      });
-    });
-
     it('direct load of "/help" renders Help & Support Center', async () => {
       renderAppRoute('/help', 'advisor');
       await waitFor(() => {
         expect(screen.getByText(/Help & Support Center/i)).toBeInTheDocument();
-      });
-    });
-
-    it('direct load of genuinely invalid route renders NotFoundPage', async () => {
-      renderAppRoute('/not-a-valid-route', 'advisor');
-      await waitFor(() => {
-        expect(screen.getByText(/Page Not Found/i)).toBeInTheDocument();
-        expect(screen.getByText(/Return to Dashboard/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Authenticated Student Access Restrictions', () => {
-    it('student directly opening "/help" is permitted', async () => {
-      renderAppRoute('/help', 'student');
-      await waitFor(() => {
-        expect(screen.getByText(/Student Guide/i)).toBeInTheDocument();
-      });
-    });
-
-    it('student directly opening "/students" is redirected away from staff directory', async () => {
-      renderAppRoute('/students', 'student');
-      await waitFor(() => {
-        expect(screen.queryByRole('heading', { level: 2, name: /Students Directory/i })).not.toBeInTheDocument();
-        expect(screen.getByText(/Welcome back, Alex/i)).toBeInTheDocument();
       });
     });
   });

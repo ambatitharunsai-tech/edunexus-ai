@@ -32,12 +32,39 @@ def test_unauthenticated_mutation_returns_401():
     assert "Authentication credentials required" in err["error"]["message"]
 
 
-def test_dashboard_requires_bearer_token_in_production(monkeypatch):
-    """Dashboard student-level aggregates use the shared production read guard."""
+def test_public_dashboard_overview_accessible_without_token_in_production(monkeypatch):
+    """Verify that unauthenticated visitors in production receive safe, read-only demo dashboard analytics."""
     from app.core.config import settings
 
     monkeypatch.setattr(settings, "ENVIRONMENT", "production")
     response = clean_client.get("/api/v1/dashboard/overview")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "summary" in data
+    assert data["metadata"]["is_demo"] is True
+
+
+def test_public_dashboard_overview_with_demo_token_in_production_does_not_fail(monkeypatch):
+    """Verify that visitors whose browsers send demo tokens do not receive 401 on the public dashboard in production."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "ENVIRONMENT", "production")
+    headers = {"Authorization": "Bearer edunexus-demo-advisor-token"}
+    response = clean_client.get("/api/v1/dashboard/overview", headers=headers)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "summary" in data
+    assert data["metadata"]["is_demo"] is True
+
+
+def test_students_directory_requires_token_in_production(monkeypatch):
+    """Sensitive student educational records remain protected in production without valid auth."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "ENVIRONMENT", "production")
+    response = clean_client.get("/api/v1/students")
 
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "UNAUTHORIZED"

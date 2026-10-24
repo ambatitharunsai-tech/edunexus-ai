@@ -18,7 +18,7 @@ interface StudentQuickProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   student: FollowUpStudentItem | null;
-  onOpenIntervention: (student: FollowUpStudentItem) => void;
+  onOpenIntervention?: (student: FollowUpStudentItem) => void;
 }
 
 export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> = ({
@@ -186,17 +186,19 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
             <Button variant="secondary" size="sm" onClick={onClose}>
               Dismiss
             </Button>
-            <Button
-              size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5"
-              onClick={() => {
-                onClose();
-                onOpenIntervention(student);
-              }}
-            >
-              <HeartHandshake className="w-4 h-4" />
-              <span>Launch Support Plan</span>
-            </Button>
+            {onOpenIntervention && (
+              <Button
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5"
+                onClick={() => {
+                  onClose();
+                  onOpenIntervention(student);
+                }}
+              >
+                <HeartHandshake className="w-4 h-4" />
+                <span>Launch Support Plan</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
