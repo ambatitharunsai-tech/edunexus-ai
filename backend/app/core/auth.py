@@ -83,6 +83,16 @@ DEMO_TOKENS: Dict[str, Dict[str, Any]] = {
         "role": "student",
         "student_id": "STU-001",
     },
+    "edunexus-demo-dataoperator-token": {
+        "user_id": "demo-dataoperator-001",
+        "email": "operator@edunexus.ai",
+        "role": "data_operator",
+    },
+    "edunexus-demo-viewer-token": {
+        "user_id": "demo-viewer-001",
+        "email": "viewer@edunexus.ai",
+        "role": "viewer",
+    },
 }
 
 # Permitted staff roles for academic & intervention management mutations
