@@ -348,3 +348,47 @@ def test_commit_records_audits_every_record_and_deleted_id(monkeypatch):
     assert by_id[record_id]["action"] == "UPDATE"
     assert by_id[delete_id]["action"] == "DELETE"
     assert all(audit["performed_by"] == actor.user_id for audit in audits)
+
+
+def test_student_create_update_archive_endpoints_use_the_write_service(client, monkeypatch):
+    """Staff student actions save through the shared data mutation service."""
+    from uuid import uuid4
+    from app.services.dashboard_service import dashboard_service
+    from app.services import dataset_service
+
+    data = {"students": [], "audit_events": []}
+    monkeypatch.setattr(dashboard_service, "_load_synthetic_data", lambda: data)
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: False)
+
+    unique = uuid4().hex[:10]
+    payload = {
+        "student_id": f"TEST-{unique}",
+        "first_name": "Test",
+        "last_name": "Student",
+        "email": f"test.{unique}@example.edu",
+        "current_grade": "Year 1",
+        "academic_term": "AY 2026-27 Term 1",
+        "section": "A",
+        "department": "Computer Science & Engineering",
+        "status": "active",
+    }
+
+    created_response = client.post("/api/v1/students", json=payload)
+    assert created_response.status_code == 201, created_response.text
+    created = created_response.json()
+    assert created["student_id"] == payload["student_id"]
+    assert len(data["audit_events"]) == 1
+
+    update_response = client.patch(
+        f"/api/v1/students/{created['id']}",
+        json={"first_name": "Updated"},
+    )
+    assert update_response.status_code == 200, update_response.text
+    assert update_response.json()["first_name"] == "Updated"
+    assert len(data["audit_events"]) == 2
+
+    archive_response = client.delete(f"/api/v1/students/{created['id']}")
+    assert archive_response.status_code == 200, archive_response.text
+    assert archive_response.json()["status"] == "inactive"
+    assert data["students"][0]["status"] == "inactive"
+    assert len(data["audit_events"]) == 3
