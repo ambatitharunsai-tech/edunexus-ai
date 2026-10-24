@@ -125,6 +125,12 @@ describe('RegisterPage Component', () => {
     expect(screen.getByLabelText(/Student ID \/ Roll No/i)).toHaveValue('STU-1025');
   });
 
+  it('renders live database connection status badge', async () => {
+    renderRegisterPage();
+    const badge = screen.getByTestId('db-status-badge');
+    expect(badge).toBeInTheDocument();
+  });
+
   it('gracefully handles database trigger errors and authenticates via fallback without error banner', async () => {
     const signInMock = vi.fn();
     renderRegisterPage(false, { signIn: signInMock });

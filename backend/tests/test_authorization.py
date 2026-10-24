@@ -284,3 +284,24 @@ def test_auth_register_student_endpoint():
     assert data["access_token"] == "edunexus-demo-student-token"
 
 
+def test_auth_register_unconfigured_database_fallback(monkeypatch):
+    """Verify that registration cleanly falls back to demo mode when DB is unconfigured."""
+    import app.api.v1.auth as auth_mod
+    monkeypatch.setattr(auth_mod, "is_database_configured", lambda: False)
+
+    payload = {
+        "email": "unconfigured_db_test@edunexus.ai",
+        "password": "ValidPassword123!",
+        "first_name": "Demo",
+        "last_name": "User",
+        "role": "student",
+    }
+    res = clean_client.post("/api/v1/auth/register", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["is_demo"] is True
+    assert "access_token" in data
+
+
+
