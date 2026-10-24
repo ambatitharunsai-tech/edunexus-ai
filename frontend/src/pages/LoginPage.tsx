@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
   ArrowRight,
-  ArrowLeft,
   ShieldAlert,
   ShieldCheck,
   Eye,
@@ -119,7 +118,7 @@ export function LoginPage() {
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('advisor');
   const [email, setEmail] = useState<string>('advisor@edunexus.ai');
-  const [password, setPassword] = useState<string>('demo-secure-password');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -156,18 +155,24 @@ export function LoginPage() {
         const token = data.session?.access_token;
         if (!token) throw new Error('Authentication provider did not issue an access token.');
 
-        signIn(token, { role: selectedRole, email: email.trim() });
+        const nextSession = signIn(token, {
+          userId: data.user?.id,
+          email: data.user?.email || email.trim(),
+        });
+        navigate(nextSession.role.toLowerCase() === 'student' ? '/student' : '/', { replace: true });
       } else {
-        // Local evaluation & prototype mode
+        if (import.meta.env.PROD) {
+          throw new Error('Supabase authentication is not configured for this deployment. Please contact your institutional administrator.');
+        }
+        // Explicit local development/demo mode only.
         const target = roleOptions.find((r) => r.id === selectedRole) || roleOptions[0];
         signIn(target.token, {
           role: target.id,
           email: email.trim(),
           isDemoSession: true,
         });
+        navigate(target.id === 'student' ? '/student' : '/', { replace: true });
       }
-
-      navigate('/', { replace: true });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Sign-in failed. Please verify your credentials.');
     } finally {
@@ -176,6 +181,10 @@ export function LoginPage() {
   };
 
   const handleQuickRoleLogin = (role: RoleOption) => {
+    if (supabaseConfigured || import.meta.env.PROD) {
+      setError('Quick role previews are available only in local development without Supabase credentials.');
+      return;
+    }
     signIn(role.token, {
       role: role.id,
       email: role.email,
@@ -204,12 +213,6 @@ export function LoginPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors px-2.5 py-1.5 border border-slate-200 dark:border-[#35433B]"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Return to Dashboard
-            </Link>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-500 dark:text-[#8FA89B]">Institutional Mode:</span>
               <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-[#56B594] border border-emerald-500/30">
@@ -425,7 +428,7 @@ export function LoginPage() {
             </div>
           </div>
 
-          {/* Right Column: 1-Click Fast Role Sign-in Cards */}
+          {!supabaseConfigured && !import.meta.env.PROD && (
           <div className="rounded-xl border border-slate-200 dark:border-[#35433B] bg-slate-900 text-white p-6 sm:p-8 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
@@ -484,6 +487,7 @@ export function LoginPage() {
               </p>
             </div>
           </div>
+          )}
         </div>
 
         {/* Roles and Permissions Matrix */}
