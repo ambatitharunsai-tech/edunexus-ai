@@ -70,7 +70,7 @@ export function normalizeAuthSession(token: string, overrides?: Partial<AuthSess
     userId: String(overrides?.userId ?? payload.sub ?? payload.user_id ?? 'anonymous-user'),
     email: String(overrides?.email ?? payload.email ?? 'unknown@edunexus.ai'),
     role,
-    isDemoSession: overrides?.isDemoSession ?? token === DEMO_BEARER_TOKEN,
+    isDemoSession: overrides?.isDemoSession ?? (token.startsWith('edunexus-demo-') || token === DEMO_BEARER_TOKEN),
   };
 
   return session;
