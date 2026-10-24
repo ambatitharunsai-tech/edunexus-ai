@@ -11,6 +11,8 @@ import {
   InterventionsPage,
   LoginPage,
   NotFoundPage,
+  RegisterPage,
+  StudentDashboardPage,
   StudentJourneyPage,
   StudentsPage,
 } from './pages';
@@ -26,8 +28,9 @@ export function AppRoutes({
 }) {
   return (
     <Routes>
-      {/* Role-based authentication route */}
+      {/* Authentication & Registration routes for staff and students */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Main direct-access application layout */}
       <Route
@@ -43,6 +46,7 @@ export function AppRoutes({
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="csv-hub" element={<CsvHubPage />} />
         <Route path="help" element={<HelpPage />} />
+        <Route path="student" element={<StudentDashboardPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

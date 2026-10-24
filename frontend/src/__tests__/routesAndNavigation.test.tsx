@@ -165,6 +165,13 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       expect(screen.getAllByText(/Student/i).length).toBeGreaterThan(0);
     });
 
+    it('direct load of "/register" renders the Registration Page for account creation', async () => {
+      renderAppRoute('/register', undefined);
+      await waitFor(() => {
+        expect(screen.getByText(/Create your institutional account/i)).toBeInTheDocument();
+      });
+    });
+
     it('direct load of "/help" by unauthenticated visitor renders Help & Support Center', async () => {
       renderAppRoute('/help', undefined);
       await waitFor(() => {

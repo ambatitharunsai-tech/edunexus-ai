@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Download, RefreshCw, Shield } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Download, RefreshCw, GraduationCap } from 'lucide-react';
 import { api, getCachedApiData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/EmptyState';
+import { Card, CardContent } from '../components/ui/Card';
 import { StudentFilterToolbar } from '../features/students/StudentFilterToolbar';
 import { StudentTable } from '../features/students/StudentTable';
 import { StudentPagination } from '../features/students/StudentPagination';
@@ -17,9 +18,8 @@ import type {
 } from '../types';
 
 export const StudentsPage: React.FC = () => {
-  const { isStaff, session } = useAuth();
+  const { session, isStaff } = useAuth();
   const isStudent = session?.role?.toLowerCase() === 'student';
-
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSegment = searchParams.get('segment') || 'all';
 
@@ -173,36 +173,30 @@ export const StudentsPage: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // If logged in as student, display the FERPA privacy policy message
   if (isStudent) {
     return (
-      <div className="space-y-6">
-        <div className="p-8 text-center bg-white dark:bg-[#151C19] rounded-xl border border-slate-200 dark:border-[#35433B] max-w-xl mx-auto space-y-4 shadow-xs">
-          <div className="w-12 h-12 mx-auto rounded-full bg-amber-50 dark:bg-[#281E15] text-amber-600 dark:text-amber-400 flex items-center justify-center">
-            <Shield className="w-6 h-6" />
-          </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6]">
-            Peer Directory Protected by Educational Privacy Policy
-          </h2>
-          <p className="text-xs text-slate-600 dark:text-[#CBD5CF] leading-relaxed">
-            In accordance with educational privacy regulations (FERPA), directory-wide dossiers of other students are restricted to authorized academic faculty and advisors.
-            You have full access to view your personal academic journey, attendance trajectory, and support records.
-          </p>
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              to="/journey"
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
-            >
-              View My Student Journey
-            </Link>
-            <Link
-              to="/"
-              className="px-4 py-2 border border-slate-300 dark:border-[#35433B] hover:bg-slate-50 dark:hover:bg-[#1D2722] text-xs font-semibold rounded-lg text-slate-700 dark:text-[#CBD5CF] transition-colors"
-            >
-              Return to Dashboard
-            </Link>
-          </div>
-        </div>
+      <div className="mx-auto max-w-2xl py-12 px-4">
+        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+          <CardContent className="space-y-4 p-6 sm:p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
+              <GraduationCap className="h-7 w-7" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+              Private Educational Records Policy
+            </h2>
+            <p className="text-sm leading-6 text-slate-600 dark:text-[#CBD5CF]">
+              The Students Directory contains institutional cohort data and is restricted to authorized faculty and academic advisors. Student privacy policies prohibit students from viewing peer educational records.
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/student"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
+              >
+                Go to My Student Portal
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

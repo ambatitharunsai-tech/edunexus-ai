@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Activity,
   AlertCircle,
@@ -14,6 +15,7 @@ import {
 import { api, getCachedApiData } from '../lib/api';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
+import { useAuth } from '../context';
 
 interface StudentDashboardResponse {
   data_source: string;
@@ -95,9 +97,12 @@ const riskTone = (tier?: string | null) => {
 };
 
 export const StudentDashboardPage: React.FC = () => {
+  const { session, signIn } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
+
   const initialCache = getCachedApiData<StudentDashboardResponse>('/api/v1/students/me/dashboard');
   const [dashboard, setDashboard] = useState<StudentDashboardResponse | null>(() => initialCache);
-  const [loading, setLoading] = useState(() => !initialCache);
+  const [loading, setLoading] = useState(() => !initialCache && isStudent);
   const [error, setError] = useState<string | null>(null);
 
   const dashboardRef = useRef(dashboard);
@@ -127,8 +132,96 @@ export const StudentDashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard]);
+    if (isStudent) {
+      void loadDashboard();
+    }
+  }, [isStudent, loadDashboard]);
+
+  // 1. Unauthenticated Visitor Gate: Educational privacy protection
+  if (!session) {
+    return (
+      <div className="mx-auto max-w-2xl py-12 px-4">
+        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+          <CardContent className="space-y-6 p-6 sm:p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-600 dark:text-[#56B594] border border-indigo-100 dark:border-[#1D4633]">
+              <GraduationCap className="h-7 w-7" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+                Student Learning & Advisory Portal
+              </h2>
+              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-[#56B594]">
+                Confidential & Strict Role Isolation
+              </p>
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#CBD5CF] max-w-lg mx-auto">
+                Student learning dashboards contain personal academic records, attendance history, and tailored guidance. Each student's portal is strictly isolated to protect educational privacy. Peer records, ranks, and other students' details are never accessible.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/login"
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-xs"
+              >
+                Sign In to Student Portal
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  signIn('edunexus-demo-student-token', {
+                    role: 'student',
+                    email: 'student@edunexus.ai',
+                    isDemoSession: true,
+                  });
+                }}
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E2ECE6] hover:bg-slate-100 dark:hover:bg-[#25322B] transition-colors cursor-pointer"
+              >
+                Explore Demo Student (Aarav Sharma)
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 2. Staff Account Notice: Prevent confusion when faculty/advisors visit /student
+  if (session && !isStudent) {
+    return (
+      <div className="mx-auto max-w-2xl py-12 px-4">
+        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+          <CardContent className="space-y-5 p-6 sm:p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-[#281618] text-amber-700 dark:text-[#FB923C] border border-amber-200 dark:border-[#4A1E24]">
+              <ShieldCheck className="h-7 w-7" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+                Staff Account Notice
+              </h2>
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-[#CBD5CF] max-w-lg mx-auto">
+                You are currently signed in with an institutional staff role ({session.role}). The Student Dashboard is an individual, student-owned view restricted to enrolled students.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/students"
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-xs"
+              >
+                Go to Students Directory
+              </Link>
+              <Link
+                to="/"
+                className="w-full sm:w-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-[#35433B] bg-slate-50 dark:bg-[#1D2722] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#E2ECE6] hover:bg-slate-100 dark:hover:bg-[#25322B] transition-colors"
+              >
+                Dashboard Overview
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading && !dashboard) {
     return (

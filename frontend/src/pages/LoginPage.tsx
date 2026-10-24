@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
   ArrowRight,
+  ArrowLeft,
   ShieldAlert,
   ShieldCheck,
   Eye,
@@ -180,7 +181,7 @@ export function LoginPage() {
       email: role.email,
       isDemoSession: true,
     });
-    navigate('/', { replace: true });
+    navigate(role.id === 'student' ? '/student' : '/', { replace: true });
   };
 
   return (
@@ -202,13 +203,22 @@ export function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-[#8FA89B]">Institutional Mode:</span>
-            <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-[#56B594] border border-emerald-500/30">
-              Role-Based RBAC Active
-            </span>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors px-2.5 py-1.5 border border-slate-200 dark:border-[#35433B]"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Return to Dashboard
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 dark:text-[#8FA89B]">Institutional Mode:</span>
+              <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-[#56B594] border border-emerald-500/30">
+                Role-Based RBAC Active
+              </span>
+            </div>
           </div>
         </div>
+
 
         {/* Active Session Notification if already authenticated */}
         {isAuthenticated && session && (
@@ -406,6 +416,13 @@ export function LoginPage() {
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
+
+            <div className="mt-6 border-t border-slate-200 dark:border-[#35433B] pt-4 text-center text-xs text-slate-600 dark:text-[#CBD5CF]">
+              Don't have an institutional account?{' '}
+              <Link to="/register" className="font-semibold text-indigo-600 dark:text-[#56B594] hover:underline transition-colors">
+                Register here
+              </Link>
+            </div>
           </div>
 
           {/* Right Column: 1-Click Fast Role Sign-in Cards */}

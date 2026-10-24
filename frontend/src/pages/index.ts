@@ -7,4 +7,5 @@ export * from './CsvHubPage';
 export * from './LoginPage';
 export * from './NotFoundPage';
 export * from './StudentDashboardPage';
+export * from './RegisterPage';
 export * from './HelpPage';

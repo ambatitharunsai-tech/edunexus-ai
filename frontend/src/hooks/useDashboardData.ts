@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { api, getCachedApiData } from '../lib/api';
+import { clearAuthSession } from '../lib/auth';
 import type {
   DashboardOverviewResponse,
   CreateInterventionPayload,
@@ -35,6 +36,25 @@ export function useDashboardData() {
       setError(null);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : 'Dashboard request failed';
+      // If a legacy demo token or unauthorized error was rejected in production, purge it and retry anonymously
+      if (
+        errMsg.includes('Demo evaluation tokens are disabled') ||
+        errMsg.includes('credentials required') ||
+        errMsg.includes('401')
+      ) {
+        try {
+          clearAuthSession();
+          const anonResponse = await api<DashboardOverviewResponse>('/api/v1/dashboard/overview', {
+            bypassCache: true,
+          });
+          setData(anonResponse);
+          setIsOfflineFallback(false);
+          setError(null);
+          return;
+        } catch {
+          // If anonymous retry also fails, proceed to record error
+        }
+      }
       setError(errMsg);
       // Only clear data if we didn't have any cached data before
       if (!dataRef.current) {

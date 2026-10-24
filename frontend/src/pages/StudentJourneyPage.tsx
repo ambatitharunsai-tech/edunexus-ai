@@ -46,8 +46,8 @@ import type {
 } from '../types';
 
 export const StudentJourneyPage: React.FC = () => {
-  const { isStaff, session } = useAuth();
-  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+  const { session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
 
   const params = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -82,6 +82,7 @@ export const StudentJourneyPage: React.FC = () => {
 
   // 1. Fetch directory for student quick-switcher (skip for students to respect FERPA policy)
   useEffect(() => {
+    if (isStudent) return;
     let isMounted = true;
     if (isStudent) {
       setActiveStudentId((prev) => prev || studentIdParam || 'STU-001');
@@ -149,10 +150,10 @@ export const StudentJourneyPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (activeStudentId) {
+    if (!isStudent && activeStudentId) {
       fetchStudentDossier(activeStudentId);
     }
-  }, [activeStudentId, fetchStudentDossier]);
+  }, [activeStudentId, fetchStudentDossier, isStudent]);
 
   const handleSelectStudent = (newId: string) => {
     setActiveStudentId(newId);
@@ -185,6 +186,34 @@ export const StudentJourneyPage: React.FC = () => {
   const overrideReason = humanOverride?.override_reason || riskExplanation?.override_details?.reason;
   const reviewerName = humanOverride?.reviewed_by || riskExplanation?.override_details?.staff_name;
   const reviewTimestamp = humanOverride?.reviewed_at || riskExplanation?.override_details?.recorded_at;
+
+  if (isStudent) {
+    return (
+      <div className="mx-auto max-w-2xl py-12 px-4">
+        <Card className="border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] shadow-sm">
+          <CardContent className="space-y-4 p-6 sm:p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-[#153E31] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
+              <GraduationCap className="h-7 w-7" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-[#E2ECE6]">
+              Student Caseload Privacy Policy
+            </h2>
+            <p className="text-sm leading-6 text-slate-600 dark:text-[#CBD5CF]">
+              Individual caseload student journey profiles are restricted to institutional academic advisors and mentors. To view your own personal attendance, assessment analytics, and support indicators, please open your student portal.
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/student"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
+              >
+                Go to My Student Portal
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
