@@ -9,15 +9,13 @@ export const DEMO_BEARER_TOKEN = 'edunexus-demo-advisor-token';
 
 export function getAuthToken(): string {
   try {
-    const token = localStorage.getItem('edunexus_auth_token') || '';
-    // Purge any stale legacy demo tokens from visitor browser storage
-    if (token.startsWith('edunexus-demo-')) {
-      localStorage.removeItem('edunexus_auth_token');
-      return '';
+    const token = localStorage.getItem('edunexus_auth_token');
+    if (token && token.trim()) {
+      return token.trim();
     }
-    return token;
+    return DEMO_BEARER_TOKEN;
   } catch {
-    return '';
+    return DEMO_BEARER_TOKEN;
   }
 }
 

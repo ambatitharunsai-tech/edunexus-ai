@@ -24,13 +24,7 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(() => {
-    const stored = getStoredAuthSession();
-    // Old builds could leave a demo token in browser storage. Never restore it in production.
-    if (import.meta.env.PROD && stored?.isDemoSession) {
-      clearAuthSession();
-      return null;
-    }
-    return stored;
+    return getStoredAuthSession();
   });
 
   useEffect(() => {

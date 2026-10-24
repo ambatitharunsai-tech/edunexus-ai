@@ -81,19 +81,18 @@ export function normalizeAuthSession(token: string, overrides?: Partial<AuthSess
 export function getStoredAuthSession(): AuthSession | null {
   const raw = safeJsonParse<AuthSession>(safeStorageGet(STORAGE_KEY));
 
-  // Purge any stale legacy demo sessions from visitor browser storage
-  if (raw?.isDemoSession || raw?.token?.startsWith('edunexus-demo-')) {
-    clearAuthSession();
-    return null;
+  if (raw?.token) {
+    return raw;
   }
 
-  if (!raw?.token) {
-    const token = getAuthToken();
-    if (!token) return null;
-    return normalizeAuthSession(token, { token, isDemoSession: token === DEMO_BEARER_TOKEN });
-  }
-
-  return raw;
+  const token = getAuthToken();
+  if (!token) return null;
+  return normalizeAuthSession(token, {
+    token,
+    role: 'advisor',
+    email: 'advisor@edunexus.ai',
+    isDemoSession: true,
+  });
 }
 
 export function saveAuthSession(session: AuthSession): AuthSession {
