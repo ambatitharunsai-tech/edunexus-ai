@@ -24,7 +24,7 @@ services:
   - type: web
     name: edunexus-ai-api
     runtime: python
-    buildCommand: cd backend && pip install -r requirements.txt
+    buildCommand: cd backend && pip install -r requirements.txt && pytest -q
     startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
@@ -33,6 +33,9 @@ services:
         value: production
       - key: SUPABASE_URL
         value: https://blgqapkuizpyaqgyqftt.supabase.co
+      # Required server-only credential. Configure the value in Render; never commit it here.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: SUPABASE_JWT_ISSUER
         value: https://blgqapkuizpyaqgyqftt.supabase.co/auth/v1
       - key: ALLOWED_ORIGINS
