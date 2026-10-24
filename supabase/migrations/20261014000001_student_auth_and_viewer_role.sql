@@ -7,25 +7,8 @@
 
 BEGIN;
 
--- 1. Extend app_role enum safely if not already present
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_enum
-    JOIN pg_type ON pg_enum.enumtypid = pg_type.oid
-    WHERE pg_type.typname = 'app_role' AND pg_enum.enumlabel = 'viewer'
-  ) THEN
-    ALTER TYPE app_role ADD VALUE 'viewer';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_enum
-    JOIN pg_type ON pg_enum.enumtypid = pg_type.oid
-    WHERE pg_type.typname = 'app_role' AND pg_enum.enumlabel = 'data_operator'
-  ) THEN
-    ALTER TYPE app_role ADD VALUE 'data_operator';
-  END IF;
-END $$;
+-- app_role additions are committed by 20261013000002_extend_app_role_enum.sql
+-- before this migration uses the new enum labels.
 
 -- 2. Add user_id reference to students table for direct auth.users mapping
 ALTER TABLE public.students
@@ -181,5 +164,18 @@ DROP TRIGGER IF EXISTS trg_handle_new_auth_user ON auth.users;
 CREATE TRIGGER trg_handle_new_auth_user
   AFTER INSERT OR UPDATE ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_user();
+
+-- SECURITY DEFINER helper functions should not be callable anonymously.
+REVOKE ALL ON FUNCTION public.is_student_owner(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_student_owner(uuid) TO authenticated, service_role;
+
+REVOKE ALL ON FUNCTION public.is_authenticated_staff() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_authenticated_staff() TO authenticated, service_role;
+
+REVOKE ALL ON FUNCTION public.can_read_student_data() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.can_read_student_data() TO authenticated, service_role;
+
+REVOKE ALL ON FUNCTION public.is_administrator() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_administrator() TO authenticated, service_role;
 
 COMMIT;
