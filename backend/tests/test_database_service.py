@@ -275,3 +275,76 @@ def test_intervention_with_outcomes_joined():
     assert res.outcomes[0].baseline_value == 54.0
     assert res.outcomes[0].post_value == 68.0
     assert "causal relationship not established" in res.outcomes[0].causation_disclaimer
+
+
+# ── Transactional Write Audit Regression Tests ────────────────────────
+
+def test_commit_records_emits_audit_for_delete_only(monkeypatch):
+    """Delete-only transactions must satisfy the database RPC audit-row contract."""
+    from app.services import dataset_service
+    from app.core.auth import AuthenticatedUser
+
+    mock_client = MagicMock()
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: True)
+    monkeypatch.setattr(dataset_service, "get_db_client", lambda: mock_client)
+
+    target_id = str(uuid4())
+    actor = AuthenticatedUser(
+        user_id=str(uuid4()),
+        email="advisor@example.edu",
+        role="advisor",
+        is_demo_session=False,
+    )
+
+    dataset_service.commit_records(
+        {},
+        "interventions",
+        [],
+        actor=actor,
+        delete_ids=[target_id],
+    )
+
+    mock_client.rpc.assert_called_once()
+    rpc_name, payload = mock_client.rpc.call_args.args
+    assert rpc_name == "edunexus_commit"
+    assert payload["p_records"] == []
+    assert payload["p_delete_ids"] == [target_id]
+    assert len(payload["p_audits"]) == 1
+    assert payload["p_audits"][0]["entity_id"] == target_id
+    assert payload["p_audits"][0]["action"] == "DELETE"
+
+
+def test_commit_records_audits_every_record_and_deleted_id(monkeypatch):
+    """Mixed writes and deletes must carry one independent audit event per change."""
+    from app.services import dataset_service
+    from app.core.auth import AuthenticatedUser
+
+    mock_client = MagicMock()
+    monkeypatch.setattr(dataset_service, "is_database_configured", lambda: True)
+    monkeypatch.setattr(dataset_service, "get_db_client", lambda: mock_client)
+
+    record_id = str(uuid4())
+    delete_id = str(uuid4())
+    actor = AuthenticatedUser(
+        user_id=str(uuid4()),
+        email="advisor@example.edu",
+        role="advisor",
+        is_demo_session=False,
+    )
+
+    dataset_service.commit_records(
+        {},
+        "interventions",
+        [{"id": record_id, "status": "completed"}],
+        actor=actor,
+        action="UPDATE",
+        delete_ids=[delete_id],
+    )
+
+    payload = mock_client.rpc.call_args.args[1]
+    audits = payload["p_audits"]
+    assert len(audits) == 2
+    by_id = {audit["entity_id"]: audit for audit in audits}
+    assert by_id[record_id]["action"] == "UPDATE"
+    assert by_id[delete_id]["action"] == "DELETE"
+    assert all(audit["performed_by"] == actor.user_id for audit in audits)
