@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, Home } from 'lucide-react';
-import { Button } from '../components/ui/Button';
 
 export const NotFoundPage: React.FC = () => {
   return (
@@ -15,10 +14,12 @@ export const NotFoundPage: React.FC = () => {
           The requested route does not exist or has been moved within the EduNexus AI platform.
         </p>
       </div>
-      <Link to="/">
-        <Button variant="primary" size="md" leftIcon={<Home className="w-4 h-4" />}>
-          Return to Dashboard
-        </Button>
+      <Link
+        to="/"
+        className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 shadow-sm transition-colors cursor-pointer"
+      >
+        <Home className="w-4 h-4" />
+        <span>Return to Dashboard</span>
       </Link>
     </div>
   );

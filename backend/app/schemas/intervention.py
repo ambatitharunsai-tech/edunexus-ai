@@ -4,7 +4,7 @@ Pydantic validation models for student intervention plans.
 """
 
 from datetime import date, datetime
-from typing import Optional, Literal, List
+from typing import Optional, Literal, List, Union
 from uuid import UUID
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 from app.schemas.outcome import OutcomeInDB
@@ -25,7 +25,7 @@ InterventionStatus = Literal['planned', 'in_progress', 'completed', 'cancelled',
 
 
 class InterventionBase(BaseModel):
-    student_id: UUID = Field(..., description="Foreign key to student record")
+    student_id: Union[UUID, str] = Field(..., description="Foreign key to student record or institutional student code")
     title: str = Field(..., min_length=2, max_length=150)
     intervention_type: InterventionType = Field(..., description="Classification category")
     priority: InterventionPriority = Field(default="medium")

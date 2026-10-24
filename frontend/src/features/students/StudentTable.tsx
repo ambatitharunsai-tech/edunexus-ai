@@ -14,18 +14,39 @@ import type { StudentListItem } from '../../types';
 interface StudentTableProps {
   students: StudentListItem[];
   onOpenIntervention?: (student: StudentListItem) => void;
+  selectedIds?: string[];
+  onToggleSelect?: (studentId: string) => void;
+  onToggleSelectAll?: () => void;
+  isAllSelected?: boolean;
 }
 
 export const StudentTable: React.FC<StudentTableProps> = ({
   students,
   onOpenIntervention,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
+  isAllSelected = false,
 }) => {
+  const showSelect = typeof onToggleSelect === 'function';
+
   return (
     <div className="bg-white dark:bg-[#151C19] rounded-none border border-slate-200 dark:border-[#35433B] overflow-hidden shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="border-b border-slate-200 dark:border-[#35433B] bg-[#EEF2F6] dark:bg-[#1D2722] text-slate-700 dark:text-[#CBD5CF] font-semibold uppercase tracking-wider text-[11px]">
+              {showSelect && (
+                <th className="py-3 px-3 text-center w-10">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={onToggleSelectAll}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    aria-label="Select all students on current page"
+                  />
+                </th>
+              )}
               <th className="py-3 px-4">Student & ID</th>
               <th className="py-3 px-4">Department & Cohort</th>
               <th className="py-3 px-4 text-center">Success Score</th>
@@ -39,6 +60,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
             {students.map((student) => {
+              const isSelected = selectedIds?.includes(student.id) || false;
               const acadRiskVariant = {
                 insufficient_data: 'neutral',
     critical: 'danger',
@@ -83,7 +105,23 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                   : 'text-rose-700 dark:text-[#F87171] bg-rose-50 dark:bg-[#281618] border-rose-200 dark:border-[#4A1E24]';
 
               return (
-                <tr key={student.id} className="hover:bg-slate-50/75 dark:hover:bg-[#1D2722]/60 transition-colors group">
+                <tr
+                  key={student.id}
+                  className={`hover:bg-slate-50/75 dark:hover:bg-[#1D2722]/60 transition-colors group ${
+                    isSelected ? 'bg-indigo-50/40 dark:bg-[#153E31]/20' : ''
+                  }`}
+                >
+                  {showSelect && (
+                    <td className="py-3.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onToggleSelect?.(student.id)}
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        aria-label={`Select ${student.first_name} ${student.last_name}`}
+                      />
+                    </td>
+                  )}
                   {/* Student Code & Name */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
@@ -236,15 +274,13 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                           <HeartHandshake className="w-4 h-4" />
                         </Button>
                       )}
-                      <Link to={`/journey?student_id=${student.id}`}>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 text-xs px-2.5 flex items-center gap-1"
-                        >
-                          <span>Journey</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                        </Button>
+                      <Link
+                        to={`/journey?student_id=${student.id}`}
+                        className="inline-flex items-center gap-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs px-2.5 py-1.5 font-medium transition-colors group cursor-pointer"
+                        title="View Student Journey Dossier"
+                      >
+                        <span>Journey</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </div>
                   </td>

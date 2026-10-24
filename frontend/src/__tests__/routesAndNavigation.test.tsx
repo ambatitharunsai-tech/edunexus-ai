@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthContext, type AuthContextValue } from '../context/AuthContext';
 import { AppRoutes } from '../App';
@@ -77,8 +77,8 @@ const createMockAuth = (role?: 'advisor' | 'student'): AuthContextValue => {
   };
 };
 
-function renderAppRoute(initialEntry: string, role?: 'advisor' | 'student') {
-  const mockAuth = createMockAuth(role);
+function renderAppRoute(initialEntry: string, role?: 'advisor' | 'student', authOverride?: Partial<AuthContextValue>) {
+  const mockAuth = { ...createMockAuth(role), ...authOverride };
 
   return render(
     <AuthContext.Provider value={mockAuth}>
@@ -256,6 +256,15 @@ describe('Direct Route Refresh & Access Control Verification', () => {
     it('profile dropdown contains a Sign out button', async () => {
       renderAppRoute('/', undefined);
       expect(screen.getAllByRole('button', { name: /Sign out/i })[0]).toBeInTheDocument();
+    });
+
+    it('clicking sign out clears session and navigates to "/"', async () => {
+      const mockSignOut = vi.fn();
+      renderAppRoute('/students', 'advisor', { signOut: mockSignOut });
+      const signOutBtns = screen.getAllByRole('button', { name: /Sign out/i });
+      expect(signOutBtns.length).toBeGreaterThan(0);
+      fireEvent.click(signOutBtns[0]);
+      expect(mockSignOut).toHaveBeenCalled();
     });
   });
 });

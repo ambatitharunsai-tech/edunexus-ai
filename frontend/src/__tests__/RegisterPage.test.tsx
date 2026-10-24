@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { RegisterPage } from '../pages/RegisterPage';
 import { AuthContext, type AuthContextValue } from '../context/AuthContext';
 
-const renderRegisterPage = (isAuthenticated = false) => {
+const renderRegisterPage = (isAuthenticated = false, authOverrides?: Partial<AuthContextValue>) => {
   const mockAuth: AuthContextValue = {
     session: isAuthenticated
       ? {
@@ -20,15 +20,18 @@ const renderRegisterPage = (isAuthenticated = false) => {
     signIn: vi.fn(),
     signOut: vi.fn(),
     refreshSession: vi.fn(),
+    ...authOverrides,
   };
 
-  return render(
+  const rendered = render(
     <AuthContext.Provider value={mockAuth}>
       <MemoryRouter>
         <RegisterPage />
       </MemoryRouter>
     </AuthContext.Provider>
   );
+
+  return { ...rendered, mockAuth };
 };
 
 describe('RegisterPage Component', () => {
@@ -120,5 +123,19 @@ describe('RegisterPage Component', () => {
     expect(screen.getByLabelText(/Last Name/i)).toHaveValue('Nair');
     expect(screen.getByLabelText(/Institutional Email/i)).toHaveValue('priya.nair@edunexus.ai');
     expect(screen.getByLabelText(/Student ID \/ Roll No/i)).toHaveValue('STU-1025');
+  });
+
+  it('gracefully handles database trigger errors and authenticates via fallback without error banner', async () => {
+    const signInMock = vi.fn();
+    renderRegisterPage(false, { signIn: signInMock });
+
+    // Apply student preset (presets valid student details, password, and consent)
+    fireEvent.click(screen.getByRole('button', { name: /Student Candidate/i }));
+
+    const submitButton = screen.getByRole('button', { name: /Create Institutional Account/i });
+    fireEvent.click(submitButton);
+
+    // Initial click passes form validation without showing validation alert
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

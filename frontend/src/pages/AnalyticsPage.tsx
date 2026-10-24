@@ -374,8 +374,9 @@ export function AnalyticsPage() {
                         </td>
                         <td className="py-2 px-3 text-right">
                           <Link
-                            to={`/students?search=${encodeURIComponent(c.department)}`}
+                            to={`/students?department=${encodeURIComponent(c.department)}`}
                             className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 dark:text-[#56B594] dark:hover:text-[#7FE3BC] font-medium hover:underline"
+                            title={`Filter students by ${c.department}`}
                           >
                             <span>Filter</span>
                             <ArrowRight className="w-3 h-3" />

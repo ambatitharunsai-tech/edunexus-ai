@@ -247,9 +247,9 @@ export const StudentJourneyPage: React.FC = () => {
               Selected Student:
             </span>
             <select
-              value={activeStudentId}
+              value={studentDirectory.find((s) => s.id === activeStudentId || s.student_id === activeStudentId)?.id || activeStudentId}
               onChange={(e) => handleSelectStudent(e.target.value)}
-              className="text-xs font-semibold text-slate-800 dark:text-[#E2ECE6] bg-slate-50 dark:bg-[#1D2722] border border-slate-300 dark:border-[#35433B] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="text-xs font-semibold text-slate-800 dark:text-[#E2ECE6] bg-slate-50 dark:bg-[#1D2722] border border-slate-300 dark:border-[#35433B] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
             >
               {studentDirectory.length === 0 && profile?.student && (
                 <option value={profile.student.id || profile.student.student_id || 'STU-001'}>
@@ -310,10 +310,11 @@ export const StudentJourneyPage: React.FC = () => {
           <h3 className="text-base font-bold text-slate-900">Student Profile Unavailable</h3>
           <p className="text-xs text-slate-600 max-w-md mx-auto">{error}</p>
           <div className="pt-2 flex items-center justify-center gap-2">
-            <Link to="/students">
-              <Button variant="secondary" size="sm">
-                Return to Directory
-              </Button>
+            <Link
+              to="/students"
+              className="inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80 text-xs px-3 py-1.5 font-medium transition-colors cursor-pointer"
+            >
+              Return to Directory
             </Link>
             <Button
               size="sm"

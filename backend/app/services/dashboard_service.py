@@ -85,22 +85,26 @@ class DashboardService:
     ) -> DashboardOverviewResponse:
         """
         Generates full dashboard response.
-        If user is verified staff AND database is configured, returns live Supabase analytics.
-        Otherwise (for public unauthenticated visitors or demonstration mode),
-        derives safe, clean aggregates dynamically from the synthetic seed dataset.
+        If database is configured, returns live Supabase analytics.
+        When unauthenticated, student names are masked to protect educational privacy.
+        Otherwise (or on failure), derives safe aggregates from the synthetic seed dataset.
         """
         from app.db.client import is_database_configured
         from app.core.auth import STAFF_ROLES
 
         is_staff = current_user is not None and getattr(current_user, "role", "").lower() in STAFF_ROLES
-        if is_staff and is_database_configured():
-            from app.services.dataset_service import read_live_dataset
-            data = read_live_dataset()
-            self._hydrate_overrides(data)
-            return self._generate_from_data(data, is_live_db=True)
-        else:
-            data = self._load_pure_synthetic_data()
-            return self._generate_from_data(data, is_live_db=False)
+        if is_database_configured():
+            try:
+                from app.services.dataset_service import read_live_dataset
+                data = read_live_dataset()
+                self._hydrate_overrides(data)
+                return self._generate_from_data(data, is_live_db=True, mask_student_names=not is_staff)
+            except Exception:
+                # If database read fails, fall back to pure synthetic demo data
+                pass
+
+        data = self._load_pure_synthetic_data()
+        return self._generate_from_data(data, is_live_db=False)
 
     def _generate_from_synthetic(self) -> DashboardOverviewResponse:
         """Backward-compatible helper for synthetic overview."""
@@ -108,7 +112,12 @@ class DashboardService:
         data = self._load_synthetic_data()
         return self._generate_from_data(data, is_live_db=is_database_configured())
 
-    def _generate_from_data(self, data: Dict[str, Any], is_live_db: bool = False) -> DashboardOverviewResponse:
+    def _generate_from_data(
+        self,
+        data: Dict[str, Any],
+        is_live_db: bool = False,
+        mask_student_names: bool = False,
+    ) -> DashboardOverviewResponse:
         """Aggregate the selected data source using the authoritative student engine."""
         from collections import defaultdict, Counter
         from app.services.student_analytics_service import _compute_student_metrics
@@ -170,14 +179,15 @@ class DashboardService:
         followups, activity = [], []
         for s,m in zip(students,metrics):
             sid = str(s['id'])
+            s_name = f"Student {s['student_id']}" if mask_student_names else f"{s['first_name']} {s['last_name']}"
             events, _ = build_history(s, groups['attendance'][sid], groups['assessments'][sid], groups['engagement_events'][sid], groups['interventions'][sid])
             for e in events[:5]:
-                activity.append(RecentActivityItem(id=e.id, student_id=s['student_id'], student_name=f"{s['first_name']} {s['last_name']}",
+                activity.append(RecentActivityItem(id=e.id, student_id=s['student_id'], student_name=s_name,
                     activity_type=e.event_type, title=e.title, description=e.description, timestamp=e.date, severity=e.severity))
             if m['risk_tier'] in ('moderate','high','critical'):
                 factors = m['baseline_profile']['contributing_factors']
                 primary = max(factors, key=lambda f:f['contribution_points'])
-                followups.append(FollowUpStudentItem(id=sid, student_id=s['student_id'], name=f"{s['first_name']} {s['last_name']}",
+                followups.append(FollowUpStudentItem(id=sid, student_id=s['student_id'], name=s_name,
                     grade=s['current_grade'], section=s.get('section'), risk_level=m['risk_tier'], risk_score=m['risk_score'],
                     primary_risk_factor=primary['explanation'], attendance_rate=m['attendance_rate'], avg_score=m['average_score'],
                     last_interaction=events[0].date if events else 'Not recorded',

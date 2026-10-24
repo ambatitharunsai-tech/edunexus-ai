@@ -324,15 +324,17 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Link to="/students">
-              <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs">
-                Explore Directory
-              </Button>
+            <Link
+              to="/students"
+              className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs px-3 py-1.5 font-medium rounded-none transition-colors cursor-pointer"
+            >
+              Explore Directory
             </Link>
-            <Link to="/interventions">
-              <Button size="sm" className="bg-teal-600 hover:bg-teal-500 text-white border-0 text-xs font-semibold">
-                View Active Plans ({summary.active_interventions_count})
-              </Button>
+            <Link
+              to="/interventions"
+              className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-500 text-white border-0 text-xs font-semibold px-3 py-1.5 rounded-none transition-colors cursor-pointer"
+            >
+              View Active Plans ({summary.active_interventions_count})
             </Link>
           </div>
         </div>
@@ -1303,7 +1305,7 @@ export const DashboardPage: React.FC = () => {
         isOpen={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
         student={selectedStudentForProfile}
-        onOpenIntervention={isStaff ? handleOpenIntervention : undefined}
+        onOpenIntervention={handleOpenIntervention}
       />
     </div>
   );

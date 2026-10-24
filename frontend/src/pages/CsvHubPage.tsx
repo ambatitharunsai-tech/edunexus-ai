@@ -46,9 +46,28 @@ const templateCards: Array<{
   { dataType: 'lms', fileName: 'lms.csv', title: 'LMS Learning', description: 'Logins, module completion, assignments, and forum posts.', headerPreview: 'student_id, weekly_login_count...' },
 ];
 
+const SAMPLE_RECORDS: Record<CsvDataType, string> = {
+  students:
+    'student_id,first_name,last_name,email,current_grade,academic_term,department,section\nSTU-901,Elena,Rostova,elena.rostova@university.edu,Grade 10,AY 2025-26 Term 1,Computer Science & Engineering,A\nSTU-902,Marcus,Vance,marcus.vance@university.edu,Grade 11,AY 2025-26 Term 1,Electrical & Electronics,B\n',
+  attendance:
+    'student_id,session_date,status,period,remarks\nSTU-001,2026-10-24,present,morning,Full attendance\nSTU-002,2026-10-24,late,afternoon,Arrived 10 mins late\nSTU-003,2026-10-24,present,full_day,Participated in lab session\n',
+  assessments:
+    'student_id,subject,assessment_type,score,max_score,assessment_date\nSTU-001,Algorithms,midterm,88,100,2026-10-20\nSTU-002,Database Systems,quiz,92,100,2026-10-22\n',
+  placement:
+    'student_id,aptitude_score,coding_score,mock_interview_score,soft_skills_score,readiness_tier\nSTU-001,85,90,88,82,ready\nSTU-002,65,70,68,75,developing\n',
+  skills:
+    'student_id,coding_score,soft_skills_score,domain_knowledge_score,certifications_count\nSTU-001,88,85,90,3\nSTU-002,72,78,74,1\n',
+  feedback:
+    'student_id,sentiment_score,faculty_rating,mentor_notes\nSTU-001,4.5,4.8,Demonstrates high engagement and technical curiosity\nSTU-002,3.8,4.0,Consistent attendance and collaborative project work\n',
+  lms:
+    'student_id,weekly_login_count,assignments_completed,forum_posts_count\nSTU-001,6,8,4\nSTU-002,4,6,2\n',
+  engagement:
+    'student_id,event_type,event_timestamp,title,description\nSTU-001,workshop,2026-10-21,AI Systems Seminar,Attended full university tech symposium\nSTU-002,mentoring,2026-10-22,Career Mentorship,1-on-1 advisor counseling session\n',
+};
+
 export const CsvHubPage: React.FC = () => {
-  const { isStaff, session } = useAuth();
-  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+  const { session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
 
   // Template download states
   const [downloadingTemplate, setDownloadingTemplate] = useState<string | null>(null);
@@ -123,6 +142,38 @@ export const CsvHubPage: React.FC = () => {
       console.error('Validation error:', err);
       setValidationError(
         err instanceof Error ? err.message : 'CSV file validation encountered an error.'
+      );
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  // 2b. Instant Sample Data Loader
+  const handleLoadSampleData = async () => {
+    const sampleCsv = SAMPLE_RECORDS[selectedDataType];
+    if (!sampleCsv) return;
+
+    const file = new File([sampleCsv], `sample_${selectedDataType}.csv`, { type: 'text/csv' });
+    setSelectedFile(file);
+    setPreviewResult(null);
+    setImportResult(null);
+    setValidationError(null);
+    setValidating(true);
+
+    try {
+      const res = await api<CsvPreviewResponse>('/api/v1/csv/preview', {
+        method: 'POST',
+        body: {
+          file_content: sampleCsv,
+          file_name: file.name,
+          data_type: selectedDataType,
+        },
+      });
+      setPreviewResult(res);
+    } catch (err: unknown) {
+      console.error('Sample validation error:', err);
+      setValidationError(
+        err instanceof Error ? err.message : 'Sample CSV validation encountered an error.'
       );
     } finally {
       setValidating(false);
@@ -360,6 +411,21 @@ export const CsvHubPage: React.FC = () => {
                   <span className="text-[11px] font-mono text-slate-500">
                     Loaded: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                   </span>
+                )}
+                {!isStudent && (
+                  <div className="pt-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      onClick={handleLoadSampleData}
+                      disabled={validating}
+                      className="text-xs py-1 h-auto flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Load Sample Test Data</span>
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

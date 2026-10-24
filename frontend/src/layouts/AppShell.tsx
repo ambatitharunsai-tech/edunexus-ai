@@ -523,7 +523,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                 type="button"
                 onClick={() => {
                   signOut();
-                  navigate('/login');
+                  navigate('/');
                 }}
                 title="Sign out of workspace"
                 className="p-1.5 rounded-none text-slate-500 hover:text-rose-600 dark:text-[#8FA89B] dark:hover:text-[#F87171] hover:bg-slate-200/60 dark:hover:bg-[#25322B] transition-colors"
@@ -617,7 +617,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                   onClick={() => {
                     setMobileMenuOpen(false);
                     signOut();
-                    navigate('/login');
+                    navigate('/');
                   }}
                   className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-[#F87171] hover:bg-rose-50 dark:hover:bg-[#281618]"
                 >

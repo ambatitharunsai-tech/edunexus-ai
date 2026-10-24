@@ -279,7 +279,7 @@ async def list_students(
 ) -> StudentListEnvelope:
     """Retrieve filtered, paginated students directory."""
     user = verify_staff_authorization(authorization, x_user_role)
-    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+    if is_database_configured():
         data = dashboard_service._load_synthetic_data()
     else:
         data = dashboard_service._load_pure_synthetic_data()
@@ -452,7 +452,7 @@ async def get_student_journey_profile(
 ) -> StudentJourneyProfileResponse:
     """Retrieve full student journey dossier."""
     user = verify_staff_authorization(authorization, x_user_role)
-    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+    if is_database_configured():
         data = dashboard_service._load_synthetic_data()
     else:
         data = dashboard_service._load_pure_synthetic_data()
@@ -617,7 +617,7 @@ async def get_student_risk_explanation(
 ) -> RiskExplanationResponse:
     """Retrieve explainable risk indicator decomposition."""
     user = verify_staff_authorization(authorization, x_user_role)
-    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+    if is_database_configured():
         data = dashboard_service._load_synthetic_data()
     else:
         data = dashboard_service._load_pure_synthetic_data()

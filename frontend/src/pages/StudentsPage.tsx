@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, RefreshCw, GraduationCap } from 'lucide-react';
+import { Download, RefreshCw, GraduationCap, HeartHandshake, CheckSquare } from 'lucide-react';
 import { api, getCachedApiData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
@@ -21,7 +21,6 @@ export const StudentsPage: React.FC = () => {
   const { session, isStaff } = useAuth();
   const isStudent = session?.role?.toLowerCase() === 'student';
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialSegment = searchParams.get('segment') || 'all';
 
   const initialCache = getCachedApiData<StudentDirectoryResponse>('/api/v1/students?page=1&page_size=10&sort_by=risk_score&sort_dir=desc');
   const [data, setData] = useState<StudentDirectoryResponse | null>(() => initialCache);
@@ -34,24 +33,71 @@ export const StudentsPage: React.FC = () => {
   }, [data]);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Filters state
-  const [search, setSearch] = useState<string>(searchParams.get('search') || '');
-  const [department, setDepartment] = useState<string>('all');
-  const [semester, setSemester] = useState<string>('all');
-  const [segment, setSegment] = useState<string>(initialSegment);
-  const [riskTier, setRiskTier] = useState<string>('all');
-  const [academicRisk, setAcademicRisk] = useState('all');
-  const [placementRisk, setPlacementRisk] = useState('all');
-  const [successMin, setSuccessMin] = useState('');
-  const [successMax, setSuccessMax] = useState('');
-  const [sortBy, setSortBy] = useState<string>('risk_score');
-  const [sortDir, setSortDir] = useState<string>('desc');
-  const [page, setPage] = useState<number>(1);
+  // Filters state initialized from URL search params
+  const [search, setSearch] = useState<string>(() => searchParams.get('search') || '');
+  const [department, setDepartment] = useState<string>(() => searchParams.get('department') || 'all');
+  const [semester, setSemester] = useState<string>(() => searchParams.get('semester') || 'all');
+  const [segment, setSegment] = useState<string>(() => searchParams.get('segment') || 'all');
+  const [riskTier, setRiskTier] = useState<string>(() => searchParams.get('risk_tier') || 'all');
+  const [academicRisk, setAcademicRisk] = useState<string>(() => searchParams.get('academic_risk') || 'all');
+  const [placementRisk, setPlacementRisk] = useState<string>(() => searchParams.get('placement_risk') || 'all');
+  const [successMin, setSuccessMin] = useState<string>(() => searchParams.get('success_min') || '');
+  const [successMax, setSuccessMax] = useState<string>(() => searchParams.get('success_max') || '');
+  const [sortBy, setSortBy] = useState<string>(() => searchParams.get('sortBy') || searchParams.get('sort_by') || 'risk_score');
+  const [sortDir, setSortDir] = useState<string>(() => searchParams.get('sortDir') || searchParams.get('sort_dir') || 'desc');
+  const [page, setPage] = useState<number>(() => {
+    const p = parseInt(searchParams.get('page') || '1', 10);
+    return isNaN(p) || p < 1 ? 1 : p;
+  });
   const pageSize = 10;
+
+  // Sync state if URL search parameters change externally
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+    setDepartment(searchParams.get('department') || 'all');
+    setSemester(searchParams.get('semester') || 'all');
+    setSegment(searchParams.get('segment') || 'all');
+    setRiskTier(searchParams.get('risk_tier') || 'all');
+    setAcademicRisk(searchParams.get('academic_risk') || 'all');
+    setPlacementRisk(searchParams.get('placement_risk') || 'all');
+    setSuccessMin(searchParams.get('success_min') || '');
+    setSuccessMax(searchParams.get('success_max') || '');
+    setSortBy(searchParams.get('sortBy') || searchParams.get('sort_by') || 'risk_score');
+    setSortDir(searchParams.get('sortDir') || searchParams.get('sort_dir') || 'desc');
+    const p = parseInt(searchParams.get('page') || '1', 10);
+    setPage(isNaN(p) || p < 1 ? 1 : p);
+  }, [searchParams]);
 
   // Intervention modal state
   const [interventionModalOpen, setInterventionModalOpen] = useState<boolean>(false);
   const [selectedStudentForIntervention, setSelectedStudentForIntervention] = useState<any>(null);
+
+  // Batch multi-select state
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [exportingFull, setExportingFull] = useState<boolean>(false);
+
+  const handleToggleSelect = (studentId: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
+    );
+  };
+
+  const currentPageStudentIds = data?.students.map((s) => s.id) || [];
+  const isAllCurrentPageSelected =
+    currentPageStudentIds.length > 0 &&
+    currentPageStudentIds.every((id) => selectedStudentIds.includes(id));
+
+  const handleToggleSelectAll = () => {
+    if (isAllCurrentPageSelected) {
+      setSelectedStudentIds((prev) => prev.filter((id) => !currentPageStudentIds.includes(id)));
+    } else {
+      setSelectedStudentIds((prev) => Array.from(new Set([...prev, ...currentPageStudentIds])));
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedStudentIds([]);
+  };
 
   const fetchStudents = useCallback(async (opts: { bypassCache?: boolean } = {}) => {
     if (isStudent) return;
@@ -154,20 +200,60 @@ export const StudentsPage: React.FC = () => {
     }
   };
 
-  const exportCohortCSV = () => {
-    if (!data?.students) return;
-    const headers = 'Student ID,First Name,Last Name,Department,Grade,Attendance Rate,Average Score,Risk Tier,Review Status\n';
-    const rows = data.students
+  const exportCohortCSV = async (mode: 'page' | 'cohort' | 'selected' = 'page') => {
+    let studentRows: StudentListItem[] = [];
+
+    if (mode === 'selected') {
+      if (!data?.students) return;
+      studentRows = data.students.filter((s) => selectedStudentIds.includes(s.id));
+      if (studentRows.length === 0) return;
+    } else if (mode === 'cohort') {
+      setExportingFull(true);
+      try {
+        const params = new URLSearchParams({
+          page: '1',
+          page_size: '1000',
+          sort_by: sortBy,
+          sort_dir: sortDir,
+        });
+        if (academicRisk !== 'all') params.set('academic_risk', academicRisk);
+        if (placementRisk !== 'all') params.set('placement_risk', placementRisk);
+        if (successMin !== '') params.set('success_min', successMin);
+        if (successMax !== '') params.set('success_max', successMax);
+        if (search.trim()) params.append('search', search.trim());
+        if (department !== 'all') params.append('department', department);
+        if (semester !== 'all') params.append('semester', semester);
+        if (segment !== 'all') params.append('segment', segment);
+        if (riskTier !== 'all') params.append('risk_tier', riskTier);
+
+        const res = await api<StudentDirectoryResponse>(`/api/v1/students?${params.toString()}`);
+        studentRows = res.students;
+      } catch (e) {
+        console.error('Failed to export full cohort:', e);
+        studentRows = data?.students || [];
+      } finally {
+        setExportingFull(false);
+      }
+    } else {
+      studentRows = data?.students || [];
+    }
+
+    if (studentRows.length === 0) return;
+
+    const headers =
+      'Student ID,First Name,Last Name,Department,Grade,Section,Success Score,Success Tier,Academic Risk,Placement Risk,Composite Risk,Risk Index,Attendance Rate %,Average Score %,Latest Assessment %,Trend,Review Status,Active Interventions\n';
+    const rows = studentRows
       .map(
         (s) =>
-          `"${s.student_id}","${s.first_name}","${s.last_name}","${s.department || ''}","${s.current_grade}",${s.attendance_rate || 0},${s.average_score || 0},"${s.risk_tier || 'low'}","${s.review_status || 'On Track'}"`
+          `"${s.student_id}","${s.first_name}","${s.last_name}","${s.department || ''}","${s.current_grade}","${s.section || ''}",${s.success_score != null ? s.success_score.toFixed(1) : ''},"${s.success_tier || ''}","${s.academic_risk_tier || ''}","${s.placement_risk_tier || ''}","${s.risk_tier || 'low'}",${s.risk_score || 0},${s.attendance_rate != null ? s.attendance_rate.toFixed(1) : ''},${s.average_score != null ? s.average_score.toFixed(1) : ''},${s.latest_assessment_percentage != null ? s.latest_assessment_percentage.toFixed(1) : ''},"${s.trend || 'stable'}","${s.review_status || 'On Track'}",${s.active_interventions_count || 0}`
       )
       .join('\n');
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `edunexus_students_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    const filenameSuffix = mode === 'cohort' ? 'full_cohort' : mode === 'selected' ? 'selected_students' : 'displayed_page';
+    link.setAttribute('download', `edunexus_${filenameSuffix}_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -236,12 +322,25 @@ export const StudentsPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={exportCohortCSV}
+            onClick={() => exportCohortCSV('page')}
             disabled={!data || data.students.length === 0}
             className="flex items-center gap-1.5 text-xs"
+            title="Export currently displayed page (10 records)"
           >
             <Download className="w-3.5 h-3.5 text-slate-600 dark:text-[#CBD5CF]" />
-            <span>Export displayed page</span>
+            <span>Export Page</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportCohortCSV('cohort')}
+            disabled={!data || data.total === 0 || exportingFull}
+            className="flex items-center gap-1.5 text-xs bg-indigo-50/70 dark:bg-[#1D332A] text-indigo-700 dark:text-[#56B594] border-indigo-200 dark:border-[#1D4633] font-semibold"
+            title="Export all students matching active filters to CSV"
+          >
+            <Download className={`w-3.5 h-3.5 ${exportingFull ? 'animate-bounce' : ''}`} />
+            <span>{exportingFull ? 'Exporting Cohort…' : `Export All (${data?.total || 0})`}</span>
           </Button>
         </div>
       </div>
@@ -338,9 +437,60 @@ export const StudentsPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Floating Batch Action Bar */}
+          {selectedStudentIds.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-indigo-50 dark:bg-[#162B23] border border-indigo-200 dark:border-[#1E4B3E] rounded-xl text-xs text-indigo-950 dark:text-[#E2ECE6] shadow-xs">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-[#56B594]" />
+                <span className="font-bold text-indigo-900 dark:text-[#56B594]">
+                  {selectedStudentIds.length} student{selectedStudentIds.length > 1 ? 's' : ''} selected
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-[#8FA89B] hidden sm:inline">
+                  • Apply batch operations or export selected rows
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => exportCohortCSV('selected')}
+                  className="text-xs py-1 h-auto flex items-center gap-1 bg-white dark:bg-[#1D2722]"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Selected ({selectedStudentIds.length})</span>
+                </Button>
+                {isStaff && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const firstSelected = data?.students.find((s) => selectedStudentIds.includes(s.id));
+                      if (firstSelected) handleOpenIntervention(firstSelected);
+                    }}
+                    className="text-xs py-1 h-auto bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1"
+                  >
+                    <HeartHandshake className="w-3.5 h-3.5" />
+                    <span>Assign Support Plan</span>
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleClearSelection}
+                  className="text-xs py-1 h-auto text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900"
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </div>
+          )}
+
           <StudentTable
             students={data?.students || []}
             onOpenIntervention={isStaff ? handleOpenIntervention : undefined}
+            selectedIds={selectedStudentIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            isAllSelected={isAllCurrentPageSelected}
           />
 
           <StudentPagination

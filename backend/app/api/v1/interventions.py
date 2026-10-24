@@ -148,7 +148,7 @@ async def list_interventions(
 ) -> List[InterventionWithOutcomes]:
     """List all student support interventions with outcome comparisons and overdue alerts."""
     user = verify_staff_authorization(authorization, x_user_role)
-    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+    if is_database_configured():
         raw_data = dashboard_service._load_synthetic_data()
     else:
         raw_data = dashboard_service._load_pure_synthetic_data()
@@ -212,7 +212,7 @@ async def create_intervention(
     students = raw_data.get("students", [])
     students_map = {str(s.get("id")): s for s in students}
 
-    # Verify student exists
+    # Verify student exists and resolve student code (e.g. STU-001) to UUID if necessary
     if str(intervention.student_id) not in students_map:
         # Check by student_id code
         match = next((s for s in students if s.get("student_id") == str(intervention.student_id)), None)
@@ -221,6 +221,12 @@ async def create_intervention(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Target student '{intervention.student_id}' does not exist in student registry.",
             )
+        intervention.student_id = UUID(str(match.get("id")))
+    else:
+        try:
+            intervention.student_id = UUID(str(intervention.student_id))
+        except (ValueError, TypeError):
+            pass
 
     created_in_db = dashboard_service.create_intervention(intervention, current_user)
 
@@ -241,7 +247,7 @@ async def get_intervention_detail(
 ) -> InterventionWithOutcomes:
     """Retrieve details and outcomes for an intervention."""
     user = verify_staff_authorization(authorization, x_user_role)
-    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+    if is_database_configured():
         raw_data = dashboard_service._load_synthetic_data()
     else:
         raw_data = dashboard_service._load_pure_synthetic_data()

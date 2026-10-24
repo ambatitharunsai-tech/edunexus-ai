@@ -243,3 +243,44 @@ def test_demo_token_disabled_in_production(monkeypatch):
     assert res.status_code == 401
     assert "disabled in production" in res.json()["error"]["message"]
 
+
+def test_auth_register_endpoint():
+    """Verify that institutional user registration endpoint accepts valid payloads and issues access token."""
+    payload = {
+        "email": "test_register_check@edunexus.ai",
+        "password": "ValidPassword123!",
+        "first_name": "Test",
+        "last_name": "User",
+        "role": "advisor",
+    }
+    res = clean_client.post("/api/v1/auth/register", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["email"] == "test_register_check@edunexus.ai"
+    assert data["role"] == "advisor"
+    assert "access_token" in data
+    assert data["access_token"] == "edunexus-demo-advisor-token"
+
+
+def test_auth_register_student_endpoint():
+    """Verify that student registration provides student token and retains student_id."""
+    payload = {
+        "email": "student_register_test@edunexus.ai",
+        "password": "ValidPassword123!",
+        "first_name": "Priya",
+        "last_name": "Nair",
+        "role": "student",
+        "department": "Computer Science & Engineering",
+        "student_id": "STU-9999",
+        "semester": "Semester 6",
+    }
+    res = clean_client.post("/api/v1/auth/register", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["email"] == "student_register_test@edunexus.ai"
+    assert data["role"] == "student"
+    assert data["access_token"] == "edunexus-demo-student-token"
+
+

@@ -34,8 +34,8 @@ import type {
 } from '../types';
 
 export const InterventionsPage: React.FC = () => {
-  const { isStaff, session } = useAuth();
-  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+  const { session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
 
   const initialCache = getCachedApiData<Intervention[]>('/api/v1/interventions');
   const [interventions, setInterventions] = useState<Intervention[]>(() => initialCache || []);

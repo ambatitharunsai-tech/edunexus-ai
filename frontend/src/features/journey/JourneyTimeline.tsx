@@ -6,9 +6,12 @@ import {
   GraduationCap,
   Activity,
   AlertTriangle,
+  Briefcase,
+  Award,
+  MessageSquare,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
-import type { JourneyTimelineEvent, TimelineEventType } from '../../types';
+import type { JourneyTimelineEvent } from '../../types';
 
 interface JourneyTimelineProps {
   events?: JourneyTimelineEvent[];
@@ -17,12 +20,30 @@ interface JourneyTimelineProps {
 export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] }) => {
   const [filterType, setFilterType] = useState<string>('all');
 
-  const filteredEvents = (events || []).filter(
-    (e) => filterType === 'all' || e.event_type === filterType
-  );
+  const filteredEvents = (events || []).filter((e) => {
+    if (filterType === 'all') return true;
+    if (filterType === 'placement') {
+      return (
+        e.title.toLowerCase().includes('placement') ||
+        e.description.toLowerCase().includes('placement')
+      );
+    }
+    return e.event_type === filterType;
+  });
 
-  const getEventIcon = (type: TimelineEventType) => {
-    switch (type) {
+  const getEventIcon = (evt: JourneyTimelineEvent) => {
+    const titleLower = evt.title.toLowerCase();
+    if (titleLower.includes('placement')) {
+      return <Briefcase className="w-3.5 h-3.5 text-emerald-600" />;
+    }
+    if (titleLower.includes('skill')) {
+      return <Award className="w-3.5 h-3.5 text-purple-600" />;
+    }
+    if (titleLower.includes('feedback') || titleLower.includes('observation') || titleLower.includes('sentiment')) {
+      return <MessageSquare className="w-3.5 h-3.5 text-blue-600" />;
+    }
+
+    switch (evt.event_type) {
       case 'academic':
         return <BookOpen className="w-3.5 h-3.5 text-teal-600" />;
       case 'attendance':
@@ -64,12 +85,13 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] })
         {/* Timeline Filter Controls */}
         <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-lg text-xs">
           {[
-            { key: 'all', label: 'All Events' },
+            { key: 'all', label: 'All Touchpoints' },
             { key: 'academic', label: 'Academics' },
             { key: 'attendance', label: 'Attendance' },
-            { key: 'intervention', label: 'Interventions' },
-            { key: 'milestone', label: 'Milestones' },
-            { key: 'engagement', label: 'LMS Activity' },
+            { key: 'intervention', label: 'Support Plans' },
+            { key: 'placement', label: 'Placement' },
+            { key: 'milestone', label: 'Milestones & Skills' },
+            { key: 'engagement', label: 'LMS & Campus' },
           ].map((tab) => {
             const isActive = filterType === tab.key;
             return (
@@ -79,7 +101,7 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] })
                 onClick={() => setFilterType(tab.key)}
                 className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors ${
                   isActive
-                    ? 'bg-white text-indigo-700 shadow-2xs'
+                    ? 'bg-white text-indigo-700 shadow-2xs font-bold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -101,7 +123,7 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] })
               <div key={evt.id} className="relative flex items-start gap-4 group">
                 {/* Node Dot */}
                 <div className="absolute -left-6 mt-1 w-6 h-6 rounded-full bg-white border-2 border-slate-300 group-hover:border-indigo-600 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
-                  {getEventIcon(evt.event_type)}
+                  {getEventIcon(evt)}
                 </div>
 
                 {/* Event Card */}
@@ -118,7 +140,17 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] })
                       </span>
                     </div>
                     {evt.metric_badge && (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/80 border border-slate-200 text-slate-800 self-start shadow-2xs">
+                      <span
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full border self-start shadow-2xs ${
+                          evt.severity === 'critical'
+                            ? 'bg-rose-100 text-rose-800 border-rose-300'
+                            : evt.severity === 'warning'
+                            ? 'bg-amber-100 text-amber-800 border-amber-300'
+                            : evt.severity === 'success'
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                            : 'bg-white/90 text-slate-800 border-slate-200'
+                        }`}
+                      >
                         {evt.metric_badge}
                       </span>
                     )}

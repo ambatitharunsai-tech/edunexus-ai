@@ -114,10 +114,12 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
       return cached;
     }
 
-    // 2. In-flight request deduplication: reuse active promise if another caller already requested it
-    const activePromise = inFlightRequests.get(cacheKey);
-    if (activePromise) {
-      return activePromise as Promise<T>;
+    // 2. In-flight request deduplication: reuse active promise only when no caller-specific AbortSignal is attached
+    if (!signal) {
+      const activePromise = inFlightRequests.get(cacheKey);
+      if (activePromise) {
+        return activePromise as Promise<T>;
+      }
     }
   }
 
@@ -164,7 +166,7 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
 
       return data;
     } finally {
-      if (isGet) {
+      if (isGet && !signal) {
         inFlightRequests.delete(cacheKey);
       }
     }
@@ -172,7 +174,9 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
 
   if (isGet) {
     const requestPromise = executeFetch();
-    inFlightRequests.set(cacheKey, requestPromise);
+    if (!signal) {
+      inFlightRequests.set(cacheKey, requestPromise);
+    }
     return requestPromise;
   }
 

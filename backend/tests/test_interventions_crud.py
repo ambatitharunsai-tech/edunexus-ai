@@ -198,3 +198,24 @@ def test_cancel_intervention(client):
         # Check status is cancelled
         detail_res = client.get(f"/api/v1/interventions/{target_id}")
         assert detail_res.json()["status"] == "cancelled"
+
+
+def test_create_intervention_with_student_code(client):
+    """Verify intervention creation succeeds when providing human-readable student code (e.g. STU-001)."""
+    payload = {
+        "student_id": "STU-001",
+        "title": "Placement Aptitude Coaching",
+        "description": "Weekly reasoning and coding logic workshops.",
+        "intervention_type": "peer_mentoring",
+        "priority": "medium",
+        "status": "planned",
+        "start_date": str(date.today()),
+        "target_completion_date": str(date.today() + timedelta(days=21)),
+        "assigned_staff_name": "Placement Cell Advisor",
+    }
+    res = client.post("/api/v1/interventions", json=payload)
+    assert res.status_code == 201
+    data = res.json()
+    assert data["title"] == payload["title"]
+    assert data["student_code"] == "STU-001"
+
