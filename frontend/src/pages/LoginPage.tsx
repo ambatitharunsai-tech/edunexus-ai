@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { GraduationCap, ArrowRight, ShieldAlert, Eye, EyeOff } from 'lucide-react';
+import { GraduationCap, ArrowRight, ShieldAlert, Eye } from 'lucide-react';
 import { useAuth } from '../context';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
