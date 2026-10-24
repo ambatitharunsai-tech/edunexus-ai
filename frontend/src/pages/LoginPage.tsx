@@ -21,6 +21,7 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const supabaseConfigured = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
 
   if (isAuthenticated) return <Navigate to="/" replace />;
 
@@ -30,7 +31,7 @@ export function LoginPage() {
       setError('Enter your institutional email and password.');
       return;
     }
-    if (!isSupabaseConfigured()) {
+    if (!supabaseConfigured) {
       setError('Secure sign-in is not configured. Please contact the administrator.');
       return;
     }
@@ -124,7 +125,7 @@ export function LoginPage() {
             </button>
           </form>
 
-          {!isSupabaseConfigured() && (
+          {!supabaseConfigured && (
             <p className="mt-4 text-xs text-amber-700 dark:text-amber-300">Secure sign-in configuration is missing. Please contact the administrator.</p>
           )}
         </div>
