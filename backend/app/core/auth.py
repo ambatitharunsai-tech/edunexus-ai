@@ -10,7 +10,58 @@ from fastapi import Header, HTTPException, status, Depends
 import jwt
 
 from app.core.config import settings
-from app.db.client import is_database_configured
+from app.db.client import is_database_configured, get_db_client
+
+
+# Supabase signing-key verification. Asymmetric signing is preferred by newer projects;
+# legacy HS256 remains supported when the server-side JWT secret is configured.
+_jwks_client: Optional[jwt.PyJWKClient] = None
+
+
+def _get_jwks_client(jwks_url: str) -> jwt.PyJWKClient:
+    global _jwks_client
+    if _jwks_client is None or getattr(_jwks_client, "uri", "") != jwks_url:
+        _jwks_client = jwt.PyJWKClient(jwks_url, cache_jwk_set=True, lifespan=3600)
+    return _jwks_client
+
+
+def verify_supabase_token_payload(raw_token: str) -> Dict[str, Any]:
+    """Cryptographically verify a Supabase JWT using JWKS or the configured legacy secret."""
+    header = jwt.get_unverified_header(raw_token)
+    unverified_payload = jwt.decode(raw_token, options={"verify_signature": False})
+    algorithm = str(header.get("alg", ""))
+
+    options: Dict[str, Any] = {
+        "verify_signature": True,
+        "verify_exp": True,
+        "require": ["sub", "exp"],
+    }
+    kwargs: Dict[str, Any] = {"options": options}
+    if "aud" in unverified_payload:
+        kwargs["audience"] = "authenticated"
+
+    issuer = settings.SUPABASE_JWT_ISSUER.strip() if settings.SUPABASE_JWT_ISSUER else ""
+    if not issuer and settings.SUPABASE_URL:
+        issuer = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1"
+    if issuer:
+        kwargs["issuer"] = issuer
+
+    asymmetric_algorithms = {"ES256", "ES384", "ES512", "RS256", "RS384", "RS512"}
+    if algorithm in asymmetric_algorithms:
+        project_url = settings.SUPABASE_URL.strip().rstrip("/")
+        if not project_url or "your-project" in project_url:
+            raise ValueError("SUPABASE_URL must be configured for asymmetric JWT verification.")
+        jwks_url = f"{project_url}/auth/v1/.well-known/jwks.json"
+        signing_key = _get_jwks_client(jwks_url).get_signing_key_from_jwt(raw_token)
+        kwargs["algorithms"] = [algorithm]
+        return jwt.decode(raw_token, signing_key.key, **kwargs)
+
+    if algorithm == "HS256" and settings.SUPABASE_JWT_SECRET:
+        kwargs["algorithms"] = ["HS256"]
+        return jwt.decode(raw_token, settings.SUPABASE_JWT_SECRET, **kwargs)
+
+    raise ValueError("Unsupported or unconfigured Supabase JWT signing algorithm.")
+
 
 # Recognized demo tokens for KPMG evaluation & local prototype mode
 DEMO_TOKENS: Dict[str, Dict[str, Any]] = {
@@ -53,6 +104,8 @@ class AuthenticatedUser(BaseModel):
     role: str = Field(..., description="Role claim (e.g. advisor, admin, student)")
     student_id: Optional[str] = Field(default=None, description="Server-verified student record link from demo configuration or app_metadata")
     is_demo_session: bool = Field(default=False, description="True if verified via evaluation demo token")
+    full_name: Optional[str] = Field(default=None, description="Verified display name")
+    is_active: bool = Field(default=True, description="Account active status")
 
 
 def get_current_user(
@@ -94,39 +147,54 @@ def get_current_user(
             is_demo_session=True,
         )
 
-    # 2. Decode Supabase / cryptographic JWT
+    # 2. Verify the Supabase JWT before trusting any identity or role claims.
     try:
-        if settings.SUPABASE_JWT_SECRET:
-            payload = jwt.decode(
-                raw_token,
-                settings.SUPABASE_JWT_SECRET,
-                algorithms=["HS256"],
-                audience="authenticated",
-                issuer=settings.SUPABASE_JWT_ISSUER or f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1",
-                options={"require": ["sub", "exp", "iat", "iss", "aud"]},
-            )
-        else:
-            raise ValueError("No JWT verifier configured")
-
-        user_id = payload["sub"]
-        email = payload.get("email") or user_id
-        # app_metadata is server-managed; user_metadata and headers are untrusted.
+        payload = verify_supabase_token_payload(raw_token)
         app_metadata = payload.get("app_metadata", {})
         if not isinstance(app_metadata, dict):
             app_metadata = {}
-        role = app_metadata.get("role", "student")
+        user_metadata = payload.get("user_metadata", {})
+        if not isinstance(user_metadata, dict):
+            user_metadata = {}
+
+        # app_metadata is managed by the server; never grant roles from user_metadata.
+        role = str(app_metadata.get("role", "student"))
         linked_student_id = app_metadata.get("student_id")
+        full_name = user_metadata.get("full_name") or payload.get("full_name")
         return AuthenticatedUser(
-            user_id=str(user_id),
-            email=str(email),
-            role=str(role),
+            user_id=str(payload["sub"]),
+            email=str(payload.get("email") or payload["sub"]),
+            role=role,
             student_id=str(linked_student_id).strip() if linked_student_id else None,
+            full_name=str(full_name) if full_name else None,
+            is_active=True,
             is_demo_session=False,
         )
     except Exception:
+        # Some legacy configurations do not expose a JWT secret/JWKS-compatible key.
+        # If a server-only Supabase key is configured, ask Supabase Auth to validate it.
+        if is_database_configured():
+            try:
+                user_response = get_db_client().auth.get_user(raw_token)
+                user = getattr(user_response, "user", None)
+                if user:
+                    app_metadata = getattr(user, "app_metadata", {}) or {}
+                    user_metadata = getattr(user, "user_metadata", {}) or {}
+                    return AuthenticatedUser(
+                        user_id=str(user.id),
+                        email=str(getattr(user, "email", None) or user.id),
+                        role=str(app_metadata.get("role", "student")),
+                        student_id=str(app_metadata.get("student_id")).strip() if app_metadata.get("student_id") else None,
+                        full_name=str(user_metadata.get("full_name") or "") or None,
+                        is_active=True,
+                        is_demo_session=False,
+                    )
+            except Exception:
+                pass
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired Bearer token.",
+            detail="Invalid, expired, or unverifiable Bearer token.",
         )
 
 
