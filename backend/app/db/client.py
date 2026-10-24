@@ -61,43 +61,118 @@ def get_db_client():
     return _supabase_client
 
 
+EXPECTED_DATABASE_TABLES = (
+    "user_profiles",
+    "students",
+    "attendance",
+    "assessments",
+    "engagement_events",
+    "interventions",
+    "intervention_outcomes",
+    "audit_events",
+    "placement_records",
+    "skills_records",
+    "feedback_records",
+    "lms_activity_records",
+    "risk_overrides",
+)
+
+
 def verify_database_connection() -> Dict[str, Any]:
     """
-    Actively checks the Supabase connection by executing a live query.
-    Strictly reports 'connected': false unless a live query successfully executes.
+    Verify the real Supabase connection across every required table and the
+    server-only audited write RPC. Never treats configured credentials alone
+    as proof of connectivity.
     """
     if not is_database_configured():
         return {
             "configured": False,
             "connected": False,
             "verified": False,
-            "message": "Database credentials not configured in backend/.env",
+            "write_path_verified": False,
+            "tables_expected": len(EXPECTED_DATABASE_TABLES),
+            "tables_verified": 0,
+            "failed_tables": [],
+            "message": "Database credentials are not configured on the backend.",
             "url_configured": bool(settings.SUPABASE_URL),
         }
 
+    start_time = time.perf_counter()
+    table_counts: Dict[str, int] = {}
+    failed_tables = []
+    write_path_verified = False
+
     try:
         client = get_db_client()
-        start_time = time.perf_counter()
+        for table_name in EXPECTED_DATABASE_TABLES:
+            try:
+                response = (
+                    client.table(table_name)
+                    .select("id", count="exact")
+                    .limit(1)
+                    .execute()
+                )
+                count = getattr(response, "count", None)
+                table_counts[table_name] = (
+                    int(count) if count is not None else len(response.data or [])
+                )
+            except Exception:
+                # Do not expose raw provider exceptions or credentials.
+                failed_tables.append(table_name)
 
-        # Query the students table count as a lightweight connection probe
-        response = client.table("students").select("id", count="exact").limit(1).execute()
+        # Empty arrays do not mutate data. This validates that the transactional,
+        # audited write path exists and is callable by the server key.
+        if not failed_tables:
+            try:
+                client.rpc(
+                    "edunexus_commit",
+                    {
+                        "p_table": "students",
+                        "p_records": [],
+                        "p_audits": [],
+                        "p_delete_ids": [],
+                    },
+                ).execute()
+                write_path_verified = True
+            except Exception:
+                write_path_verified = False
+
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
-
+        connected = len(table_counts) == len(EXPECTED_DATABASE_TABLES) and not failed_tables
+        verified = connected and write_path_verified
+        message = (
+            "Supabase tables and audited write RPC verified successfully."
+            if verified
+            else (
+                "Supabase table reads succeeded, but the audited write RPC could not be verified."
+                if connected
+                else "Supabase connection failed for one or more required tables."
+            )
+        )
         return {
             "configured": True,
-            "connected": True,
-            "verified": True,
+            "connected": connected,
+            "verified": verified,
+            "write_path_verified": write_path_verified,
             "latency_ms": latency_ms,
-            "total_students_detected": response.count if hasattr(response, "count") else len(response.data or []),
-            "message": "Supabase PostgreSQL live connection verified successfully",
+            "tables_expected": len(EXPECTED_DATABASE_TABLES),
+            "tables_verified": len(table_counts),
+            "failed_tables": failed_tables,
+            "table_counts": table_counts,
+            "total_students_detected": table_counts.get("students", 0),
+            "message": message,
         }
-    except Exception as e:
+    except Exception:
         return {
             "configured": True,
             "connected": False,
             "verified": False,
-            "error": "Database connection failed; check server configuration and migrations.",
-            "message": "Connection attempt to Supabase failed",
+            "write_path_verified": False,
+            "latency_ms": round((time.perf_counter() - start_time) * 1000, 2),
+            "tables_expected": len(EXPECTED_DATABASE_TABLES),
+            "tables_verified": len(table_counts),
+            "failed_tables": failed_tables,
+            "message": "Supabase connection failed; verify backend credentials, schema, and migrations.",
         }
 
 
