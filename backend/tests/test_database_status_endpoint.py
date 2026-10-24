@@ -18,6 +18,7 @@ def test_database_status_is_redacted_and_reports_unconfigured(monkeypatch):
             "failed_tables": [],
             "message": "Database credentials are not configured on the backend.",
             "url_configured": True,
+            "missing_variables": ["SUPABASE_SECRET_KEY"],
             "table_counts": {"students": 0},
             "secret_key": "must-never-be-returned",
         },
