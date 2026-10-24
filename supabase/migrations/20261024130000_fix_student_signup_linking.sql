@@ -39,17 +39,28 @@ BEGIN
       full_name = EXCLUDED.full_name,
       updated_at = now();
   ELSIF v_role = 'student' THEN
-    IF v_student_id IS NULL AND TG_OP = 'INSERT' THEN
-      RAISE EXCEPTION 'Student registration requires the institution-issued Student ID.';
-    ELSIF v_student_id IS NOT NULL THEN
-      UPDATE public.students
-      SET user_id = NEW.id
-      WHERE student_id = v_student_id
-        AND lower(email) = lower(NEW.email)
-        AND (user_id IS NULL OR user_id = NEW.id);
-
-      IF TG_OP = 'INSERT' AND NOT FOUND THEN
+    IF v_student_id IS NULL THEN
+      IF TG_OP = 'INSERT' THEN
+        RAISE EXCEPTION 'Student registration requires the institution-issued Student ID.';
+      END IF;
+    ELSE
+      -- Validate the roster match on insert even when email confirmation is enabled.
+      -- Do not link an unconfirmed account; the confirmed-user UPDATE will link it.
+      IF TG_OP = 'INSERT' AND NOT EXISTS (
+        SELECT 1 FROM public.students
+        WHERE student_id = v_student_id
+          AND lower(email) = lower(NEW.email)
+          AND (user_id IS NULL OR user_id = NEW.id)
+      ) THEN
         RAISE EXCEPTION 'Student ID and email must match an unlinked institutional student record.';
+      END IF;
+
+      IF NEW.email_confirmed_at IS NOT NULL THEN
+        UPDATE public.students
+        SET user_id = NEW.id
+        WHERE student_id = v_student_id
+          AND lower(email) = lower(NEW.email)
+          AND (user_id IS NULL OR user_id = NEW.id);
       END IF;
     END IF;
   END IF;
