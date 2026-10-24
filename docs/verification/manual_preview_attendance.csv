@@ -1,0 +1,4 @@
+student_id,date,status,remarks
+STU-001,2026-10-01,present,Laboratory session attended
+STU-001,2026-10-02,absent,Excused medical note pending
+STU-002,2026-10-01,present,Classroom lecture
