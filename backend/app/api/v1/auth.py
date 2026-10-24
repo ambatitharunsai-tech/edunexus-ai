@@ -106,39 +106,52 @@ async def get_my_profile(
     full_name = current_user.full_name or "EduNexus User"
     is_active = current_user.is_active
     student_id = current_user.student_id
+    role = current_user.role
 
     # If connected to live database, query canonical user_profiles or students table
     if is_database_configured() and not current_user.is_demo_session:
         try:
             client = get_db_client()
-            if current_user.role.lower() == "student":
-                # Look up students table
-                query = client.table("students").select("student_id,first_name,last_name,status").limit(1)
-                if current_user.student_id:
-                    res = query.eq("student_id", current_user.student_id).execute()
-                else:
-                    res = query.or_(f"user_id.eq.{current_user.user_id},email.eq.{current_user.email}").execute()
-                if res.data and len(res.data) > 0:
-                    row = res.data[0]
-                    student_id = row.get("student_id") or student_id
-                    full_name = f"{row.get('first_name', '')} {row.get('last_name', '')}".strip() or full_name
-                    is_active = (row.get("status") == "active")
+            # 1. Check if user has an institutional staff record in user_profiles
+            profile_res = client.table("user_profiles").select("full_name,role,is_active").eq("id", current_user.user_id).limit(1).execute()
+            if profile_res.data and len(profile_res.data) > 0:
+                p_row = profile_res.data[0]
+                full_name = p_row.get("full_name") or full_name
+                is_active = bool(p_row.get("is_active", True))
+                if p_row.get("role"):
+                    role = str(p_row["role"])
             else:
-                # Look up user_profiles
-                res = client.table("user_profiles").select("full_name,role,is_active").eq("id", current_user.user_id).limit(1).execute()
-                if res.data and len(res.data) > 0:
-                    row = res.data[0]
-                    full_name = row.get("full_name") or full_name
-                    is_active = bool(row.get("is_active", True))
+                # 2. Check students table for student record
+                student_row = None
+                # Check user_id column first if present
+                try:
+                    s_res = client.table("students").select("student_id,first_name,last_name,status").eq("user_id", current_user.user_id).limit(1).execute()
+                    if s_res.data and len(s_res.data) > 0:
+                        student_row = s_res.data[0]
+                except Exception:
+                    student_row = None
+
+                # If not matched by user_id, check server-verified student_id link
+                if not student_row and current_user.student_id:
+                    s_res2 = client.table("students").select("student_id,first_name,last_name,status").eq("student_id", current_user.student_id).limit(1).execute()
+                    if s_res2.data and len(s_res2.data) > 0:
+                        student_row = s_res2.data[0]
+
+                if student_row:
+                    student_id = student_row.get("student_id") or student_id
+                    full_name = f"{student_row.get('first_name', '')} {student_row.get('last_name', '')}".strip() or full_name
+                    is_active = (student_row.get("status") == "active")
+                    role = "student"
         except Exception:
-            # Fall back to token values if DB query fails
+            # Fall back to verified token claims if DB query fails
             pass
-    elif current_user.is_demo_session:
+    if not is_database_configured() or current_user.is_demo_session or current_user.user_id in _SYNTHETIC_USERS:
         synthetic = _SYNTHETIC_USERS.get(current_user.user_id)
         if synthetic:
-            full_name = synthetic["full_name"]
-            is_active = synthetic["is_active"]
+            full_name = synthetic.get("full_name") or full_name
+            is_active = synthetic.get("is_active", is_active)
             student_id = synthetic.get("student_id") or student_id
+            role = synthetic.get("role") or role
 
     if not is_active:
         raise HTTPException(
@@ -146,14 +159,14 @@ async def get_my_profile(
             detail="Your EduNexus account has been deactivated. Please contact an institutional administrator.",
         )
 
-    permissions = get_role_permissions(current_user.role)
+    permissions = get_role_permissions(role)
 
     return AuthMeResponse(
         user=UserProfileResponse(
             id=current_user.user_id,
             email=current_user.email,
             full_name=full_name,
-            role=current_user.role,
+            role=role,
             is_active=is_active,
             student_id=student_id,
         ),
@@ -193,14 +206,43 @@ async def register_account(
             )
 
     user_id = f"user-{int(datetime.now(timezone.utc).timestamp())}"
+    verified_student_id: Optional[str] = None
 
     # If Supabase is live, use service role admin API to register auth user
     if is_database_configured():
         try:
             client = get_db_client()
+
+            # Trusted student validation before account creation
+            if role_requested == "student" and req.student_id:
+                clean_student_id = req.student_id.strip()
+                try:
+                    st_res = client.table("students").select("id,student_id,email,user_id").eq("student_id", clean_student_id).limit(1).execute()
+                except Exception:
+                    st_res = client.table("students").select("id,student_id,email").eq("student_id", clean_student_id).limit(1).execute()
+
+                if not st_res.data or len(st_res.data) == 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Student ID '{clean_student_id}' does not exist in institutional records.",
+                    )
+                st_row = st_res.data[0]
+                if "user_id" in st_row and st_row.get("user_id"):
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="This student record has already been linked to an existing user account.",
+                    )
+                rec_email = st_row.get("email")
+                if rec_email and rec_email.strip().lower() != req.email.strip().lower():
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="The provided email does not match the institutional record for this Student ID.",
+                    )
+                verified_student_id = clean_student_id
+
             app_meta = {"role": role_requested}
-            if req.student_id:
-                app_meta["student_id"] = req.student_id
+            if verified_student_id:
+                app_meta["student_id"] = verified_student_id
 
             # Call Supabase Auth admin API if available
             auth_res = client.auth.admin.create_user({
@@ -212,12 +254,19 @@ async def register_account(
             })
             if auth_res and hasattr(auth_res, "user") and auth_res.user:
                 user_id = str(auth_res.user.id)
+
+            # Link student record in DB if verified_student_id was validated
+            if verified_student_id and user_id:
+                try:
+                    client.table("students").update({"user_id": user_id}).eq("student_id", verified_student_id).execute()
+                except Exception:
+                    pass
+        except HTTPException:
+            raise
         except Exception as exc:
-            # Check for duplicate user
             err_msg = str(exc)
             if "already registered" in err_msg.lower() or "unique constraint" in err_msg.lower():
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email address already exists.")
-            # If admin auth call fails, propagate clean 400
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Registration failed: {err_msg}")
     else:
         # Synthetic registration
@@ -225,13 +274,24 @@ async def register_account(
             if existing["email"].lower() == req.email.lower():
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email address already exists.")
 
+        # In synthetic mode, validate if student_id is claimed
+        if role_requested == "student" and req.student_id:
+            clean_student_id = req.student_id.strip()
+            for existing in _SYNTHETIC_USERS.values():
+                if existing.get("student_id") == clean_student_id and existing["email"].lower() != req.email.lower():
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="This student record has already been linked to an existing user account.",
+                    )
+            verified_student_id = clean_student_id
+
         _SYNTHETIC_USERS[user_id] = {
             "id": user_id,
             "email": req.email,
             "full_name": req.full_name,
             "role": role_requested,
             "is_active": True,
-            "student_id": req.student_id,
+            "student_id": verified_student_id,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -242,7 +302,7 @@ async def register_account(
             full_name=req.full_name,
             role=role_requested,
             is_active=True,
-            student_id=req.student_id,
+            student_id=verified_student_id,
         ),
         message=f"Account successfully registered as {role_requested}.",
     )

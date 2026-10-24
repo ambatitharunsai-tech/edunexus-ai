@@ -10,7 +10,66 @@ from fastapi import Header, HTTPException, status, Depends
 import jwt
 
 from app.core.config import settings
-from app.db.client import is_database_configured
+from app.db.client import is_database_configured, get_db_client
+
+_jwks_client: Optional[jwt.PyJWKClient] = None
+
+
+def _get_jwks_client(jwks_url: str) -> jwt.PyJWKClient:
+    """Singleton JWKS client with caching for Supabase public keys."""
+    global _jwks_client
+    if _jwks_client is None or getattr(_jwks_client, "uri", "") != jwks_url:
+        _jwks_client = jwt.PyJWKClient(jwks_url, cache_jwk_set=True, lifespan=3600)
+    return _jwks_client
+
+
+def verify_supabase_token_payload(raw_token: str) -> Dict[str, Any]:
+    """
+    Cryptographically verifies Supabase access tokens.
+    Supports asymmetric JWKS (ES256, RS256) and symmetric secret (HS256).
+    Enforces expected claims and rejects untrusted tokens.
+    """
+    try:
+        header = jwt.get_unverified_header(raw_token)
+        unverified_payload = jwt.decode(raw_token, options={"verify_signature": False})
+    except Exception as exc:
+        raise ValueError(f"Malformed JWT token: {exc}")
+
+    alg = header.get("alg", "HS256")
+    decode_options: Dict[str, Any] = {
+        "verify_signature": True,
+        "verify_exp": True,
+        "require": ["sub", "exp"],
+    }
+    kwargs: Dict[str, Any] = {
+        "options": decode_options,
+    }
+
+    # Audience validation: require 'authenticated' when aud claim is present
+    if "aud" in unverified_payload:
+        kwargs["audience"] = "authenticated"
+
+    if settings.SUPABASE_JWT_ISSUER:
+        kwargs["issuer"] = settings.SUPABASE_JWT_ISSUER
+
+    # 1. Asymmetric key verification via Supabase JWKS (ES256, RS256, etc.)
+    if alg in ("ES256", "RS256", "ES384", "ES512", "RS384", "RS512"):
+        if settings.SUPABASE_URL and not settings.SUPABASE_URL.startswith("https://your-project"):
+            jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/.well-known/jwks.json"
+            jwks = _get_jwks_client(jwks_url)
+            signing_key = jwks.get_signing_key_from_jwt(raw_token)
+            kwargs["algorithms"] = [alg]
+            return jwt.decode(raw_token, signing_key.key, **kwargs)
+        raise ValueError(f"Asymmetric token ({alg}) received but SUPABASE_URL is not configured for JWKS verification.")
+
+    # 2. Symmetric key verification via shared secret (HS256)
+    elif alg == "HS256":
+        if settings.SUPABASE_JWT_SECRET:
+            kwargs["algorithms"] = ["HS256"]
+            return jwt.decode(raw_token, settings.SUPABASE_JWT_SECRET, **kwargs)
+        raise ValueError("HS256 token received but SUPABASE_JWT_SECRET is not configured.")
+
+    raise ValueError(f"Unsupported signing algorithm: {alg}")
 
 # Recognized demo tokens for KPMG evaluation & local prototype mode
 DEMO_TOKENS: Dict[str, Dict[str, Any]] = {
@@ -193,30 +252,7 @@ def get_current_user(
 
     # 2. Decode Supabase / cryptographic JWT
     try:
-        if settings.SUPABASE_JWT_SECRET:
-            decode_options: Dict[str, Any] = {
-                "verify_signature": True,
-                "verify_exp": True,
-                "require": ["sub", "exp"],
-            }
-            kwargs: Dict[str, Any] = {
-                "algorithms": ["HS256"],
-                "options": decode_options,
-            }
-            unverified = jwt.decode(raw_token, options={"verify_signature": False})
-            if "aud" in unverified:
-                kwargs["audience"] = unverified["aud"]
-            if settings.SUPABASE_JWT_ISSUER:
-                kwargs["issuer"] = settings.SUPABASE_JWT_ISSUER
-
-            payload = jwt.decode(
-                raw_token,
-                settings.SUPABASE_JWT_SECRET,
-                **kwargs,
-            )
-        else:
-            raise ValueError("No JWT verifier configured")
-
+        payload = verify_supabase_token_payload(raw_token)
         user_id = payload["sub"]
         email = payload.get("email") or user_id
         # app_metadata is server-managed; user_metadata and headers are untrusted.
@@ -241,9 +277,33 @@ def get_current_user(
             is_active=True,
         )
     except Exception:
+        # Fallback to Supabase live auth verification if database is configured
+        if is_database_configured():
+            try:
+                client = get_db_client()
+                user_resp = client.auth.get_user(raw_token)
+                if user_resp and user_resp.user:
+                    u = user_resp.user
+                    app_meta = getattr(u, "app_metadata", {}) or {}
+                    user_meta = getattr(u, "user_metadata", {}) or {}
+                    role = app_meta.get("role", "student")
+                    linked_student_id = app_meta.get("student_id")
+                    full_name = user_meta.get("full_name") or getattr(u, "email", "")
+                    return AuthenticatedUser(
+                        user_id=str(u.id),
+                        email=str(getattr(u, "email", u.id)),
+                        role=str(role),
+                        student_id=str(linked_student_id).strip() if linked_student_id else None,
+                        is_demo_session=False,
+                        full_name=str(full_name) if full_name else None,
+                        is_active=True,
+                    )
+            except Exception:
+                pass
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired Bearer token.",
+            detail="Invalid, expired, or unverifiable Bearer token.",
         )
 
 

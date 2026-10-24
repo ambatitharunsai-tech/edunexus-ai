@@ -75,6 +75,23 @@ export interface DemoAccount {
   description: string;
 }
 
+/**
+ * Checks whether fake/demo authentication is explicitly allowed.
+ * Strictly disabled in production builds unless VITE_ENABLE_DEMO_LOGIN is 'true'.
+ */
+export function isDemoLoginEnabled(): boolean {
+  if (import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'true') {
+    return true;
+  }
+  if (import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'false') {
+    return false;
+  }
+  if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
+    return false;
+  }
+  return true;
+}
+
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     label: 'Advisor',
@@ -287,7 +304,10 @@ export async function fetchAuthMe(token: string): Promise<AuthMeResponse> {
 
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(errorBody.detail || `Authentication verification failed: ${res.status}`);
+    const detail = errorBody?.detail || errorBody?.error?.message || `Authentication verification failed: ${res.status}`;
+    const err = new Error(detail);
+    (err as unknown as { status: number }).status = res.status;
+    throw err;
   }
 
   return res.json();
@@ -301,6 +321,11 @@ export async function signInWithEmailPassword(email: string, password: string): 
 
   // 1. If in demo or offline mode, check demo accounts first
   if (!isSupabaseConfigured()) {
+    if (!isDemoLoginEnabled()) {
+      throw new Error(
+        'Supabase authentication is not configured in this production environment. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
+      );
+    }
     const matchingDemo = DEMO_ACCOUNTS.find(
       (acc) => acc.email.toLowerCase() === trimmedEmail.toLowerCase()
     );
@@ -313,17 +338,7 @@ export async function signInWithEmailPassword(email: string, password: string): 
       });
       return session;
     }
-    // Allow any demo user in offline mode if password is provided
-    if (password.length >= 6) {
-      const session = signInWithToken(DEMO_BEARER_TOKEN, {
-        email: trimmedEmail,
-        role: 'advisor',
-        fullName: 'Demo Evaluator',
-        isDemoSession: true,
-      });
-      return session;
-    }
-    throw new Error('Supabase is not configured. Use one of the Demo Account options below.');
+    throw new Error('Supabase is not configured. Use one of the Demo Account options in development mode.');
   }
 
   // 2. Connect via live Supabase client
@@ -345,35 +360,50 @@ export async function signInWithEmailPassword(email: string, password: string): 
   // 3. Verify authoritative profile with backend
   try {
     const me = await fetchAuthMe(token);
-    if (me.is_active === false) {
-      await supabase.auth.signOut();
+    const profile = me.user;
+
+    if (profile.is_active === false) {
+      await supabase.auth.signOut().catch(() => {});
       clearAuthSession();
       throw new Error('Your account has been deactivated. Please contact an administrator.');
     }
 
     const session: AuthSession = {
       token,
-      userId: me.user.id,
-      email: me.user.email,
-      role: me.role,
-      fullName: me.user.full_name,
-      isActive: me.is_active,
-      studentId: me.student_id,
+      userId: profile.id,
+      email: profile.email,
+      role: profile.role,
+      fullName: profile.full_name,
+      isActive: profile.is_active,
+      studentId: profile.student_id,
       permissions: me.permissions,
       isDemoSession: false,
     };
 
     return saveAuthSession(session);
   } catch (err: unknown) {
-    if (err instanceof Error && err.message.includes('deactivated')) {
+    // Fail safely: Never create fallback sessions in production!
+    await supabase.auth.signOut().catch(() => {});
+    clearAuthSession();
+
+    if (err instanceof Error) {
+      if (err.message.includes('deactivated')) {
+        throw err;
+      }
+      if (err.message.includes('verification failed') || err.message.includes('401')) {
+        throw new Error('Authentication verification failed: your credentials could not be verified by the server.');
+      }
+      if (
+        err.message.includes('fetch failed') ||
+        err.message.includes('Failed to fetch') ||
+        err.message.includes('NetworkError') ||
+        err.message.includes('503')
+      ) {
+        throw new Error('EduNexus authentication service is currently unavailable. Please try again shortly.');
+      }
       throw err;
     }
-    // Fallback to normalized session from JWT if backend was temporarily unreachable
-    const fallbackSession = normalizeAuthSession(token, {
-      userId: data.user.id,
-      email: data.user.email ?? trimmedEmail,
-    });
-    return saveAuthSession(fallbackSession);
+    throw new Error('Authentication verification failed.');
   }
 }
 
@@ -408,7 +438,7 @@ export async function signUpStudent(params: {
 
     return res.json();
   } catch (err: unknown) {
-    if (err instanceof Error && (err.message.includes('fetch failed') || err.message.includes('ECONNREFUSED') || err.message.includes('Failed to fetch'))) {
+    if (isDemoLoginEnabled() && err instanceof Error && (err.message.includes('fetch failed') || err.message.includes('ECONNREFUSED') || err.message.includes('Failed to fetch'))) {
       return {
         message: 'Registration simulated: student account registered successfully in local offline mode.',
         user: { email, full_name: fullName, student_id: studentId || null, role: 'student' },
@@ -423,8 +453,11 @@ export async function signUpStudent(params: {
  */
 export async function sendPasswordResetEmail(email: string): Promise<{ message: string }> {
   if (!isSupabaseConfigured()) {
+    if (!isDemoLoginEnabled()) {
+      throw new Error('Authentication service is not configured.');
+    }
     return {
-      message: 'Password reset simulation: in production with live Supabase, a recovery link is dispatched to your email address.',
+      message: 'Password reset simulation: in development mode, a recovery link is dispatched to your email address.',
     };
   }
 
@@ -440,7 +473,7 @@ export async function sendPasswordResetEmail(email: string): Promise<{ message: 
 
     return { message: 'Password recovery email sent. Check your inbox for the reset link.' };
   } catch (err: unknown) {
-    if (err instanceof Error && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND') || err.message.includes('Failed to fetch'))) {
+    if (isDemoLoginEnabled() && err instanceof Error && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND') || err.message.includes('Failed to fetch'))) {
       return {
         message: 'Password recovery simulation: a recovery link was triggered (remote Supabase host is currently offline in dev mode).',
       };
@@ -454,6 +487,9 @@ export async function sendPasswordResetEmail(email: string): Promise<{ message: 
  */
 export async function updateUserPassword(newPassword: string): Promise<{ message: string }> {
   if (!isSupabaseConfigured()) {
+    if (!isDemoLoginEnabled()) {
+      throw new Error('Authentication service is not configured.');
+    }
     return {
       message: 'Password reset simulated: your password has been successfully updated.',
     };

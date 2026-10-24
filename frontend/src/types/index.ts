@@ -610,10 +610,7 @@ export interface UserProfile {
 
 export interface AuthMeResponse {
   user: UserProfile;
-  role: AppRole;
   permissions: string[];
-  is_active: boolean;
-  student_id: string | null;
 }
 
 export interface UserListItem {

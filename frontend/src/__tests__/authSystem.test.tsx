@@ -183,6 +183,10 @@ describe('EduNexus AI — Authentication & RBAC Suite', () => {
     });
 
     it('displays notice when email is submitted', async () => {
+      vi.spyOn(authLib, 'sendPasswordResetEmail').mockResolvedValueOnce({
+        message: 'Password recovery email sent. Check your inbox for the reset link.',
+      });
+
       render(
         <MemoryRouter>
           <ForgotPasswordPage />

@@ -9,9 +9,11 @@ import {
   KeyRound,
   Sparkles,
   UserCheck,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '../context';
-import { DEMO_ACCOUNTS } from '../lib/auth';
+import { DEMO_ACCOUNTS, isDemoLoginEnabled } from '../lib/auth';
 
 export function LoginPage() {
   const { isAuthenticated, signInWithCredentials, signIn } = useAuth();
@@ -51,6 +53,10 @@ export function LoginPage() {
   };
 
   const handleDemoLogin = (token: string, role: string, demoEmail: string) => {
+    if (!isDemoLoginEnabled()) {
+      setError('Demo authentication is disabled in this production environment. Please sign in with your institutional credentials.');
+      return;
+    }
     setError('');
     try {
       signIn(token, {
@@ -66,6 +72,10 @@ export function LoginPage() {
 
   const handleCustomTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isDemoLoginEnabled()) {
+      setError('Custom token submission is disabled in this production environment.');
+      return;
+    }
     if (!customToken.trim()) {
       setError('Enter a valid bearer token to continue.');
       return;
@@ -194,78 +204,122 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side: Demo Roles & Evaluator Quick-Access */}
-        <div className="flex flex-col justify-between border border-slate-200 dark:border-[#35433B] bg-slate-900 dark:bg-[#0D1311] p-8 text-white shadow-xs rounded-none">
-          <div>
-            <div className="inline-flex items-center gap-2 border border-slate-700 dark:border-[#273830] bg-slate-800 dark:bg-[#16211D] px-2.5 py-1 text-[11px] font-semibold text-indigo-300 dark:text-[#56B594] rounded-none">
-              <Sparkles className="w-3.5 h-3.5" />
-              Role Demonstration & Evaluator Access
-            </div>
+        {/* Right Side: Demo Roles in Dev Mode OR Institutional Policy in Production */}
+        {isDemoLoginEnabled() ? (
+          <div className="flex flex-col justify-between border border-slate-200 dark:border-[#35433B] bg-slate-900 dark:bg-[#0D1311] p-8 text-white shadow-xs rounded-none">
+            <div>
+              <div className="inline-flex items-center gap-2 border border-slate-700 dark:border-[#273830] bg-slate-800 dark:bg-[#16211D] px-2.5 py-1 text-[11px] font-semibold text-indigo-300 dark:text-[#56B594] rounded-none">
+                <Sparkles className="w-3.5 h-3.5" />
+                Role Demonstration & Evaluator Access
+              </div>
 
-            <h2 className="mt-4 text-xl font-bold tracking-tight text-white">
-              Instant Institutional Role Switching
-            </h2>
-            <p className="mt-2 text-xs text-slate-300 dark:text-[#8FA89B] leading-relaxed">
-              Explore EduNexus AI across distinct institutional perspectives. Click any role below to sign in instantly with a pre-configured role profile.
-            </p>
+              <h2 className="mt-4 text-xl font-bold tracking-tight text-white">
+                Instant Institutional Role Switching
+              </h2>
+              <p className="mt-2 text-xs text-slate-300 dark:text-[#8FA89B] leading-relaxed">
+                Explore EduNexus AI across distinct institutional perspectives. Click any role below to sign in instantly with a pre-configured role profile.
+              </p>
 
-            <div className="mt-5 grid grid-cols-1 gap-2.5">
-              {DEMO_ACCOUNTS.map((account) => (
-                <button
-                  key={account.role}
-                  type="button"
-                  onClick={() => handleDemoLogin(account.token, account.role, account.email)}
-                  className="group flex w-full items-center justify-between border border-slate-800 dark:border-[#23312A] bg-slate-800/70 dark:bg-[#141C18] p-3 text-left transition hover:border-indigo-500/60 dark:hover:border-[#56B594]/60 hover:bg-slate-800 dark:hover:bg-[#1A2520] rounded-none"
-                >
-                  <div className="min-w-0 pr-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white group-hover:text-indigo-300 dark:group-hover:text-[#56B594]">
-                        {account.label}
-                      </span>
-                      <span className="border border-slate-700 dark:border-[#2E4138] bg-slate-900/60 dark:bg-[#0E1513] px-1.5 py-0.2 text-[10px] font-mono text-slate-300 dark:text-[#8FA89B] uppercase rounded-none">
-                        {account.role}
-                      </span>
+              <div className="mt-5 grid grid-cols-1 gap-2.5">
+                {DEMO_ACCOUNTS.map((account) => (
+                  <button
+                    key={account.role}
+                    type="button"
+                    onClick={() => handleDemoLogin(account.token, account.role, account.email)}
+                    className="group flex w-full items-center justify-between border border-slate-800 dark:border-[#23312A] bg-slate-800/70 dark:bg-[#141C18] p-3 text-left transition hover:border-indigo-500/60 dark:hover:border-[#56B594]/60 hover:bg-slate-800 dark:hover:bg-[#1A2520] rounded-none"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-white group-hover:text-indigo-300 dark:group-hover:text-[#56B594]">
+                          {account.label}
+                        </span>
+                        <span className="border border-slate-700 dark:border-[#2E4138] bg-slate-900/60 dark:bg-[#0E1513] px-1.5 py-0.2 text-[10px] font-mono text-slate-300 dark:text-[#8FA89B] uppercase rounded-none">
+                          {account.role}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 truncate text-[11px] text-slate-400 dark:text-[#8FA89B]">
+                        {account.description}
+                      </p>
                     </div>
-                    <p className="mt-0.5 truncate text-[11px] text-slate-400 dark:text-[#8FA89B]">
-                      {account.description}
-                    </p>
-                  </div>
-                  <UserCheck className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-indigo-400 dark:group-hover:text-[#56B594]" />
-                </button>
-              ))}
+                    <UserCheck className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-indigo-400 dark:group-hover:text-[#56B594]" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Bearer Token Collapsible */}
+            <div className="mt-6 border-t border-slate-800 dark:border-[#23312A] pt-4">
+              <button
+                type="button"
+                onClick={() => setShowCustomToken(!showCustomToken)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-[#8FA89B] hover:text-white"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>{showCustomToken ? 'Hide Custom Token input' : 'Have a custom bearer token?'}</span>
+              </button>
+
+              {showCustomToken && (
+                <form onSubmit={handleCustomTokenSubmit} className="mt-3 space-y-2">
+                  <input
+                    type="password"
+                    value={customToken}
+                    onChange={(e) => setCustomToken(e.target.value)}
+                    placeholder="Paste Bearer JWT token..."
+                    className="w-full border border-slate-700 dark:border-[#35433B] bg-slate-800 dark:bg-[#1D2722] px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:border-indigo-400 dark:focus:border-[#56B594] focus:outline-none rounded-none"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 rounded-none"
+                  >
+                    Authenticate Token
+                  </button>
+                </form>
+              )}
             </div>
           </div>
+        ) : (
+          <div className="flex flex-col justify-between border border-slate-200 dark:border-[#35433B] bg-slate-900 dark:bg-[#0D1311] p-8 text-white shadow-xs rounded-none">
+            <div>
+              <div className="inline-flex items-center gap-2 border border-slate-700 dark:border-[#273830] bg-slate-800 dark:bg-[#16211D] px-2.5 py-1 text-[11px] font-semibold text-emerald-400 dark:text-[#56B594] rounded-none">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Institutional Security & Access Control
+              </div>
 
-          {/* Custom Bearer Token Collapsible */}
-          <div className="mt-6 border-t border-slate-800 dark:border-[#23312A] pt-4">
-            <button
-              type="button"
-              onClick={() => setShowCustomToken(!showCustomToken)}
-              className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-[#8FA89B] hover:text-white"
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>{showCustomToken ? 'Hide Custom Token input' : 'Have a custom bearer token?'}</span>
-            </button>
+              <h2 className="mt-4 text-xl font-bold tracking-tight text-white">
+                Secure Institutional Authentication
+              </h2>
+              <p className="mt-2 text-xs text-slate-300 dark:text-[#8FA89B] leading-relaxed">
+                EduNexus AI utilizes enterprise-grade Supabase Authentication with cryptographic session validation. All system capabilities are governed by server-authoritative role-based access controls.
+              </p>
 
-            {showCustomToken && (
-              <form onSubmit={handleCustomTokenSubmit} className="mt-3 space-y-2">
-                <input
-                  type="password"
-                  value={customToken}
-                  onChange={(e) => setCustomToken(e.target.value)}
-                  placeholder="Paste Bearer JWT token..."
-                  className="w-full border border-slate-700 dark:border-[#35433B] bg-slate-800 dark:bg-[#1D2722] px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:border-indigo-400 dark:focus:border-[#56B594] focus:outline-none rounded-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 rounded-none"
-                >
-                  Authenticate Token
-                </button>
-              </form>
-            )}
+              <div className="mt-6 space-y-4">
+                <div className="border border-slate-800 dark:border-[#23312A] bg-slate-800/50 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <Lock className="w-4 h-4 text-indigo-400 dark:text-[#56B594]" />
+                    Multi-Factor Cryptographic Protection
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                    User sessions are securely signed and verified against the institutional key infrastructure. Client-side role modifications or spoofed tokens are strictly rejected.
+                  </p>
+                </div>
+
+                <div className="border border-slate-800 dark:border-[#23312A] bg-slate-800/50 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <GraduationCap className="w-4 h-4 text-indigo-400 dark:text-[#56B594]" />
+                    Student Data Privacy & Isolation
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                    Enrolled students may only access their personal academic trajectory, attendance records, and support plans. Staff and evaluator tools require validated institutional provisioning.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-slate-800 dark:border-[#23312A] pt-4 text-xs text-slate-400">
+              Need account provisioning or role adjustments? Contact your campus registrar or institutional platform administrator.
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

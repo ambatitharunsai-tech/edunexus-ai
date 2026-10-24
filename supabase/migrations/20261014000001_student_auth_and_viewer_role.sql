@@ -35,25 +35,18 @@ CREATE INDEX IF NOT EXISTS idx_students_user_id ON public.students(user_id);
 CREATE INDEX IF NOT EXISTS idx_students_email ON public.students(email);
 
 -- 3. Helper function: Determine if authenticated user owns the student record
+-- Strictly requires genuine authentication, student role claim from app_metadata,
+-- and authoritative ownership via students.user_id = auth.uid().
 CREATE OR REPLACE FUNCTION public.is_student_owner(p_student_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT (
     auth.role() = 'authenticated'
-    AND (
-      -- Explicit student claim in app_metadata
-      COALESCE(auth.jwt()->'app_metadata'->>'role', '') = 'student'
-      OR COALESCE(auth.jwt()->'user_metadata'->>'role', '') = 'student'
-      OR NOT EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid())
-    )
+    AND COALESCE(auth.jwt()->'app_metadata'->>'role', 'student') = 'student'
     AND EXISTS (
       SELECT 1 FROM public.students s
       WHERE s.id = p_student_id
-        AND (
-          s.user_id = auth.uid()
-          OR (auth.jwt()->'app_metadata'->>'student_id' IS NOT NULL AND s.student_id = auth.jwt()->'app_metadata'->>'student_id')
-          OR (auth.jwt()->>'email' IS NOT NULL AND lower(s.email) = lower(auth.jwt()->>'email'))
-        )
+        AND s.user_id = auth.uid()
     )
   );
 $$;
@@ -134,6 +127,8 @@ CREATE POLICY student_read_own_interventions ON public.interventions
   USING (public.is_student_owner(student_id) OR public.can_read_student_data());
 
 -- 7. Automatic auth.users trigger to create/sync staff profiles & link student accounts
+-- Security: NEVER trust raw_user_meta_data for role claims or student linking.
+-- Privileged roles and student IDs must originate strictly from server-managed raw_app_meta_data.
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
@@ -142,9 +137,11 @@ DECLARE
   v_full_name text;
   v_student_id text;
 BEGIN
-  v_role := COALESCE(NEW.raw_app_meta_data->>'role', NEW.raw_user_meta_data->>'role', 'student');
+  -- Strictly read role from raw_app_meta_data; default to 'student'
+  v_role := COALESCE(NEW.raw_app_meta_data->>'role', 'student');
   v_full_name := COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1));
-  v_student_id := COALESCE(NEW.raw_app_meta_data->>'student_id', NEW.raw_user_meta_data->>'student_id');
+  -- Only accept server-verified student_id from raw_app_meta_data
+  v_student_id := NEW.raw_app_meta_data->>'student_id';
 
   -- If the user is staff/faculty/admin/counselor/advisor/auditor/viewer/data_operator
   IF v_role IN ('administrator', 'admin', 'advisor', 'counselor', 'faculty', 'staff', 'auditor', 'viewer', 'data_operator') THEN
@@ -165,15 +162,14 @@ BEGIN
       full_name = EXCLUDED.full_name,
       updated_at = now();
   ELSIF v_role = 'student' THEN
-    -- If a student ID was provided or matches email, associate the student record
+    -- Only associate student record if validated student_id was set by server in raw_app_meta_data
+    -- AND the student record matches the registered email AND is unlinked
     IF v_student_id IS NOT NULL THEN
       UPDATE public.students
       SET user_id = NEW.id
-      WHERE student_id = v_student_id AND (user_id IS NULL OR user_id = NEW.id);
-    ELSE
-      UPDATE public.students
-      SET user_id = NEW.id
-      WHERE lower(email) = lower(NEW.email) AND (user_id IS NULL OR user_id = NEW.id);
+      WHERE student_id = v_student_id
+        AND lower(email) = lower(NEW.email)
+        AND (user_id IS NULL OR user_id = NEW.id);
     END IF;
   END IF;
 

@@ -22,6 +22,7 @@ import {
   isAdvisorRole,
   isStudentRole,
   isViewerRole,
+  isDemoLoginEnabled,
   hasPermission as checkPermission,
   type AuthSession,
 } from '../lib/auth';
@@ -53,14 +54,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Authoritative profile refresher: calls /api/v1/auth/me to verify role & status
   const verifyAndSyncProfile = useCallback(async (currentSession: AuthSession): Promise<AuthSession | null> => {
-    // If it's a demo session, no need to call Supabase auth sync unless desired
+    // If it's a demo session, reject immediately in production
     if (currentSession.isDemoSession) {
+      if (!isDemoLoginEnabled()) {
+        await signOutAuth();
+        setSession(null);
+        return null;
+      }
       return currentSession;
     }
 
     try {
       const me = await fetchAuthMe(currentSession.token);
-      if (me.is_active === false) {
+      const profile = me.user;
+
+      if (profile.is_active === false) {
         await signOutAuth();
         setSession(null);
         return null;
@@ -68,20 +76,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const updatedSession: AuthSession = {
         ...currentSession,
-        userId: me.user.id,
-        email: me.user.email,
-        role: me.role,
-        fullName: me.user.full_name,
-        isActive: me.is_active,
-        studentId: me.student_id,
+        userId: profile.id,
+        email: profile.email,
+        role: profile.role,
+        fullName: profile.full_name,
+        isActive: profile.is_active,
+        studentId: profile.student_id,
         permissions: me.permissions,
+        isDemoSession: false,
       };
 
       saveAuthSession(updatedSession);
       setSession(updatedSession);
       return updatedSession;
-    } catch {
-      // Backend temporarily unreachable; keep existing session
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+
+      // If token expired or was rejected with 401/403, attempt Supabase session refresh
+      if (status === 401 || status === 403 || (err instanceof Error && err.message.includes('401'))) {
+        if (isSupabaseConfigured()) {
+          try {
+            const { data, error } = await supabase.auth.refreshSession();
+            if (!error && data.session?.access_token) {
+              const refreshedMe = await fetchAuthMe(data.session.access_token);
+              const p = refreshedMe.user;
+              if (p.is_active === false) {
+                await signOutAuth();
+                setSession(null);
+                return null;
+              }
+              const refreshedSession: AuthSession = {
+                token: data.session.access_token,
+                userId: p.id,
+                email: p.email,
+                role: p.role,
+                fullName: p.full_name,
+                isActive: p.is_active,
+                studentId: p.student_id,
+                permissions: refreshedMe.permissions,
+                isDemoSession: false,
+              };
+              saveAuthSession(refreshedSession);
+              setSession(refreshedSession);
+              return refreshedSession;
+            }
+          } catch {
+            // Token refresh failed
+          }
+        }
+        await signOutAuth();
+        setSession(null);
+        return null;
+      }
+
+      // If backend verification fails or endpoint is unreachable in production, do not keep an unauthorized session
+      if (!isDemoLoginEnabled()) {
+        await signOutAuth();
+        setSession(null);
+        return null;
+      }
+
+      // Non-production offline mode: keep session
       return currentSession;
     }
   }, []);
@@ -91,20 +146,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
 
     async function initAuth() {
-      const stored = getStoredAuthSession();
-      if (!stored) {
-        if (isMounted) setIsLoading(false);
-        return;
-      }
-
       try {
-        const synced = await verifyAndSyncProfile(stored);
-        if (isMounted) {
-          setSession(synced);
+        // 1. If Supabase is configured, check live Supabase session first
+        if (isSupabaseConfigured()) {
+          try {
+            const { data: { session: supaSession } } = await supabase.auth.getSession();
+            if (supaSession?.access_token) {
+              const me = await fetchAuthMe(supaSession.access_token);
+              if (me.user.is_active === false) {
+                await signOutAuth();
+                if (isMounted) setSession(null);
+                return;
+              }
+              const appSession: AuthSession = {
+                token: supaSession.access_token,
+                userId: me.user.id,
+                email: me.user.email,
+                role: me.user.role,
+                fullName: me.user.full_name,
+                isActive: me.user.is_active,
+                studentId: me.user.student_id,
+                permissions: me.permissions,
+                isDemoSession: false,
+              };
+              saveAuthSession(appSession);
+              if (isMounted) setSession(appSession);
+              return;
+            }
+          } catch {
+            // Live Supabase session restoration failed; fall through to stored session
+          }
         }
-      } catch {
-        if (isMounted) {
-          setSession(stored);
+
+        // 2. Fall back to stored session
+        const stored = getStoredAuthSession();
+        if (!stored) {
+          return;
+        }
+
+        // In production, reject stored demo sessions
+        if (stored.isDemoSession) {
+          if (!isDemoLoginEnabled()) {
+            clearAuthSession();
+            if (isMounted) setSession(null);
+            return;
+          }
+          if (isMounted) setSession(stored);
+          return;
+        }
+
+        try {
+          const synced = await verifyAndSyncProfile(stored);
+          if (isMounted) {
+            setSession(synced);
+          }
+        } catch {
+          if (isMounted) {
+            if (!isDemoLoginEnabled()) {
+              clearAuthSession();
+              setSession(null);
+            } else {
+              setSession(stored);
+            }
+          }
         }
       } finally {
         if (isMounted) {
@@ -119,21 +223,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let authListener: { subscription: { unsubscribe: () => void } } | null = null;
     if (isSupabaseConfigured()) {
       try {
-        const { data } = supabase.auth.onAuthStateChange((event, newSupabaseSession) => {
+        const { data } = supabase.auth.onAuthStateChange(async (event, newSupabaseSession) => {
           if (!isMounted) return;
 
           if (event === 'SIGNED_OUT' || !newSupabaseSession) {
             clearAuthSession();
             setSession(null);
             setIsLoading(false);
-          } else if (event === 'TOKEN_REFRESHED' && newSupabaseSession.access_token) {
-            const updated = signInWithToken(newSupabaseSession.access_token, {
-              userId: newSupabaseSession.user.id,
-              email: newSupabaseSession.user.email,
-              isDemoSession: false,
-            });
-            setSession(updated);
-            void verifyAndSyncProfile(updated);
+          } else if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') && newSupabaseSession.access_token) {
+            try {
+              const me = await fetchAuthMe(newSupabaseSession.access_token);
+              if (me.user.is_active === false) {
+                await signOutAuth();
+                setSession(null);
+                return;
+              }
+              const updatedSession: AuthSession = {
+                token: newSupabaseSession.access_token,
+                userId: me.user.id,
+                email: me.user.email,
+                role: me.user.role,
+                fullName: me.user.full_name,
+                isActive: me.user.is_active,
+                studentId: me.user.student_id,
+                permissions: me.permissions,
+                isDemoSession: false,
+              };
+              saveAuthSession(updatedSession);
+              setSession(updatedSession);
+            } catch {
+              if (!isDemoLoginEnabled()) {
+                clearAuthSession();
+                setSession(null);
+              }
+            } finally {
+              if (isMounted) {
+                setIsLoading(false);
+              }
+            }
           }
         });
         authListener = data;
