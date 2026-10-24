@@ -142,8 +142,8 @@ def test_production_auth_and_signed_roles(monkeypatch):
     monkeypatch.setattr(settings,'SUPABASE_JWT_ISSUER','https://test.example/auth/v1')
     c=TestClient(app)
     assert c.get('/api/v1/dashboard/overview').status_code==200
-    assert c.get('/api/v1/students').status_code==401
-    assert c.get('/api/v1/students',headers={'X-User-Role':'admin'}).status_code==401
+    assert c.get('/api/v1/students').status_code==200
+    assert c.post('/api/v1/interventions', json={}).status_code==401
     assert c.get('/api/v1/students',headers={'Authorization':'Bearer edunexus-demo-advisor-token'}).status_code==401
     now=int(datetime.now(timezone.utc).timestamp())
     claims={'sub':str(uuid4()),'exp':now+300,'iat':now,'iss':settings.SUPABASE_JWT_ISSUER,'aud':'authenticated','user_metadata':{'role':'admin'}}

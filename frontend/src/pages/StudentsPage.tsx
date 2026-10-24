@@ -9,6 +9,7 @@ import { StudentFilterToolbar } from '../features/students/StudentFilterToolbar'
 import { StudentTable } from '../features/students/StudentTable';
 import { StudentPagination } from '../features/students/StudentPagination';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
+import { useAuth } from '../context';
 import type {
   StudentDirectoryResponse,
   StudentListItem,
@@ -16,6 +17,7 @@ import type {
 } from '../types';
 
 export const StudentsPage: React.FC = () => {
+  const { isStaff } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSegment = searchParams.get('segment') || 'all';
 
@@ -303,7 +305,7 @@ export const StudentsPage: React.FC = () => {
         <div className="space-y-4">
           <StudentTable
             students={data?.students || []}
-            onOpenIntervention={handleOpenIntervention}
+            onOpenIntervention={isStaff ? handleOpenIntervention : undefined}
           />
 
           <StudentPagination

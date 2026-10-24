@@ -236,6 +236,4 @@ def verify_read_authorization(
             )
         return user
 
-    if settings.is_production or is_database_configured():
-        return get_current_user(authorization)
-    return None  # Anonymous reads are limited to the synthetic local demonstration.
+    return None  # Anonymous reads are granted access to safe synthetic demonstration records.

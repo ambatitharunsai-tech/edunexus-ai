@@ -59,15 +59,26 @@ def test_public_dashboard_overview_with_demo_token_in_production_does_not_fail(m
     assert data["metadata"]["is_demo"] is True
 
 
-def test_students_directory_requires_token_in_production(monkeypatch):
-    """Sensitive student educational records remain protected in production without valid auth."""
+def test_students_directory_accessible_without_token_in_production(monkeypatch):
+    """Verify that unauthenticated visitors in production receive safe demo student records rather than an error."""
     from app.core.config import settings
 
     monkeypatch.setattr(settings, "ENVIRONMENT", "production")
     response = clean_client.get("/api/v1/students")
 
-    assert response.status_code == 401
-    assert response.json()["error"]["code"] == "UNAUTHORIZED"
+    assert response.status_code == 200
+    data = response.json()
+    assert "students" in data
+    assert len(data["students"]) > 0
+
+
+def test_student_role_cannot_access_staff_directory(client: TestClient):
+    """Verify that explicit student tokens are rejected with 403 Forbidden on the directory."""
+    headers = {"Authorization": "Bearer edunexus-demo-student-token"}
+    response = client.get("/api/v1/students", headers=headers)
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "FORBIDDEN"
+
 
 
 def test_spoofed_x_user_role_without_token_returns_401():

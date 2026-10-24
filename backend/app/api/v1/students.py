@@ -40,7 +40,9 @@ from app.core.auth import (
     get_current_user,
     require_staff_user,
     verify_read_authorization as verify_staff_authorization,
+    STAFF_ROLES,
 )
+from app.db.client import is_database_configured
 
 router = APIRouter()
 
@@ -276,9 +278,11 @@ async def list_students(
     x_user_role: Optional[str] = Header(None),
 ) -> StudentListEnvelope:
     """Retrieve filtered, paginated students directory."""
-    verify_staff_authorization(authorization, x_user_role)
-
-    data = dashboard_service._load_synthetic_data()
+    user = verify_staff_authorization(authorization, x_user_role)
+    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+        data = dashboard_service._load_synthetic_data()
+    else:
+        data = dashboard_service._load_pure_synthetic_data()
     raw_students: List[Dict[str, Any]] = data.get("students", [])
     attendance_records = data.get("attendance", [])
     assessment_records = data.get("assessments", [])
@@ -447,9 +451,11 @@ async def get_student_journey_profile(
     x_user_role: Optional[str] = Header(None),
 ) -> StudentJourneyProfileResponse:
     """Retrieve full student journey dossier."""
-    verify_staff_authorization(authorization, x_user_role)
-
-    data = dashboard_service._load_synthetic_data()
+    user = verify_staff_authorization(authorization, x_user_role)
+    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+        data = dashboard_service._load_synthetic_data()
+    else:
+        data = dashboard_service._load_pure_synthetic_data()
     raw_students: List[Dict[str, Any]] = data.get("students", [])
 
     match = next(
@@ -610,9 +616,11 @@ async def get_student_risk_explanation(
     x_user_role: Optional[str] = Header(None),
 ) -> RiskExplanationResponse:
     """Retrieve explainable risk indicator decomposition."""
-    verify_staff_authorization(authorization, x_user_role)
-
-    data = dashboard_service._load_synthetic_data()
+    user = verify_staff_authorization(authorization, x_user_role)
+    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+        data = dashboard_service._load_synthetic_data()
+    else:
+        data = dashboard_service._load_pure_synthetic_data()
     raw_students: List[Dict[str, Any]] = data.get("students", [])
 
     match = next(
