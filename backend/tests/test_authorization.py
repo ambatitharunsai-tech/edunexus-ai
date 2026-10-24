@@ -304,4 +304,48 @@ def test_auth_register_unconfigured_database_fallback(monkeypatch):
     assert "access_token" in data
 
 
+def test_auth_login_demo_preset_success():
+    """Verify that institutional demo logins succeed immediately via POST /api/v1/auth/login."""
+    payload = {
+        "email": "advisor@edunexus.ai",
+        "password": "demo-secure-password",
+        "role": "advisor",
+    }
+    res = clean_client.post("/api/v1/auth/login", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["role"] == "advisor"
+    assert data["access_token"] == "edunexus-demo-advisor-token"
+
+
+def test_auth_login_evaluation_password_success():
+    """Verify that evaluation passwords authenticate successfully for evaluators."""
+    payload = {
+        "email": "evaluator.reviewer@campus.edu",
+        "password": "EduNexus@2026!",
+        "role": "faculty",
+    }
+    res = clean_client.post("/api/v1/auth/login", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["role"] == "faculty"
+    assert data["access_token"] == "edunexus-demo-faculty-token"
+
+
+def test_auth_login_unknown_credentials_rejected():
+    """Verify that completely unknown credentials without demo password return 401."""
+    payload = {
+        "email": "nonexistent.unknown@nowhere.edu",
+        "password": "RandomUnknownPassword999!",
+    }
+    res = clean_client.post("/api/v1/auth/login", json=payload)
+    assert res.status_code == 401
+    err_body = res.json()
+    err_msg = err_body.get("detail") or err_body.get("error", {}).get("message", "")
+    assert "Invalid email or password" in err_msg
+
+
+
 
