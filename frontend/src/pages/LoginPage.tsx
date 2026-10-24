@@ -52,8 +52,7 @@ export function LoginPage() {
   const handleAccountSelect = async (account: (typeof DEMO_ACCOUNTS)[0]) => {
     setError('');
     setEmail(account.email);
-    const pwd = account.defaultPassword || 'EduNexus@2026!';
-    setPassword(pwd);
+    setPassword('');
 
     // If demo mode is active (e.g. in development or unit tests), allow instant synchronous role switching
     if (isDemoLoginEnabled()) {
@@ -67,16 +66,7 @@ export function LoginPage() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      await signInWithCredentials(account.email, pwd);
-      navigate('/', { replace: true });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Authentication failed. Please verify credentials.';
-      setError(msg);
-    } finally {
-      setSubmitting(false);
-    }
+    setError(`Selected ${account.label}. Enter that account's password in the form, then select Sign In to continue.`);
   };
 
   return (
@@ -171,10 +161,6 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div className="border border-indigo-100 dark:border-[#1E3027] bg-indigo-50/60 dark:bg-[#121B17] p-2.5 text-xs text-slate-600 dark:text-[#CBD5CF]">
-              <span className="font-semibold text-indigo-900 dark:text-[#56B594]">Verified Institutional Login: </span>
-              Pre-provisioned accounts use password <code className="font-mono text-[11px] font-semibold text-indigo-700 dark:text-[#56B594]">EduNexus@2026!</code>
-            </div>
 
             <button
               type="submit"
@@ -210,7 +196,7 @@ export function LoginPage() {
               Instant Institutional Role Switching
             </h2>
             <p className="mt-2 text-xs text-slate-300 dark:text-[#8FA89B] leading-relaxed">
-              Explore EduNexus AI across distinct institutional perspectives. Click any role below to authenticate with genuine Supabase session credentials.
+              Explore EduNexus AI across institutional roles. Select a role to prefill its email, then enter its password and select Sign In.
             </p>
 
             <div className="mt-5 grid grid-cols-1 gap-2.5">
@@ -246,9 +232,6 @@ export function LoginPage() {
               <span className="flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-emerald-400 dark:text-[#56B594]" />
                 Supabase Cryptographic Authentication
-              </span>
-              <span className="text-[11px] text-slate-400 font-mono">
-                Password: <span className="text-white">EduNexus@2026!</span>
               </span>
             </div>
           </div>
