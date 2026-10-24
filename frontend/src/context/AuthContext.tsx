@@ -72,12 +72,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     try {
       if (isSupabaseConfigured()) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session) {
-          const { error } = await supabase.auth.signOut();
-          if (error) throw error;
-        }
+        await supabase.auth.signOut();
       }
+    } catch {
+      // Always clear this app's local auth state even when the provider is unreachable.
     } finally {
       clearAuthSession();
       setSession(null);
