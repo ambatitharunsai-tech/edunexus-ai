@@ -117,7 +117,7 @@ export function LoginPage() {
   const navigate = useNavigate();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('advisor');
-  const [email, setEmail] = useState<string>('advisor@edunexus.ai');
+  const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -284,6 +284,7 @@ export function LoginPage() {
             )}
 
             <form onSubmit={handleCredentialsSubmit} className="mt-6 space-y-5">
+              {!supabaseConfigured && !import.meta.env.PROD && (
               {/* Role Selection Tabs / Selector */}
               <div>
                 <label
@@ -355,6 +356,8 @@ export function LoginPage() {
                     Authorized for academic reviews, intervention planning, and clinical risk tier adjustments.
                   </div>
                 </div>
+              )}
+
               )}
 
               {/* Institutional Email Field */}
