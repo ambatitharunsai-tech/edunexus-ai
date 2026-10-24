@@ -58,6 +58,7 @@ export function isStaffRole(role?: string): boolean {
     'evaluator_role',
     'viewer',
     'auditor',
+    'data_operator',
   ].includes(normalized);
 }
 
