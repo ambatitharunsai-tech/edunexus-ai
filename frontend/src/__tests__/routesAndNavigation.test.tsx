@@ -225,5 +225,10 @@ describe('Direct Route Refresh & Access Control Verification', () => {
         expect(screen.getByText(/Help & Support Center/i)).toBeInTheDocument();
       });
     });
+
+    it('profile dropdown contains a Sign out button', async () => {
+      renderAppRoute('/', undefined);
+      expect(screen.getByRole('button', { name: /Sign out/i })).toBeInTheDocument();
+    });
   });
 });

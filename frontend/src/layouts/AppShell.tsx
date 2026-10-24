@@ -349,15 +349,17 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                     />
                   </label>
                 </div>
-                {session && (
-                  <button
-                    type="button"
-                    onClick={() => signOut()}
-                    className="flex min-h-9 w-full items-center gap-2 border-t border-slate-200 dark:border-[#35433B] pt-3 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <LogOut className="h-3.5 w-3.5" /> Sign out
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.currentTarget.closest('details')?.removeAttribute('open');
+                    signOut();
+                    navigate('/');
+                  }}
+                  className="flex min-h-9 w-full items-center gap-2 border-t border-slate-200 dark:border-[#35433B] pt-3 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-rose-600 dark:hover:text-[#F87171] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                >
+                  <LogOut className="h-3.5 w-3.5 text-rose-500" /> Sign out
+                </button>
               </div>
             </details>
           </div>
