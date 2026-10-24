@@ -16,7 +16,7 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isStaff: boolean;
   signIn: (token: string, overrides?: Partial<AuthSession>) => AuthSession;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   refreshSession: () => AuthSession | null;
 }
 
@@ -69,9 +69,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return nextSession;
   }, []);
 
-  const signOut = useCallback(() => {
-    clearAuthSession();
-    setSession(null);
+  const signOut = useCallback(async () => {
+    try {
+      if (isSupabaseConfigured()) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+        }
+      }
+    } finally {
+      clearAuthSession();
+      setSession(null);
+    }
   }, []);
 
   const refreshSession = useCallback(() => {
