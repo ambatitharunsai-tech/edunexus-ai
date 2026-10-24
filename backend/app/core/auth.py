@@ -12,6 +12,49 @@ import jwt
 from app.core.config import settings
 from app.db.client import is_database_configured
 
+_jwks_client: Optional[jwt.PyJWKClient] = None
+
+
+def _get_jwks_client(jwks_url: str) -> jwt.PyJWKClient:
+    """Return a cached Supabase JWKS client for asymmetric access-token keys."""
+    global _jwks_client
+    if _jwks_client is None or getattr(_jwks_client, "uri", "") != jwks_url:
+        _jwks_client = jwt.PyJWKClient(jwks_url, cache_jwk_set=True, lifespan=3600)
+    return _jwks_client
+
+
+def verify_supabase_token_payload(raw_token: str) -> Dict[str, Any]:
+    """Cryptographically verify Supabase access tokens signed with JWKS or HS256."""
+    header = jwt.get_unverified_header(raw_token)
+    payload = jwt.decode(raw_token, options={"verify_signature": False})
+    algorithm = header.get("alg", "")
+    issuer = settings.SUPABASE_JWT_ISSUER or (
+        f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1" if settings.SUPABASE_URL else ""
+    )
+    kwargs: Dict[str, Any] = {
+        "algorithms": [algorithm],
+        "options": {"require": ["sub", "exp"]},
+    }
+    if "aud" in payload:
+        kwargs["audience"] = "authenticated"
+    if issuer:
+        kwargs["issuer"] = issuer
+
+    if algorithm in ("ES256", "ES384", "ES512", "RS256", "RS384", "RS512"):
+        if not settings.SUPABASE_URL or not settings.SUPABASE_URL.startswith("https://"):
+            raise ValueError("SUPABASE_URL is required for Supabase JWKS verification.")
+        jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/.well-known/jwks.json"
+        key = _get_jwks_client(jwks_url).get_signing_key_from_jwt(raw_token)
+        return jwt.decode(raw_token, key.key, **kwargs)
+
+    if algorithm == "HS256":
+        if not settings.SUPABASE_JWT_SECRET:
+            raise ValueError("SUPABASE_JWT_SECRET is required for HS256 tokens.")
+        return jwt.decode(raw_token, settings.SUPABASE_JWT_SECRET, **kwargs)
+
+    raise ValueError(f"Unsupported Supabase JWT algorithm: {algorithm}")
+
+
 # Recognized demo tokens for KPMG evaluation & local prototype mode
 DEMO_TOKENS: Dict[str, Dict[str, Any]] = {
     "edunexus-demo-advisor-token": {
@@ -53,6 +96,8 @@ class AuthenticatedUser(BaseModel):
     role: str = Field(..., description="Role claim (e.g. advisor, admin, student)")
     student_id: Optional[str] = Field(default=None, description="Server-verified student record link from demo configuration or app_metadata")
     is_demo_session: bool = Field(default=False, description="True if verified via evaluation demo token")
+    full_name: Optional[str] = Field(default=None, description="Verified display name from the token")
+    is_active: bool = Field(default=True, description="Account active status")
 
 
 def get_current_user(
@@ -94,33 +139,29 @@ def get_current_user(
             is_demo_session=True,
         )
 
-    # 2. Decode Supabase / cryptographic JWT
+    # 2. Cryptographically verify Supabase JWT (JWKS for modern asymmetric signing keys)
     try:
-        if settings.SUPABASE_JWT_SECRET:
-            payload = jwt.decode(
-                raw_token,
-                settings.SUPABASE_JWT_SECRET,
-                algorithms=["HS256"],
-                audience="authenticated",
-                issuer=settings.SUPABASE_JWT_ISSUER or f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1",
-                options={"require": ["sub", "exp", "iat", "iss", "aud"]},
-            )
-        else:
-            raise ValueError("No JWT verifier configured")
-
+        payload = verify_supabase_token_payload(raw_token)
         user_id = payload["sub"]
         email = payload.get("email") or user_id
-        # app_metadata is server-managed; user_metadata and headers are untrusted.
+
+        # app_metadata is server managed; user_metadata and browser-supplied roles are untrusted.
         app_metadata = payload.get("app_metadata", {})
         if not isinstance(app_metadata, dict):
             app_metadata = {}
-        role = app_metadata.get("role", "student")
+        user_metadata = payload.get("user_metadata", {})
+        if not isinstance(user_metadata, dict):
+            user_metadata = {}
+
         linked_student_id = app_metadata.get("student_id")
+        full_name = user_metadata.get("full_name") or user_metadata.get("name")
         return AuthenticatedUser(
             user_id=str(user_id),
             email=str(email),
-            role=str(role),
+            role=str(app_metadata.get("role", "student")),
             student_id=str(linked_student_id).strip() if linked_student_id else None,
+            full_name=str(full_name) if full_name else None,
+            is_active=True,
             is_demo_session=False,
         )
     except Exception:
