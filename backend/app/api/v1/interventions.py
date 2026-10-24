@@ -27,7 +27,9 @@ from app.core.auth import (
     AuthenticatedUser,
     require_staff_user,
     verify_read_authorization as verify_staff_authorization,
+    STAFF_ROLES,
 )
+from app.db.client import is_database_configured
 
 router = APIRouter()
 
@@ -145,9 +147,11 @@ async def list_interventions(
     x_user_role: Optional[str] = Header(None),
 ) -> List[InterventionWithOutcomes]:
     """List all student support interventions with outcome comparisons and overdue alerts."""
-    verify_staff_authorization(authorization, x_user_role)
-
-    raw_data = dashboard_service._load_synthetic_data()
+    user = verify_staff_authorization(authorization, x_user_role)
+    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+        raw_data = dashboard_service._load_synthetic_data()
+    else:
+        raw_data = dashboard_service._load_pure_synthetic_data()
     all_intvs = list(raw_data.get("interventions", [])) + dashboard_service._demo_interventions
     students = raw_data.get("students", [])
 
@@ -236,9 +240,11 @@ async def get_intervention_detail(
     x_user_role: Optional[str] = Header(None),
 ) -> InterventionWithOutcomes:
     """Retrieve details and outcomes for an intervention."""
-    verify_staff_authorization(authorization, x_user_role)
-
-    raw_data = dashboard_service._load_synthetic_data()
+    user = verify_staff_authorization(authorization, x_user_role)
+    if user and user.role.lower() in STAFF_ROLES and is_database_configured():
+        raw_data = dashboard_service._load_synthetic_data()
+    else:
+        raw_data = dashboard_service._load_pure_synthetic_data()
     all_intvs = list(raw_data.get("interventions", [])) + dashboard_service._demo_interventions
     students_map = {str(s.get("id")): s for s in raw_data.get("students", [])}
 
