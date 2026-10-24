@@ -5,7 +5,6 @@ import {
   ArrowRight,
   ShieldAlert,
   Eye,
-  ArrowLeft,
   CheckCircle2,
   BookOpen,
   ShieldCheck,
@@ -131,6 +130,15 @@ export function RegisterPage() {
     setError('');
     setSuccessMessage('');
 
+    if (import.meta.env.PROD && !supabaseConfigured) {
+      setError('Registration is unavailable because Supabase is not configured for this deployment. Please contact your institutional administrator.');
+      return;
+    }
+    if (supabaseConfigured && role !== 'student') {
+      setError('Public registration is for students only. Staff accounts must be provisioned by an institutional administrator.');
+      return;
+    }
+
     // Validation
     if (!firstName.trim() || !lastName.trim()) {
       setError('Please provide your full legal or institutional name.');
@@ -169,10 +177,9 @@ export function RegisterPage() {
               full_name: `${firstName.trim()} ${lastName.trim()}`,
               first_name: firstName.trim(),
               last_name: lastName.trim(),
-              role,
               department,
-              student_id: role === 'student' ? studentId.trim() : undefined,
-              semester: role === 'student' ? semester : undefined,
+              student_id: studentId.trim(),
+              semester,
             },
           },
         });
@@ -183,8 +190,11 @@ export function RegisterPage() {
 
         // If email confirmation is disabled or session is directly provided
         if (data.session?.access_token) {
-          signIn(data.session.access_token);
-          navigate(role === 'student' ? '/student' : '/', { replace: true });
+          const nextSession = signIn(data.session.access_token, {
+            userId: data.user?.id,
+            email: data.user?.email || email.trim(),
+          });
+          navigate(nextSession.role.toLowerCase() === 'student' ? '/student' : '/', { replace: true });
           return;
         }
 
@@ -193,6 +203,9 @@ export function RegisterPage() {
           `Account created successfully for ${email}. A verification link has been sent to your institutional email. Please check your inbox to activate your account.`
         );
       } else {
+        if (import.meta.env.PROD) {
+          throw new Error('Supabase registration is not configured for production.');
+        }
         // Local prototype / demo mode fallback
         const simulatedToken = role === 'student'
           ? 'edunexus-demo-student-token'
@@ -236,12 +249,6 @@ export function RegisterPage() {
                 </div>
               </div>
             </div>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Return to Dashboard
-            </Link>
           </div>
 
           <div className="mt-6">
@@ -288,8 +295,9 @@ export function RegisterPage() {
           {/* Registration Form */}
           {!successMessage && (
             <form onSubmit={handleRegisterSubmit} className="mt-6 space-y-5">
-              {/* Institutional Role Selector */}
+              {!supabaseConfigured && !import.meta.env.PROD && (
               <div>
+                {/* Local demo role selector only; production self-registration is student-only. */}
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-[#CBD5CF] mb-2">
                   Institutional Role
                 </label>
@@ -317,6 +325,8 @@ export function RegisterPage() {
                   ))}
                 </div>
               </div>
+
+              )}
 
               {/* Name Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -540,7 +550,7 @@ export function RegisterPage() {
         </div>
 
         {/* Development Quick-Fill Panel */}
-        {!import.meta.env.PROD && (
+        {!import.meta.env.PROD && !supabaseConfigured && (
           <div className="rounded-2xl border border-slate-700 bg-slate-900 p-8 text-white shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
