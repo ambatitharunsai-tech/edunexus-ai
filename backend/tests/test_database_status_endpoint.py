@@ -34,7 +34,8 @@ def test_database_status_is_redacted_and_reports_unconfigured(monkeypatch):
     assert body["tables_verified"] == 0
     assert "table_counts" not in body
     assert "secret_key" not in body
-    assert "url_configured" not in body
+    assert body["url_configured"] is True
+    assert "SUPABASE_SECRET_KEY" in body["missing_variables"]
 
 
 def test_database_status_reports_table_or_write_failures(monkeypatch):
