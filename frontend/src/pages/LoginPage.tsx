@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context';
 import { DEMO_ACCOUNTS, isDemoLoginEnabled } from '../lib/auth';
-import { isSupabaseConfigured } from '../lib/supabase';
 
 export function LoginPage() {
   const { isAuthenticated, signInWithCredentials, signIn } = useAuth();
