@@ -57,7 +57,8 @@ import type { FollowUpStudentItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isStaff } = useAuth();
+  const { isStaff, session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
   const { data, loading, error, refetch, createIntervention } = useDashboardData();
 
   // Local state for interactive controls
@@ -288,6 +289,18 @@ export const DashboardPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Student Read-Only Mode Banner */}
+      {isStudent && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
+          <ShieldAlert className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div>
+            <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
+            You are viewing the dashboard in student read-only mode. Attendance trajectories, radar domain profiles, and performance metrics are visible.
+            Modifying data, authoring interventions, and adjusting risk tiers are disabled for student accounts.
+          </div>
+        </div>
+      )}
 
       {/* ── Demo Mode / Connection Status Banner ───────────────────── */}
       {metadata.is_demo && (

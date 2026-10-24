@@ -46,7 +46,7 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({
 
         <div className="flex items-center gap-2">
           <Badge variant={riskVariant} size="sm">
-            {risk_profile.overall_risk.toUpperCase()} PRIORITY
+            {(risk_profile?.overall_risk || 'low').toUpperCase()} PRIORITY
           </Badge>
           <span className="text-xs text-slate-300 font-mono">
             Risk Index: <strong className="text-white">{risk_profile.risk_score}</strong>/100

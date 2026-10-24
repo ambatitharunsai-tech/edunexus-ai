@@ -19,6 +19,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { useAuth } from '../context';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -45,6 +46,9 @@ import type {
 } from '../types';
 
 export const StudentJourneyPage: React.FC = () => {
+  const { isStaff, session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+
   const params = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -52,7 +56,7 @@ export const StudentJourneyPage: React.FC = () => {
   const studentIdParam = params.id || searchParams.get('student_id') || '';
 
   const [studentDirectory, setStudentDirectory] = useState<StudentListItem[]>([]);
-  const [activeStudentId, setActiveStudentId] = useState<string>(studentIdParam);
+  const [activeStudentId, setActiveStudentId] = useState<string>(studentIdParam || (isStudent ? 'STU-001' : ''));
   const [profile, setProfile] = useState<StudentJourneyProfileResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,9 +80,16 @@ export const StudentJourneyPage: React.FC = () => {
   const [riskExplanation, setRiskExplanation] = useState<RiskExplanationResponse | null>(null);
   const [overrideModalOpen, setOverrideModalOpen] = useState<boolean>(false);
 
-  // 1. Fetch directory for student quick-switcher
+  // 1. Fetch directory for student quick-switcher (skip for students to respect FERPA policy)
   useEffect(() => {
     let isMounted = true;
+    if (isStudent) {
+      setActiveStudentId((prev) => prev || studentIdParam || 'STU-001');
+      return () => {
+        isMounted = false;
+      };
+    }
+
     const loadDirectory = async () => {
       try {
         const res = await api<StudentDirectoryResponse>('/api/v1/students?page=1&page_size=50');
@@ -95,7 +106,7 @@ export const StudentJourneyPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [studentIdParam]);
+  }, [studentIdParam, isStudent]);
 
   // Sync state if URL param changes
   useEffect(() => {
@@ -169,37 +180,51 @@ export const StudentJourneyPage: React.FC = () => {
   const isOverridden = Boolean(humanOverride?.is_overridden || riskExplanation?.is_overridden);
   const activeEffectiveTier = (humanOverride?.is_overridden && humanOverride.override_tier)
     ? humanOverride.override_tier
-    : (riskExplanation?.effective_priority_tier || profile?.risk_profile.overall_risk || 'moderate');
-  const baselineComputedTier = humanOverride?.original_tier || riskExplanation?.support_priority_tier || profile?.risk_profile.overall_risk || 'moderate';
+    : (riskExplanation?.effective_priority_tier || profile?.risk_profile?.overall_risk || 'moderate');
+  const baselineComputedTier = humanOverride?.original_tier || riskExplanation?.support_priority_tier || profile?.risk_profile?.overall_risk || 'moderate';
   const overrideReason = humanOverride?.override_reason || riskExplanation?.override_details?.reason;
   const reviewerName = humanOverride?.reviewed_by || riskExplanation?.override_details?.staff_name;
   const reviewTimestamp = humanOverride?.reviewed_at || riskExplanation?.override_details?.recorded_at;
 
   return (
     <div className="space-y-6">
+      {/* Student Read-Only Mode Banner */}
+      {isStudent && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
+          <Shield className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div>
+            <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
+            You are viewing this student journey profile and timeline in read-only mode.
+            Adjusting risk review tiers, assigning intervention plans, and recording outcomes are restricted to authorized academic advisors and faculty.
+          </div>
+        </div>
+      )}
+
       {/* Top Student Switcher & Context Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#151C19] p-3.5 rounded-xl border border-slate-200 dark:border-[#35433B] shadow-2xs">
         <div className="flex items-center gap-3">
-          <Link
-            to="/students"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50 border border-slate-200"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Directory</span>
-          </Link>
+          {!isStudent && (
+            <Link
+              to="/students"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#CBD5CF] hover:text-indigo-600 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-[#1D2722] border border-slate-200 dark:border-[#35433B]"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Directory</span>
+            </Link>
+          )}
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-medium hidden md:inline">
+            <span className="text-xs text-slate-500 dark:text-[#8FA89B] font-medium hidden md:inline">
               Selected Student:
             </span>
             <select
               value={activeStudentId}
               onChange={(e) => handleSelectStudent(e.target.value)}
-              className="text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="text-xs font-semibold text-slate-800 dark:text-[#E2ECE6] bg-slate-50 dark:bg-[#1D2722] border border-slate-300 dark:border-[#35433B] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
-              {studentDirectory.length === 0 && profile && (
-                <option value={profile.student.id}>
-                  {profile.student.first_name} {profile.student.last_name} ({profile.student.student_id})
+              {studentDirectory.length === 0 && profile?.student && (
+                <option value={profile.student.id || profile.student.student_id || 'STU-001'}>
+                  {profile.student.first_name || 'Enrolled'} {profile.student.last_name || 'Student'} ({profile.student.student_id || 'STU-001'})
                 </option>
               )}
               {studentDirectory.map((s) => (
@@ -218,20 +243,22 @@ export const StudentJourneyPage: React.FC = () => {
             size="sm"
             onClick={() => activeStudentId && fetchStudentDossier(activeStudentId, { bypassCache: true })}
             disabled={loading}
-            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900"
+            className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900 dark:hover:text-[#E2ECE6]"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
             <span>Refresh Journey</span>
           </Button>
 
-          <Button
-            size="sm"
-            onClick={() => setInterventionModalOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 text-xs font-semibold shadow-2xs"
-          >
-            <HeartHandshake className="w-3.5 h-3.5" />
-            <span>Log Support Plan</span>
-          </Button>
+          {!isStudent && (
+            <Button
+              size="sm"
+              onClick={() => setInterventionModalOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 text-xs font-semibold shadow-2xs"
+            >
+              <HeartHandshake className="w-3.5 h-3.5" />
+              <span>Log Support Plan</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -270,7 +297,7 @@ export const StudentJourneyPage: React.FC = () => {
       )}
 
       {/* Main Student Dossier Profile */}
-      {profile && (
+      {profile && profile.student && (
         <div className="space-y-6">
           {/* 1. Student Profile Header */}
           <StudentProfileHeader
@@ -318,15 +345,17 @@ export const StudentJourneyPage: React.FC = () => {
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setOverrideModalOpen(true)}
-                        className="text-xs h-7 px-2.5 flex items-center gap-1.5 text-indigo-700 border-indigo-200 hover:bg-indigo-50"
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>{isOverridden ? 'Modify Human Override' : 'Adjust Review Tier'}</span>
-                      </Button>
+                      {!isStudent && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setOverrideModalOpen(true)}
+                          className="text-xs h-7 px-2.5 flex items-center gap-1.5 text-indigo-700 border-indigo-200 hover:bg-indigo-50"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>{isOverridden ? 'Modify Human Override' : 'Adjust Review Tier'}</span>
+                        </Button>
+                      )}
                       <Badge
                         variant={
                           activeEffectiveTier === 'critical'
@@ -339,7 +368,7 @@ export const StudentJourneyPage: React.FC = () => {
                       >
                         {isOverridden
                           ? `Advisor Overridden: ${activeEffectiveTier.toUpperCase()}`
-                          : profile.risk_profile.requires_review
+                          : profile.risk_profile?.requires_review
                           ? 'Human Review Advised'
                           : 'System Monitored'}
                       </Badge>
@@ -360,7 +389,7 @@ export const StudentJourneyPage: React.FC = () => {
                               Active Human Advisor Override: <span className="underline uppercase">{activeEffectiveTier}</span> Tier
                             </span>
                             <span className="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">
-                              Underlying Computed Baseline: <strong className="uppercase">{baselineComputedTier}</strong> ({riskExplanation?.composite_risk_score ?? profile?.risk_profile.risk_score}/100)
+                              Underlying Computed Baseline: <strong className="uppercase">{baselineComputedTier}</strong> ({riskExplanation?.composite_risk_score ?? profile?.risk_profile?.risk_score}/100)
                             </span>
                           </div>
                           {reviewTimestamp && (
@@ -387,7 +416,7 @@ export const StudentJourneyPage: React.FC = () => {
                     </div>
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                    {profile.risk_profile.factors.map((factor, idx) => (
+                    {(profile.risk_profile?.factors || []).map((factor, idx) => (
                       <div
                         key={idx}
                         className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2 shadow-2xs"
@@ -429,7 +458,7 @@ export const StudentJourneyPage: React.FC = () => {
                         Human-in-the-Loop Decision Support Safeguard:
                       </p>
                       <p className="text-indigo-800">
-                        {profile.risk_profile.disclaimer}
+                        {profile.risk_profile?.disclaimer || 'All algorithmic risk determinations serve purely as decision-support alerts and require professional validation.'}
                       </p>
                     </div>
                   </div>
@@ -499,16 +528,16 @@ export const StudentJourneyPage: React.FC = () => {
                     Active Support Plans
                   </CardTitle>
                   <Badge variant="neutral" size="sm">
-                    {profile.interventions.length} Plans
+                    {profile.interventions?.length || 0} Plans
                   </Badge>
                 </CardHeader>
                 <CardContent className="space-y-2.5">
-                  {profile.interventions.length === 0 ? (
+                  {(profile.interventions?.length || 0) === 0 ? (
                     <div className="py-6 text-center text-xs text-slate-400">
                       No support plans currently assigned to this student.
                     </div>
                   ) : (
-                    profile.interventions.map((intv, idx) => (
+                    (profile.interventions || []).map((intv, idx) => (
                       <div
                         key={idx}
                         className="p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-300 transition-colors shadow-2xs space-y-1.5"
@@ -536,22 +565,24 @@ export const StudentJourneyPage: React.FC = () => {
                     ))
                   )}
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setInterventionModalOpen(true)}
-                    className="w-full text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50 mt-1 flex items-center justify-center gap-1.5"
-                  >
-                    <HeartHandshake className="w-3.5 h-3.5" />
-                    <span>Create New Plan</span>
-                  </Button>
+                  {!isStudent && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setInterventionModalOpen(true)}
+                      className="w-full text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50 mt-1 flex items-center justify-center gap-1.5"
+                    >
+                      <HeartHandshake className="w-3.5 h-3.5" />
+                      <span>Create New Plan</span>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </div>
           </div>
 
           {/* 5. Chronological Journey Timeline Component */}
-          <JourneyTimeline events={profile.timeline_events} />
+          <JourneyTimeline events={profile.timeline_events || []} />
 
           {/* 6. Comprehensive Historical Telemetry Records Tables */}
           <Card className="border-slate-200">
@@ -577,7 +608,7 @@ export const StudentJourneyPage: React.FC = () => {
                   }`}
                 >
                   <GraduationCap className="w-3.5 h-3.5" />
-                  <span>Academic ({profile.recent_assessments.length})</span>
+                  <span>Academic ({profile.recent_assessments?.length || 0})</span>
                 </button>
                 <button
                   type="button"
@@ -589,7 +620,7 @@ export const StudentJourneyPage: React.FC = () => {
                   }`}
                 >
                   <CalendarCheck className="w-3.5 h-3.5" />
-                  <span>Attendance ({profile.recent_attendance.length})</span>
+                  <span>Attendance ({profile.recent_attendance?.length || 0})</span>
                 </button>
                 <button
                   type="button"
@@ -653,7 +684,7 @@ export const StudentJourneyPage: React.FC = () => {
                   }`}
                 >
                   <Activity className="w-3.5 h-3.5" />
-                  <span>Campus Logs ({profile.recent_engagements.length})</span>
+                  <span>Campus Logs ({profile.recent_engagements?.length || 0})</span>
                 </button>
                 <button
                   type="button"
@@ -665,7 +696,7 @@ export const StudentJourneyPage: React.FC = () => {
                   }`}
                 >
                   <HeartHandshake className="w-3.5 h-3.5" />
-                  <span>Support Plans ({profile.interventions.length})</span>
+                  <span>Support Plans ({profile.interventions?.length || 0})</span>
                 </button>
               </div>
             </CardHeader>
@@ -686,7 +717,7 @@ export const StudentJourneyPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
-                      {profile.recent_assessments.map((a, idx) => {
+                      {(profile.recent_assessments || []).map((a, idx) => {
                         const scorePct = a.max_score > 0 ? (a.score / a.max_score) * 100 : 0;
                         return (
                           <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
@@ -742,7 +773,7 @@ export const StudentJourneyPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
-                      {profile.recent_attendance.map((att, idx) => (
+                      {(profile.recent_attendance || []).map((att, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
                           <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{att.session_date}</td>
                           <td className="py-2.5 px-3">
@@ -1033,19 +1064,21 @@ export const StudentJourneyPage: React.FC = () => {
               {/* Tab 7: Interventions & Recorded Outcomes */}
               {activeTab === 'interventions' && (
                 <div className="space-y-4">
-                  {profile.interventions.length === 0 ? (
+                  {(profile.interventions?.length || 0) === 0 ? (
                     <div className="py-8 text-center text-xs text-slate-400 space-y-2">
                       <p>No support interventions currently assigned to this student.</p>
-                      <Button
-                        size="sm"
-                        onClick={() => setInterventionModalOpen(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
-                      >
-                        Create Support Plan
-                      </Button>
+                      {!isStudent && (
+                        <Button
+                          size="sm"
+                          onClick={() => setInterventionModalOpen(true)}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                        >
+                          Create Support Plan
+                        </Button>
+                      )}
                     </div>
                   ) : (
-                    profile.interventions.map((intv) => (
+                    (profile.interventions || []).map((intv) => (
                       <div
                         key={intv.id}
                         className="p-4 rounded-xl border border-slate-200 bg-white space-y-3 text-xs shadow-2xs hover:border-slate-300 transition-colors"
@@ -1064,18 +1097,20 @@ export const StudentJourneyPage: React.FC = () => {
                             <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                               {intv.status.toUpperCase()}
                             </span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedInterventionForOutcome(intv);
-                                setOutcomeModalOpen(true);
-                              }}
-                              className="text-xs h-7 px-2.5 text-teal-700 border-teal-200 hover:bg-teal-50 flex items-center gap-1"
-                            >
-                              <Scale className="w-3.5 h-3.5" />
-                              <span>{intv.outcomes && intv.outcomes.length > 0 ? 'Update Outcome' : 'Record Outcome'}</span>
-                            </Button>
+                            {!isStudent && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedInterventionForOutcome(intv);
+                                  setOutcomeModalOpen(true);
+                                }}
+                                className="text-xs h-7 px-2.5 text-teal-700 border-teal-200 hover:bg-teal-50 flex items-center gap-1"
+                              >
+                                <Scale className="w-3.5 h-3.5" />
+                                <span>{intv.outcomes && intv.outcomes.length > 0 ? 'Update Outcome' : 'Record Outcome'}</span>
+                              </Button>
+                            )}
                           </div>
                         </div>
 
@@ -1140,7 +1175,7 @@ export const StudentJourneyPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-[#25322B] text-slate-700 dark:text-[#CBD5CF]">
-                      {profile.recent_engagements.map((eng, idx) => (
+                      {(profile.recent_engagements || []).map((eng, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-[#1D2722]/60 transition-colors">
                           <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-[#E2ECE6]">{eng.event_timestamp}</td>
                           <td className="py-2.5 px-3 font-semibold text-indigo-700 dark:text-[#56B594] capitalize">
@@ -1173,8 +1208,8 @@ export const StudentJourneyPage: React.FC = () => {
             student_id: profile.student.student_id,
             name: `${profile.student.first_name} ${profile.student.last_name}`,
             grade: profile.student.current_grade || profile.student.grade || 'Current Cohort',
-            risk_level: profile.risk_profile.overall_risk,
-            risk_score: profile.risk_profile.risk_score,
+            risk_level: profile.risk_profile?.overall_risk || 'low',
+            risk_score: profile.risk_profile?.risk_score || 0,
             primary_risk_factor: `Review flag: Attendance ${profile.attendance_rate != null ? profile.attendance_rate.toFixed(1) : 0}% | Academic ${profile.average_score != null ? profile.average_score.toFixed(1) : 0}%`,
             attendance_rate: profile.attendance_rate ?? null,
             avg_score: profile.average_score ?? null,
@@ -1221,8 +1256,8 @@ export const StudentJourneyPage: React.FC = () => {
           onClose={() => setOverrideModalOpen(false)}
           studentId={activeStudentId}
           studentName={`${profile.student.first_name} ${profile.student.last_name}`}
-          currentTier={baselineComputedTier || profile.risk_profile.overall_risk}
-          currentScore={riskExplanation?.composite_risk_score ?? profile.risk_profile.risk_score}
+          currentTier={baselineComputedTier || profile.risk_profile?.overall_risk || 'low'}
+          currentScore={riskExplanation?.composite_risk_score ?? profile.risk_profile?.risk_score ?? 0}
           isOverridden={isOverridden}
           overrideDetails={
             isOverridden

@@ -9,6 +9,9 @@ export const DEMO_BEARER_TOKEN = 'edunexus-demo-advisor-token';
 
 export function getAuthToken(): string {
   try {
+    if (localStorage.getItem('edunexus_logged_out') === 'true') {
+      return '';
+    }
     const token = localStorage.getItem('edunexus_auth_token');
     if (token && token.trim()) {
       return token.trim();

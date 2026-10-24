@@ -11,13 +11,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../..
 import type { JourneyTimelineEvent, TimelineEventType } from '../../types';
 
 interface JourneyTimelineProps {
-  events: JourneyTimelineEvent[];
+  events?: JourneyTimelineEvent[];
 }
 
-export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events }) => {
+export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] }) => {
   const [filterType, setFilterType] = useState<string>('all');
 
-  const filteredEvents = events.filter(
+  const filteredEvents = (events || []).filter(
     (e) => filterType === 'all' || e.event_type === filterType
   );
 

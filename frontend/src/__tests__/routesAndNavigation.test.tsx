@@ -110,6 +110,22 @@ describe('Direct Route Refresh & Access Control Verification', () => {
             recent_attendance: [],
             support_plans: [],
           };
+        } else if (url.includes('/api/v1/students/')) {
+          data = {
+            student: { id: 'STU-001', student_id: 'STU-001', first_name: 'Alex', last_name: 'Taylor', current_grade: 'Senior', section: 'A', status: 'active', enrollment_date: '2024-09-01' },
+            risk_profile: { overall_risk: 'low', risk_score: 18, requires_review: false, disclaimer: 'Advisory only', factors: [] },
+            academic_risk_profile: { tier: 'low', score: 15, is_critical_flag: false, contributing_factors: [], recommendation: 'Maintain progress' },
+            placement_risk_profile: { tier: 'low', score: 20, is_critical_flag: false, contributing_factors: [], recommendation: 'Continue preparation' },
+            attendance_rate: 92,
+            average_score: 84,
+            metrics_trend: [],
+            missing_data_notices: [],
+            interventions: [],
+            recent_assessments: [],
+            recent_attendance: [],
+            recent_engagements: [],
+            timeline_events: [],
+          };
         } else if (url.includes('/api/v1/students')) {
           data = {
             students: [],
@@ -138,12 +154,15 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       expect(screen.queryByText(/Sign in to the student intelligence workspace/i)).not.toBeInTheDocument();
     });
 
-    it('direct load of "/login" redirects cleanly to "/" and renders Dashboard', async () => {
+    it('direct load of "/login" renders dedicated Login Page with role selection', async () => {
       renderAppRoute('/login', undefined);
       await waitFor(() => {
-        expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1, name: /Sign in to EduNexus AI/i })).toBeInTheDocument();
       });
-      expect(screen.queryByText(/Sign in to the student intelligence workspace/i)).not.toBeInTheDocument();
+      expect(screen.getAllByText(/Administrator/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Academic Advisor/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Faculty Member/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Student/i).length).toBeGreaterThan(0);
     });
 
     it('direct load of "/help" by unauthenticated visitor renders Help & Support Center', async () => {
@@ -205,10 +224,11 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       });
     });
 
-    it('direct load of "/login" by authenticated staff redirects to dashboard', async () => {
+    it('direct load of "/login" by authenticated staff displays active session and link to dashboard', async () => {
       renderAppRoute('/login', 'advisor');
       await waitFor(() => {
-        expect(screen.getByText(/Executive Student Success Dashboard/i)).toBeInTheDocument();
+        expect(screen.getByText(/Active Session: Signed in as/i)).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /Go to Dashboard/i })).toBeInTheDocument();
       });
     });
 
@@ -228,7 +248,7 @@ describe('Direct Route Refresh & Access Control Verification', () => {
 
     it('profile dropdown contains a Sign out button', async () => {
       renderAppRoute('/', undefined);
-      expect(screen.getByRole('button', { name: /Sign out/i })).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: /Sign out/i })[0]).toBeInTheDocument();
     });
   });
 });

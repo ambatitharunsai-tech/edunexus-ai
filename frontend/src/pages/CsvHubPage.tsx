@@ -16,6 +16,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Spinner } from '../components/ui/Spinner';
 import { api, apiUrl } from '../lib/api';
+import { useAuth } from '../context';
 import type { CsvPreviewResponse, CsvImportResult, CsvRowError } from '../types';
 
 export type CsvDataType =
@@ -46,6 +47,9 @@ const templateCards: Array<{
 ];
 
 export const CsvHubPage: React.FC = () => {
+  const { isStaff, session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+
   // Template download states
   const [downloadingTemplate, setDownloadingTemplate] = useState<string | null>(null);
 
@@ -189,28 +193,42 @@ export const CsvHubPage: React.FC = () => {
 
   return (
     <div className="csv-hub space-y-8">
+      {/* Student Read-Only Mode Banner */}
+      {isStudent && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
+          <ShieldCheck className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div>
+            <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
+            CSV data ingestion, dataset modification, and demo resets require staff or administrator privileges.
+            You may download standard CSV templates below for educational reference.
+          </div>
+        </div>
+      )}
+
       {/* Page Title & Context Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6] tracking-tight">
             Data Hub & CSV Ingestion Engine
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-[#8FA89B]">
             Validated bulk data ingestion with line-numbered schema checks, deduplication safeguards, and synthetic demo reset.
           </p>
         </div>
 
-        {/* Demo Reset Trigger */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowResetConfirmModal(true)}
-          disabled={resetting}
-          className="min-h-9 whitespace-nowrap text-xs text-indigo-700 border-indigo-300 hover:bg-indigo-50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md self-start sm:self-auto motion-reduce:transform-none motion-reduce:transition-none"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
-          <span>Reset Synthetic Demo Data (1-Click)</span>
-        </Button>
+        {/* Demo Reset Trigger (Disabled for Student) */}
+        {!isStudent && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowResetConfirmModal(true)}
+            disabled={resetting}
+            className="min-h-9 whitespace-nowrap text-xs text-indigo-700 border-indigo-300 hover:bg-indigo-50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md self-start sm:self-auto motion-reduce:transform-none motion-reduce:transition-none"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
+            <span>Reset Synthetic Demo Data (1-Click)</span>
+          </Button>
+        )}
       </div>
 
       {/* Demo Reset Confirmation Toast */}
@@ -326,8 +344,18 @@ export const CsvHubPage: React.FC = () => {
                   type="file"
                   accept=".csv,text/csv"
                   onChange={handleFileChange}
-                  className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 rounded-lg bg-slate-50"
+                  disabled={isStudent}
+                  className={`block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold rounded-lg border ${
+                    isStudent
+                      ? 'opacity-50 cursor-not-allowed bg-slate-100 border-slate-200 file:bg-slate-200 file:text-slate-500'
+                      : 'file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border-slate-200 bg-slate-50'
+                  }`}
                 />
+                {isStudent && (
+                  <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                    CSV file upload disabled in Student Read-Only mode.
+                  </span>
+                )}
                 {selectedFile && (
                   <span className="text-[11px] font-mono text-slate-500">
                     Loaded: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
@@ -507,8 +535,8 @@ export const CsvHubPage: React.FC = () => {
                     <Button
                       size="sm"
                       onClick={handleCommitImport}
-                      disabled={importing}
-                      className="min-h-10 whitespace-nowrap bg-emerald-600 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none"
+                      disabled={importing || isStudent}
+                      className="min-h-10 whitespace-nowrap bg-emerald-600 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {importing && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                       <span>Commit {previewResult.valid_rows} Records to System</span>

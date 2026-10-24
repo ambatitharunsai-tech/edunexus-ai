@@ -79,6 +79,10 @@ export function normalizeAuthSession(token: string, overrides?: Partial<AuthSess
 }
 
 export function getStoredAuthSession(): AuthSession | null {
+  if (safeStorageGet('edunexus_logged_out') === 'true') {
+    return null;
+  }
+
   const raw = safeJsonParse<AuthSession>(safeStorageGet(STORAGE_KEY));
 
   if (raw?.token) {
@@ -96,6 +100,7 @@ export function getStoredAuthSession(): AuthSession | null {
 }
 
 export function saveAuthSession(session: AuthSession): AuthSession {
+  safeStorageRemove('edunexus_logged_out');
   const normalized = normalizeAuthSession(session.token, session);
   setAuthToken(normalized.token);
   safeStorageSet(STORAGE_KEY, JSON.stringify(normalized));
@@ -105,9 +110,11 @@ export function saveAuthSession(session: AuthSession): AuthSession {
 export function clearAuthSession(): void {
   setAuthToken('');
   safeStorageRemove(STORAGE_KEY);
+  safeStorageSet('edunexus_logged_out', 'true');
 }
 
 export function signInWithToken(token: string, userOverrides?: Partial<AuthSession>): AuthSession {
+  safeStorageRemove('edunexus_logged_out');
   const session = normalizeAuthSession(token, userOverrides);
   return saveAuthSession(session);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context';
 import { AppShell } from './layouts/AppShell';
 import { safeStorageGet, safeStorageSet } from './lib/utils';
@@ -9,6 +9,7 @@ import {
   DashboardPage,
   HelpPage,
   InterventionsPage,
+  LoginPage,
   NotFoundPage,
   StudentJourneyPage,
   StudentsPage,
@@ -25,8 +26,8 @@ export function AppRoutes({
 }) {
   return (
     <Routes>
-      {/* Obsolete login route redirects cleanly to direct dashboard */}
-      <Route path="/login" element={<Navigate to="/" replace />} />
+      {/* Role-based authentication route */}
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Main direct-access application layout */}
       <Route

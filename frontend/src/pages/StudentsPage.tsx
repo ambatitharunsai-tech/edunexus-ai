@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Download, RefreshCw } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Download, RefreshCw, Shield } from 'lucide-react';
 import { api, getCachedApiData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
@@ -17,7 +17,9 @@ import type {
 } from '../types';
 
 export const StudentsPage: React.FC = () => {
-  const { isStaff } = useAuth();
+  const { isStaff, session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student';
+
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSegment = searchParams.get('segment') || 'all';
 
@@ -52,6 +54,8 @@ export const StudentsPage: React.FC = () => {
   const [selectedStudentForIntervention, setSelectedStudentForIntervention] = useState<any>(null);
 
   const fetchStudents = useCallback(async (opts: { bypassCache?: boolean } = {}) => {
+    if (isStudent) return;
+
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -97,11 +101,13 @@ export const StudentsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, sortBy, sortDir, search, department, semester, segment, riskTier, academicRisk, placementRisk, successMin, successMax]);
+  }, [page, pageSize, sortBy, sortDir, search, department, semester, segment, riskTier, academicRisk, placementRisk, successMin, successMax, isStudent]);
 
   useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
+    if (!isStudent) {
+      fetchStudents();
+    }
+  }, [fetchStudents, isStudent]);
 
   useEffect(() => {
     return () => {
@@ -167,22 +173,56 @@ export const StudentsPage: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  // If logged in as student, display the FERPA privacy policy message
+  if (isStudent) {
+    return (
+      <div className="space-y-6">
+        <div className="p-8 text-center bg-white dark:bg-[#151C19] rounded-xl border border-slate-200 dark:border-[#35433B] max-w-xl mx-auto space-y-4 shadow-xs">
+          <div className="w-12 h-12 mx-auto rounded-full bg-amber-50 dark:bg-[#281E15] text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <Shield className="w-6 h-6" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6]">
+            Peer Directory Protected by Educational Privacy Policy
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-[#CBD5CF] leading-relaxed">
+            In accordance with educational privacy regulations (FERPA), directory-wide dossiers of other students are restricted to authorized academic faculty and advisors.
+            You have full access to view your personal academic journey, attendance trajectory, and support records.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/journey"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
+            >
+              View My Student Journey
+            </Link>
+            <Link
+              to="/"
+              className="px-4 py-2 border border-slate-300 dark:border-[#35433B] hover:bg-slate-50 dark:hover:bg-[#1D2722] text-xs font-semibold rounded-lg text-slate-700 dark:text-[#CBD5CF] transition-colors"
+            >
+              Return to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold tracking-tight text-slate-900">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#E2ECE6]">
               Students Directory
             </h2>
             {data && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-[#18352A] text-indigo-700 dark:text-[#56B594] border border-indigo-200 dark:border-[#1D4633]">
                 {data.total} Enrolled
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#8FA89B] mt-0.5">
             Holistic student records with observable attendance rates, evaluation benchmarks, and explainable risk tiers.
           </p>
         </div>
@@ -195,7 +235,7 @@ export const StudentsPage: React.FC = () => {
             disabled={loading}
             className="flex items-center gap-1.5 text-xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 dark:text-[#CBD5CF] ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
 
@@ -206,7 +246,7 @@ export const StudentsPage: React.FC = () => {
             disabled={!data || data.students.length === 0}
             className="flex items-center gap-1.5 text-xs"
           >
-            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <Download className="w-3.5 h-3.5 text-slate-600 dark:text-[#CBD5CF]" />
             <span>Export displayed page</span>
           </Button>
         </div>
@@ -277,6 +317,7 @@ export const StudentsPage: React.FC = () => {
         onResetFilters={handleResetFilters}
         totalFilteredCount={data?.total || 0}
       />
+
       {/* Content State Handling */}
       {loading && !data ? (
         <div className="py-20 flex flex-col items-center justify-center space-y-3">
@@ -286,14 +327,14 @@ export const StudentsPage: React.FC = () => {
           </p>
         </div>
       ) : error ? (
-        <div className="p-8 text-center bg-white rounded-xl border border-rose-200">
-          <p className="text-sm text-rose-700">{error}</p>
+        <div className="p-8 text-center bg-white dark:bg-[#151C19] rounded-xl border border-rose-200 dark:border-[#4A1E24]">
+          <p className="text-sm text-rose-700 dark:text-[#F87171]">{error}</p>
           <Button size="sm" onClick={() => void fetchStudents({ bypassCache: true })} className="mt-3">
             Retry
           </Button>
         </div>
       ) : data?.students.length === 0 ? (
-        <div className="p-10 bg-white rounded-xl border border-slate-200">
+        <div className="p-10 bg-white dark:bg-[#151C19] rounded-xl border border-slate-200 dark:border-[#35433B]">
           <EmptyState
             title="No Matching Students Found"
             description="No students matched your search keyword or selected department/risk filters."

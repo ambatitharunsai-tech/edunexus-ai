@@ -13,6 +13,8 @@ import {
   Filter,
   RefreshCw,
   Sparkles,
+  Shield,
+  Lock,
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -20,6 +22,7 @@ import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { api, getCachedApiData } from '../lib/api';
+import { useAuth } from '../context';
 import { RecordOutcomeModal } from '../features/interventions/RecordOutcomeModal';
 import { CreateInterventionModal } from '../features/dashboard/CreateInterventionModal';
 import type {
@@ -31,6 +34,9 @@ import type {
 } from '../types';
 
 export const InterventionsPage: React.FC = () => {
+  const { isStaff, session } = useAuth();
+  const isStudent = session?.role?.toLowerCase() === 'student' || !isStaff;
+
   const initialCache = getCachedApiData<Intervention[]>('/api/v1/interventions');
   const [interventions, setInterventions] = useState<Intervention[]>(() => initialCache || []);
   const [loading, setLoading] = useState<boolean>(() => !initialCache);
@@ -69,6 +75,43 @@ export const InterventionsPage: React.FC = () => {
       setInterventions(res);
       setError(null);
     } catch (err: unknown) {
+      if (isStudent) {
+        // For student tokens, fetch personal support plans from the student self-dashboard
+        try {
+          const myDash = await api<{ support_plans: any[] }>('/api/v1/students/me/dashboard');
+          if (myDash && Array.isArray(myDash.support_plans)) {
+            const mappedPlans: Intervention[] = myDash.support_plans.map((p) => ({
+              id: p.id,
+              student_id: 'current-student',
+              student_name: 'You (Student Record)',
+              student_code: 'STU-001',
+              title: p.title || 'Student Academic Support Plan',
+              intervention_type: 'academic_tutoring',
+              priority: p.priority || 'medium',
+              status: p.status || 'planned',
+              description: 'Official academic support plan assigned to your student profile.',
+              assigned_staff_name: 'Academic Advisory Team',
+              start_date: p.start_date || new Date().toISOString().slice(0, 10),
+              target_completion_date: p.follow_up_date,
+              follow_up_date: p.follow_up_date,
+              is_overdue: false,
+              updated_by: 'Academic Staff',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              outcomes: [],
+            }));
+            setInterventions(mappedPlans);
+            setError(null);
+            return;
+          }
+        } catch {
+          // Gracefully default to clean empty list
+          setInterventions([]);
+          setError(null);
+          return;
+        }
+      }
+
       console.error('Failed to load interventions:', err);
       if (interventionsRef.current.length === 0) {
         setError(
@@ -80,10 +123,12 @@ export const InterventionsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isStudent]);
 
-  // 2. Fetch student directory for create modal
+  // 2. Fetch student directory for create modal (skip for student)
   useEffect(() => {
+    if (isStudent) return;
+
     const loadDirectory = async () => {
       try {
         const res = await api<StudentDirectoryResponse>('/api/v1/students?page=1&page_size=50');
@@ -218,13 +263,25 @@ export const InterventionsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Student Read-Only Mode Banner */}
+      {isStudent && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:border-amber-900/50 dark:bg-[#2A2315] text-amber-900 dark:text-amber-200 text-xs shadow-xs">
+          <Shield className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div>
+            <span className="font-bold block sm:inline">Student Read-Only Mode: </span>
+            You are viewing academic support plans in read-only mode.
+            Creating new intervention plans, changing plan statuses (start/complete/cancel), and recording outcomes are restricted to authorized academic advisors and faculty.
+          </div>
+        </div>
+      )}
+
       {/* Page Header and Quick Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#E2ECE6] tracking-tight">
             Intervention Planning & Outcome Tracking
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-[#8FA89B]">
             Lifecycle tracking of multi-disciplinary student support plans with verified baseline vs follow-up comparisons.
           </p>
         </div>
@@ -234,20 +291,22 @@ export const InterventionsPage: React.FC = () => {
             size="sm"
             onClick={() => fetchInterventions({ bypassCache: true })}
             disabled={loading}
-            className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            className="text-xs text-slate-600 dark:text-[#CBD5CF] hover:text-slate-900 dark:hover:text-[#E2ECE6] flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
             <span>Refresh</span>
           </Button>
 
-          <Button
-            size="sm"
-            onClick={() => setCreateModalOpen(true)}
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs text-xs font-semibold"
-          >
-            New Intervention Plan
-          </Button>
+          {!isStudent && (
+            <Button
+              size="sm"
+              onClick={() => setCreateModalOpen(true)}
+              leftIcon={<Plus className="w-4 h-4" />}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs text-xs font-semibold"
+            >
+              New Intervention Plan
+            </Button>
+          )}
         </div>
       </div>
 
@@ -548,65 +607,74 @@ export const InterventionsPage: React.FC = () => {
                 </div>
 
                 {/* Lifecycle Transition Actions Row */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    {/* Action 1: If planned -> Start Plan */}
-                    {item.status === 'planned' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={isBusy}
-                        onClick={() => handleStatusTransition(item.id, 'in_progress')}
-                        className="text-xs h-7 px-2.5 flex items-center gap-1 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200"
-                      >
-                        <Play className="w-3 h-3" />
-                        <span>Start Plan</span>
-                      </Button>
-                    )}
+                <div className="pt-3 border-t border-slate-100 dark:border-[#25322B] flex items-center justify-between gap-2">
+                  {isStudent ? (
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8FA89B] italic">
+                      <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                      <span>Read-only support plan · Modifications restricted to staff</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1.5">
+                        {/* Action 1: If planned -> Start Plan */}
+                        {item.status === 'planned' && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={isBusy}
+                            onClick={() => handleStatusTransition(item.id, 'in_progress')}
+                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200"
+                          >
+                            <Play className="w-3 h-3" />
+                            <span>Start Plan</span>
+                          </Button>
+                        )}
 
-                    {/* Action 2: If in_progress -> Complete Plan */}
-                    {item.status === 'in_progress' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={isBusy}
-                        onClick={() => handleStatusTransition(item.id, 'completed')}
-                        className="text-xs h-7 px-2.5 flex items-center gap-1 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
-                      >
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Complete</span>
-                      </Button>
-                    )}
+                        {/* Action 2: If in_progress -> Complete Plan */}
+                        {item.status === 'in_progress' && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={isBusy}
+                            onClick={() => handleStatusTransition(item.id, 'completed')}
+                            className="text-xs h-7 px-2.5 flex items-center gap-1 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
+                          >
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Complete</span>
+                          </Button>
+                        )}
 
-                    {/* Action 3: If not completed / cancelled -> Cancel Plan */}
-                    {(item.status === 'planned' || item.status === 'in_progress') && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={isBusy}
-                        onClick={() => setPlanToCancel(item)}
-                        className="text-xs h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                      >
-                        <XCircle className="w-3 h-3" />
-                        <span>Cancel</span>
-                      </Button>
-                    )}
-                  </div>
+                        {/* Action 3: If not completed / cancelled -> Cancel Plan */}
+                        {(item.status === 'planned' || item.status === 'in_progress') && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={isBusy}
+                            onClick={() => setPlanToCancel(item)}
+                            className="text-xs h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          >
+                            <XCircle className="w-3 h-3" />
+                            <span>Cancel</span>
+                          </Button>
+                        )}
+                      </div>
 
-                  {/* Record / Update Outcome Button */}
-                  {item.status !== 'cancelled' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedIntervention(item);
-                        setOutcomeModalOpen(true);
-                      }}
-                      className="text-xs h-7 px-2.5 flex items-center gap-1 text-teal-700 border-teal-200 hover:bg-teal-50"
-                    >
-                      <Scale className="w-3 h-3" />
-                      <span>{hasOutcomes ? 'Record Follow-up' : 'Record Outcome'}</span>
-                    </Button>
+                      {/* Record / Update Outcome Button */}
+                      {item.status !== 'cancelled' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedIntervention(item);
+                            setOutcomeModalOpen(true);
+                          }}
+                          className="text-xs h-7 px-2.5 flex items-center gap-1 text-teal-700 border-teal-200 hover:bg-teal-50"
+                        >
+                          <Scale className="w-3 h-3" />
+                          <span>{hasOutcomes ? 'Record Follow-up' : 'Record Outcome'}</span>
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
               </CardContent>

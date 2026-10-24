@@ -69,7 +69,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
                   <Badge variant={getTierVariant(academicRiskProfile.tier)} size="sm">
-                    {academicRiskProfile.tier.toUpperCase()} RISK
+                    {(academicRiskProfile.tier || 'low').toUpperCase()} RISK
                   </Badge>
                   <span className="text-xs font-bold text-slate-800">
                     {academicRiskProfile.score == null ? 'Insufficient data' : `${academicRiskProfile.score}/100`}
@@ -93,7 +93,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                   Contributing Factors
                 </span>
                 <div className="space-y-1">
-                  {academicRiskProfile.contributing_factors.map((f, i) => (
+                  {(academicRiskProfile.contributing_factors || []).map((f, i) => (
                     <div
                       key={i}
                       className="p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs flex items-center justify-between"
@@ -147,7 +147,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
                   <Badge variant={getTierVariant(placementRiskProfile.tier)} size="sm">
-                    {placementRiskProfile.tier.toUpperCase()} RISK
+                    {(placementRiskProfile.tier || 'low').toUpperCase()} RISK
                   </Badge>
                   <span className="text-xs font-bold text-slate-800">
                     {placementRiskProfile.score == null ? 'Insufficient data' : `${placementRiskProfile.score}/100`}
@@ -171,7 +171,7 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
                   Contributing Factors
                 </span>
                 <div className="space-y-1">
-                  {placementRiskProfile.contributing_factors.map((f, i) => (
+                  {(placementRiskProfile.contributing_factors || []).map((f, i) => (
                     <div
                       key={i}
                       className="p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs flex items-center justify-between"
