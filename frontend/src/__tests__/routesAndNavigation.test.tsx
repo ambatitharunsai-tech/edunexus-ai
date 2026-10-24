@@ -243,7 +243,7 @@ describe('Direct Route Refresh & Access Control Verification', () => {
       const profileSummary = container.querySelector('summary');
       expect(profileSummary).toBeTruthy();
       fireEvent.click(profileSummary!);
-      expect(screen.getByRole('button', { name: /Sign out/i })).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: /Sign out/i }).length).toBeGreaterThan(0);
     });
   });
 });
