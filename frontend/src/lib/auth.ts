@@ -73,6 +73,7 @@ export interface DemoAccount {
   email: string;
   token: string;
   description: string;
+  defaultPassword?: string;
 }
 
 /**
@@ -99,6 +100,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'advisor@edunexus.ai',
     token: 'edunexus-demo-advisor-token',
     description: 'Student review, risk factors, and intervention planning',
+    defaultPassword: 'EduNexus@2026!',
   },
   {
     label: 'Administrator',
@@ -106,6 +108,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'admin@edunexus.ai',
     token: 'edunexus-demo-admin-token',
     description: 'Campus governance, user roles, and full analytics access',
+    defaultPassword: 'EduNexus@2026!',
   },
   {
     label: 'Faculty',
@@ -113,6 +116,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'faculty@edunexus.ai',
     token: 'edunexus-demo-faculty-token',
     description: 'Course attendance, assessment grades, and academic tracking',
+    defaultPassword: 'EduNexus@2026!',
   },
   {
     label: 'Data Operator',
@@ -120,6 +124,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'operator@edunexus.ai',
     token: 'edunexus-demo-data-operator-token',
     description: 'Data ingestion, CSV staging, and schema validation',
+    defaultPassword: 'EduNexus@2026!',
   },
   {
     label: 'Auditor / Viewer',
@@ -127,6 +132,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'viewer@edunexus.ai',
     token: 'edunexus-demo-viewer-token',
     description: 'Read-only accreditation and institutional analytics review',
+    defaultPassword: 'EduNexus@2026!',
   },
   {
     label: 'Student',
@@ -134,6 +140,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'student@edunexus.ai',
     token: 'edunexus-demo-student-token',
     description: 'Private student dashboard, course milestones, and self-support',
+    defaultPassword: 'EduNexus@2026!',
   },
 ];
 
