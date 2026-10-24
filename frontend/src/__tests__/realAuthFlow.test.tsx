@@ -3,6 +3,12 @@ import * as authLib from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import type { AuthMeResponse } from '../types';
 
+// Exercise the real-auth branch regardless of placeholder build-time env values.
+vi.mock('../lib/supabase', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../lib/supabase')>();
+  return { ...actual, isSupabaseConfigured: () => true };
+});
+
 describe('EduNexus AI — Real User Authentication End-to-End Suite', () => {
   const originalFetch = globalThis.fetch;
 
