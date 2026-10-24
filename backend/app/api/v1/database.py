@@ -28,5 +28,8 @@ async def get_database_status():
         "tables_expected": result.get("tables_expected", 0),
         "tables_verified": result.get("tables_verified", 0),
         "failed_tables": result.get("failed_tables", []),
+        "url_configured": result.get("url_configured"),
+        "server_key_configured": result.get("server_key_configured"),
+        "missing_variables": result.get("missing_variables", []),
         "message": result.get("message", "Database status unavailable."),
     }
