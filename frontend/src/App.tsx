@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context';
+import { AuthProvider } from './context';
 import { AppShell } from './layouts/AppShell';
 import {
   AnalyticsPage,
@@ -8,57 +8,10 @@ import {
   DashboardPage,
   HelpPage,
   InterventionsPage,
-  LoginPage,
   NotFoundPage,
   StudentJourneyPage,
-  StudentDashboardPage,
   StudentsPage,
 } from './pages';
-
-export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-}
-
-export function StaffOnlyRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isStaff } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!isStaff) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-}
-
-export function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, session } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (session?.role?.toLowerCase() === 'student') {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-}
-
-export function RoleDashboard() {
-  const { session } = useAuth();
-  return session?.role?.toLowerCase() === 'student'
-    ? <StudentDashboardPage />
-    : <DashboardPage />;
-}
 
 type AppTheme = 'light' | 'dark';
 
@@ -71,24 +24,22 @@ export function AppRoutes({
 }) {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      {/* Obsolete login route redirects cleanly to direct dashboard */}
+      <Route path="/login" element={<Navigate to="/" replace />} />
 
+      {/* Main direct-access application layout */}
       <Route
         path="/"
-        element={
-          <ProtectedRoute>
-            <AppShell theme={theme} onThemeChange={onThemeChange} />
-          </ProtectedRoute>
-        }
+        element={<AppShell theme={theme} onThemeChange={onThemeChange} />}
       >
-        <Route index element={<RoleDashboard />} />
-        <Route path="students" element={<StaffOnlyRoute><StudentsPage /></StaffOnlyRoute>} />
-        <Route path="students/:id" element={<StaffOnlyRoute><StudentJourneyPage /></StaffOnlyRoute>} />
-        <Route path="journey" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
-        <Route path="journey/:id" element={<NonStudentJourneyRoute><StudentJourneyPage /></NonStudentJourneyRoute>} />
-        <Route path="interventions" element={<StaffOnlyRoute><InterventionsPage /></StaffOnlyRoute>} />
-        <Route path="analytics" element={<StaffOnlyRoute><AnalyticsPage /></StaffOnlyRoute>} />
-        <Route path="csv-hub" element={<StaffOnlyRoute><CsvHubPage /></StaffOnlyRoute>} />
+        <Route index element={<DashboardPage />} />
+        <Route path="students" element={<StudentsPage />} />
+        <Route path="students/:id" element={<StudentJourneyPage />} />
+        <Route path="journey" element={<StudentJourneyPage />} />
+        <Route path="journey/:id" element={<StudentJourneyPage />} />
+        <Route path="interventions" element={<InterventionsPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="csv-hub" element={<CsvHubPage />} />
         <Route path="help" element={<HelpPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

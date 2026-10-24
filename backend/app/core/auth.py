@@ -181,6 +181,22 @@ def get_current_user(
         )
 
 
+def get_optional_current_user(
+    authorization: Optional[str] = Header(None),
+) -> Optional[AuthenticatedUser]:
+    """
+    Decodes and returns the authenticated user if a valid Bearer token is provided.
+    If no authorization header is provided, or if the token is invalid/expired/demo in production,
+    returns None gracefully rather than raising 401 Unauthorized.
+    """
+    if not authorization:
+        return None
+    try:
+        return get_current_user(authorization)
+    except HTTPException:
+        return None
+
+
 def require_staff_user(
     current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> AuthenticatedUser:

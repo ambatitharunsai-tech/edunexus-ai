@@ -69,7 +69,7 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
   });
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, signOut, isStaff } = useAuth();
+  const { session, signOut } = useAuth();
   const isStudent = session?.role?.toLowerCase() === 'student';
 
   useEffect(() => {
@@ -127,12 +127,10 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
     }
   };
 
-  // Determine current page title
+  // In restored direct-access mode, all platform modules are accessible from the navigation
   const visibleNavItems = isStudent
     ? navItems.filter((item) => item.to === '/' || item.to === '/help')
-    : isStaff
-      ? navItems
-      : navItems.filter((item) => item.to === '/' || item.to === '/journey' || item.to === '/help');
+    : navItems;
 
   const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
@@ -288,16 +286,22 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
             <details className="group relative">
               <summary className="flex cursor-pointer list-none items-center gap-2 p-1.5 text-slate-700 dark:text-[#CBD5CF] hover:bg-slate-100 dark:hover:bg-[#1D2722] focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <span className="flex h-8 w-8 items-center justify-center bg-slate-800 dark:bg-[#1D2722] text-xs font-semibold text-white dark:text-[#E2ECE6] border border-transparent dark:border-[#35433B]">
-                  {session?.role ? session.role.slice(0, 2).toUpperCase() : 'NA'}
+                  {session?.role ? session.role.slice(0, 2).toUpperCase() : 'AI'}
                 </span>
-                <span className="hidden text-xs font-medium sm:block">{session?.role || 'Profile'}</span>
+                <span className="hidden text-xs font-medium sm:block">{session?.role ? session.role : 'Workspace'}</span>
                 <ChevronDown className="h-4 w-4 text-slate-500 dark:text-[#8FA89B] transition-transform group-open:rotate-180" />
               </summary>
               <div className="absolute right-0 top-full z-50 mt-2 w-[min(19rem,calc(100vw-1.5rem))] border border-slate-200 dark:border-[#35433B] bg-white dark:bg-[#151C19] p-4 text-slate-800 dark:text-[#CBD5CF] shadow-xl">
                 <div className="border-b border-slate-200 dark:border-[#35433B] pb-3">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-[#E2ECE6]">Profile</p>
-                  <p className="mt-1 break-all text-xs text-slate-600 dark:text-[#CBD5CF]">{session?.email || 'Email not provided'}</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-[#8FA89B]">Role: {session?.role || 'Unknown'}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-[#E2ECE6]">
+                    {session ? 'User Session' : 'EduNexus AI Workspace'}
+                  </p>
+                  <p className="mt-1 break-all text-xs text-slate-600 dark:text-[#CBD5CF]">
+                    {session?.email || 'Direct Access Public Mode'}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-[#8FA89B]">
+                    {session ? `Role: ${session.role}` : 'Role: Public Viewer (Read-Only)'}
+                  </p>
                   {session?.isDemoSession && <p className="mt-1 text-[11px] text-indigo-700 dark:text-[#56B594]">Local demo session</p>}
                 </div>
                 <div className="space-y-3 py-3">
@@ -345,13 +349,15 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
                     />
                   </label>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => signOut()}
-                  className="flex min-h-9 w-full items-center gap-2 border-t border-slate-200 dark:border-[#35433B] pt-3 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <LogOut className="h-3.5 w-3.5" /> Sign out
-                </button>
+                {session && (
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="flex min-h-9 w-full items-center gap-2 border-t border-slate-200 dark:border-[#35433B] pt-3 text-left text-xs font-semibold text-slate-700 dark:text-[#CBD5CF] hover:text-indigo-600 dark:hover:text-[#56B594] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <LogOut className="h-3.5 w-3.5" /> Sign out
+                  </button>
+                )}
               </div>
             </details>
           </div>
