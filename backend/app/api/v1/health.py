@@ -24,15 +24,3 @@ async def get_health() -> HealthResponse:
         version=settings.VERSION,
         environment=settings.ENVIRONMENT,
     )
-
-
-@router.get(
-    "/health/db",
-    summary="Database Connection Health Probe",
-    description="Verify live connectivity and query latency to the Supabase PostgreSQL database.",
-    tags=["System"],
-)
-async def get_db_health():
-    """Actively probes the Supabase PostgreSQL database connection."""
-    from app.db.client import verify_database_connection
-    return verify_database_connection()

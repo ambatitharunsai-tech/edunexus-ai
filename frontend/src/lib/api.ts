@@ -134,18 +134,6 @@ export async function api<T>(endpoint: string, options: FetchOptions = {}): Prom
       const response = await fetch(`${API_URL}${endpoint}`, config);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          try {
-            localStorage.removeItem('edunexus_auth_token');
-            localStorage.removeItem('edunexus_auth_session');
-            clearApiCache();
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('edunexus:auth-unauthorized'));
-            }
-          } catch {
-            // Ignore in non-browser environments
-          }
-        }
         const error = await response.json().catch(() => ({ detail: response.statusText }));
         const errorMsg = error.detail || error?.error?.message || `API error: ${response.status}`;
         throw new Error(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));

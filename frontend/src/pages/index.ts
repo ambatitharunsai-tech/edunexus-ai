@@ -8,7 +8,3 @@ export * from './LoginPage';
 export * from './NotFoundPage';
 export * from './StudentDashboardPage';
 export * from './HelpPage';
-export * from './RegisterPage';
-export * from './ForgotPasswordPage';
-export * from './ResetPasswordPage';
-export * from './UnauthorizedPage';

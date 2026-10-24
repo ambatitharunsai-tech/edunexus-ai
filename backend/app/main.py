@@ -51,17 +51,6 @@ def create_application() -> FastAPI:
             environment=settings.ENVIRONMENT,
         )
 
-    # Database health check endpoint (GET /health/db)
-    @app.get(
-        "/health/db",
-        tags=["System"],
-        summary="Database Connection Health Probe",
-        description="Verify live connectivity and query latency to the Supabase PostgreSQL database.",
-    )
-    async def db_health_check():
-        from app.db.client import verify_database_connection
-        return verify_database_connection()
-
     # Root index endpoint
     @app.get("/", tags=["System"], summary="API Root")
     async def root_index():

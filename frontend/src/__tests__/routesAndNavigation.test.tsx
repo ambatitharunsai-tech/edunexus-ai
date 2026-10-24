@@ -56,7 +56,6 @@ const createMockAuth = (role?: 'advisor' | 'student'): AuthContextValue => {
       isAuthenticated: false,
       isStaff: false,
       signIn: vi.fn(),
-      signInWithCredentials: vi.fn(),
       signOut: vi.fn(),
       refreshSession: vi.fn(),
     };
@@ -73,7 +72,6 @@ const createMockAuth = (role?: 'advisor' | 'student'): AuthContextValue => {
     isAuthenticated: true,
     isStaff,
     signIn: vi.fn(),
-    signInWithCredentials: vi.fn(),
     signOut: vi.fn(),
     refreshSession: vi.fn(),
   };

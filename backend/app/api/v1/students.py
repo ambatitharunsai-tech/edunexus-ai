@@ -86,7 +86,7 @@ async def get_my_student_dashboard(
     students = data.get("students", [])
     linked_id = (current_user.student_id or "").strip()
 
-    # Only a server-managed app_metadata link, user_id ownership, or server-side demo-token mapping
+    # Only a server-managed app_metadata link or server-side demo-token mapping
     # can select a record. Do not guess from email or accept a client-supplied ID.
     student = None
     if linked_id:
@@ -94,14 +94,6 @@ async def get_my_student_dashboard(
             (
                 row for row in students
                 if linked_id in (str(row.get("id", "")), str(row.get("student_id", "")))
-            ),
-            None,
-        )
-    if not student and current_user.user_id:
-        student = next(
-            (
-                row for row in students
-                if row.get("user_id") and str(row.get("user_id")) == current_user.user_id
             ),
             None,
         )

@@ -51,11 +51,6 @@ class Settings(BaseModel):
     SUPABASE_URL: str = Field(
         default_factory=lambda: os.getenv("SUPABASE_URL", "")
     )
-    # Prefer the current Supabase server-side secret key. Keep the legacy
-    # service-role variable as a backwards-compatible fallback.
-    SUPABASE_SECRET_KEY: str = Field(
-        default_factory=lambda: os.getenv("SUPABASE_SECRET_KEY", "")
-    )
     SUPABASE_SERVICE_ROLE_KEY: str = Field(
         default_factory=lambda: os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     )

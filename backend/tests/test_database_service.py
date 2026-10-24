@@ -34,16 +34,6 @@ def test_is_database_configured_returns_false_for_placeholders(monkeypatch):
     assert is_database_configured() is False
 
 
-def test_is_database_configured_accepts_current_supabase_secret_key(monkeypatch):
-    """The current Supabase secret key should configure the server database client."""
-    from app.core import settings
-    monkeypatch.setattr(settings, "SUPABASE_URL", "https://blgqapkuizpyaqgyqftt.supabase.co")
-    monkeypatch.setattr(settings, "SUPABASE_SECRET_KEY", "sb_secret_test-only-placeholder-for-unit-test")
-    monkeypatch.setattr(settings, "SUPABASE_SERVICE_ROLE_KEY", "")
-
-    assert is_database_configured() is True
-
-
 def test_verify_database_connection_reports_unconnected_when_unconfigured(monkeypatch):
     """Strict test: connection probe reports connected: False without live credentials."""
     from app.core import settings

@@ -595,42 +595,5 @@ export interface StudentJourneyProfileResponse {
   lms_details?: LMSActivityRecord;
 }
 
-export type AppRole = 'admin' | 'data_operator' | 'faculty' | 'advisor' | 'student' | 'viewer';
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  role: AppRole;
-  full_name: string | null;
-  is_active: boolean;
-  student_id: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-}
-
-export interface AuthMeResponse {
-  user: UserProfile;
-  permissions: string[];
-}
-
-export interface UserListItem {
-  id: string;
-  email: string;
-  role: AppRole;
-  full_name: string | null;
-  is_active: boolean;
-  student_id: string | null;
-  created_at?: string | null;
-  last_sign_in_at?: string | null;
-}
-
-export interface UserRoleUpdateRequest {
-  role: AppRole;
-}
-
-export interface UserStatusUpdateRequest {
-  is_active: boolean;
-}
-
 
 

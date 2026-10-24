@@ -2,34 +2,21 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context';
 import { AppShell } from './layouts/AppShell';
-import { Spinner } from './components/ui/Spinner';
 import {
   AnalyticsPage,
   CsvHubPage,
   DashboardPage,
-  ForgotPasswordPage,
   HelpPage,
   InterventionsPage,
   LoginPage,
   NotFoundPage,
-  RegisterPage,
-  ResetPasswordPage,
   StudentJourneyPage,
   StudentDashboardPage,
   StudentsPage,
-  UnauthorizedPage,
 } from './pages';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f6f8fa] dark:bg-[#101714] flex flex-col items-center justify-center p-4">
-        <Spinner size="lg" label="Restoring session..." showLabel />
-      </div>
-    );
-  }
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -39,15 +26,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 export function StaffOnlyRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isStaff, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f6f8fa] dark:bg-[#101714] flex flex-col items-center justify-center p-4">
-        <Spinner size="lg" label="Verifying staff access..." showLabel />
-      </div>
-    );
-  }
+  const { isAuthenticated, isStaff } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -60,38 +39,8 @@ export function StaffOnlyRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-export function AdminOnlyRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f6f8fa] dark:bg-[#101714] flex flex-col items-center justify-center p-4">
-        <Spinner size="lg" label="Verifying administrator privileges..." showLabel />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!isAdmin) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return <>{children}</>;
-}
-
 export function NonStudentJourneyRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, session, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f6f8fa] dark:bg-[#101714] flex flex-col items-center justify-center p-4">
-        <Spinner size="lg" label="Verifying journey access..." showLabel />
-      </div>
-    );
-  }
+  const { isAuthenticated, session } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -123,10 +72,6 @@ export function AppRoutes({
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       <Route
         path="/"
