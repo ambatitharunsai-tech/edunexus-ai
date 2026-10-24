@@ -1,444 +1,920 @@
-# EduNexus AI — Conversational NLP Chatbot & Platform Architecture Documentation
+# EduNexus AI — Database Architecture & Schema Specification
 
-## 1. Executive Summary & Architecture Principles
+## 1. Executive Summary & Architecture Overview
 
-EduNexus AI is an early-warning student success and learning journey platform. The **Help & Support Center** and its embedded **Conversational Help Assistant** serve students, advisors, faculty, and institutional administrators with instant, verified guidance on academic metrics, platform navigation, seven-domain success indices, intervention workflows, and data ingestion.
+EduNexus AI employs an enterprise-grade, explainable, and privacy-preserving data tier powered by **PostgreSQL 15+** on **Supabase**. The database acts as the single source of truth for student records, historical tracking, multi-domain analytics, automated risk signals, and intervention workflows.
 
 ```
 ========================================================================================
-                      EDUNEXUS AI UPGRADED CHATBOT AT A GLANCE
+                     EDUNEXUS AI DATABASE SUBSYSTEM AT A GLANCE
 ========================================================================================
-  • Retrieval Accuracy:             100.0% (42/42 ground-truth benchmark scenarios)
-  • Legacy Baseline Accuracy:       76.2%  (+23.8% absolute gain)
-  • Role-Based Privacy Violations:  0      (Strict FERPA & institutional role boundary)
-  • Follow-Up Resolution Accuracy:  100.0% (4/4 multi-turn anaphora resolved)
-  • Average Retrieval Latency:      1.41 ms (Client-side in-memory deterministic execution)
-  • External LLM API Cost:          $0.00   (Zero API keys, zero token fees, zero rate limits)
-  • Automated Test Verification:    117/117 frontend tests passed; 148/148 backend tests passed
+  • Engine:                       PostgreSQL 15+ (Hosted on Supabase)
+  • Domain Scope:                 7 Operational Domains (Academic, Attendance, LMS,
+                                  Engagement, Placement, Skills, Feedback)
+  • Decoupled Risk Support:       Academic vs. Placement Orthogonal Risk Engines
+  • Data Access Layer:            Repository Pattern (FastAPI Backend + Supabase Client)
+  • Security Model:               Row-Level Security (RLS) on all 13 Tables + Zero-Trust anon
+  • Transactional Integrity:      pg_advisory_xact_lock serialized RPC (edunexus_commit)
+  • Compliance & Governance:      Mandatory Audit Trails + Causation Disclaimers (FERPA)
+  • Verification Status:          161/161 Backend Tests Passed • 100% Schema Validation
 ========================================================================================
 ```
 
-### Core Architectural Principles
+### Core Data Principles
 
-1. **Privacy-Preserving & In-Memory (Zero Data Egress)**: All conversational processing and retrieval occur entirely within the client's browser memory. User queries, conversation history, and interaction metrics are never logged, persisted, or transmitted to any external LLM service, ensuring full compliance with institutional FERPA policies.
-2. **Deterministic & Auditable (No Hallucinations)**: Answers are sourced strictly from a verified, locally maintained knowledge base (`helpContent.ts`). The platform eliminates the non-deterministic output and security risks of generative LLMs.
-3. **Strict Zero-Trust Role Boundaries**: Responses, internal navigation deep links, and suggested questions are filtered before and during retrieval. Students can never access staff-only administrative workflows, student directory dossiers, intervention creation tools, or CSV ingestion settings.
-4. **Sub-2ms Zero-Cost Operations**: The hybrid retrieval pipeline utilizes BM25 term weighting, bounded Levenshtein typo correction, domain synonym expansion, and multi-turn context resolution with an average latency of ~1.4 ms.
-5. **Zero Unwanted Viewport Scrolling**: The Help & Support page and chatbot interact without unexpected page jumping. Users retain full natural scrolling freedom.
+1. **Deterministic & Explainable Storage**: Every student risk indicator, score component, and milestone is derived from transparent, queryable relational records. Black-box opaque data payloads are prohibited.
+2. **Decoupled Dual-Risk Architecture**: Academic classroom performance and placement employability telemetry are stored in dedicated orthogonal structures (`assessments`, `attendance` vs. `placement_records`, `skills_records`) preventing false aggregated correlations.
+3. **Strict Zero-Trust Role Boundaries**: Anonymous (`anon`) access is categorically denied across all application tables. Row-Level Security (RLS) policies enforce strict separation between institutional staff (advisors, faculty, administrators) and students.
+4. **Atomic Audited Mutations**: Direct write permissions on core tables are restricted. Data modifications execute through the transactional `edunexus_commit` RPC or service-role backend operations, ensuring that no mutation can ever bypass the compliance audit log.
+5. **Ethical Causation Mandate**: Pre- and post-intervention evaluations explicitly store a mandatory causation disclaimer to satisfy ethical AI and institutional research standards.
 
 ---
 
-## 2. System Architecture & Component Structure
+## 2. Entity-Relationship Architecture
 
-```
-frontend/
-├── public/
-│   └── _redirects                      # SPA rewrite rule (/* /index.html 200) for Render hosting
-├── src/
-│   ├── lib/
-│   │   ├── apiCache.ts                 # In-memory TTL cache preventing repeated page-load spinners
-│   │   ├── helpContent.ts              # 36 curated, verified Q&A entries across 7 functional categories
-│   │   ├── helpChatEngine.ts           # BM25 hybrid NLP engine with typo tolerance & context resolution
-│   │   ├── bandwidthEstimator.ts       # Standalone throughput estimation utility
-│   │   ├── api.ts                      # Axios backend API client with bearer token interception
-│   │   └── utils.ts                    # Tailwind className merging utility (cn)
-│   ├── pages/
-│   │   ├── HelpPage.tsx                # Help & Support Center UI (clean Q&A chat without Bandwidth widget)
-│   │   ├── DashboardPage.tsx           # Executive Cohort Dashboard (Staff)
-│   │   ├── StudentDashboardPage.tsx    # Personal Learning Journey & Success Score (Student)
-│   │   ├── StudentsPage.tsx            # Student Directory with Multi-Param Filter & Risk Tiers
-│   │   ├── StudentJourneyPage.tsx      # Student Dossier, 7-Domain Radar Chart, Milestones, Overrides
-│   │   ├── InterventionsPage.tsx       # Support Plans, 4-Stage Lifecycle, Outcomes, Overdue Alerts
-│   │   ├── AnalyticsPage.tsx           # Departmental Benchmarks, Dual-Risk Matrix, Student Segments
-│   │   ├── CsvHubPage.tsx              # CSV Ingestion, Pre-flight Schema Validation, Demo Reset
-│   │   ├── LoginPage.tsx               # Bearer Token Auth with 1-Click Demo Personas
-│   │   └── NotFoundPage.tsx            # 404 Error Page with return navigation
-│   ├── layouts/
-│   │   └── AppShell.tsx                # Primary Sidebar, Header, Role Badges, Mobile Drawer
-│   ├── App.tsx                         # Client-Side Routing with ProtectedRoute & Role Guards
-│   └── __tests__/
-│       ├── chatBenchmark.test.ts       # Quantitative NLP retrieval benchmark suite
-│       ├── chatEvaluationDataset.ts    # 42 ground-truth labeled evaluation cases
-│       ├── helpChatEngine.test.ts      # Unit tests for tokenization, roles, scoring, suggestions
-│       ├── helpContent.test.ts         # Knowledge base schema validation & category consistency
-│       ├── HelpPage.test.tsx           # React UI component interaction, resetting, zero-scroll tests
-│       ├── apiCache.test.ts            # TTL caching, stale-while-revalidate, in-flight deduplication
-│       ├── bandwidthEstimator.test.ts  # Throughput probe validation, streaming, error handling
-│       ├── Spinner.test.tsx            # Loading indicator accessibility & lifecycle tests
-│       ├── UIAnimationAndContrast.test.tsx # High contrast, sharp edges (rounded-none), dark palette
-│       └── routesAndNavigation.test.tsx# Route protection, student barriers, 404 handling
+The following diagram illustrates the complete relational topology across all 13 core database entities:
+
+```mermaid
+erDiagram
+    auth_users ||--o| user_profiles : "authenticates"
+    user_profiles ||--o{ students : "advises"
+    user_profiles ||--o{ interventions : "assigned_to"
+    user_profiles ||--o{ audit_events : "performs"
+    user_profiles ||--o{ attendance : "records"
+    user_profiles ||--o{ assessments : "grades"
+
+    students ||--o{ attendance : "attends"
+    students ||--o{ assessments : "completes"
+    students ||--o{ engagement_events : "participates"
+    students ||--o{ placement_records : "evaluated_for"
+    students ||--o{ skills_records : "acquires"
+    students ||--o{ feedback_records : "evaluated_by"
+    students ||--o{ lms_activity_records : "generates"
+    students ||--o{ interventions : "receives"
+    students ||--o| risk_overrides : "overridden_by"
+
+    interventions ||--o{ intervention_outcomes : "evaluates"
+
+    user_profiles {
+        uuid id PK,FK
+        text email UK
+        text full_name
+        app_role role
+        text institution_department
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    students {
+        uuid id PK
+        text student_id UK
+        uuid user_id FK
+        text first_name
+        text last_name
+        text email UK
+        text department
+        numeric cgpa
+        integer backlogs
+        text current_grade
+        text academic_term
+        text section
+        uuid advisor_id FK
+        text status
+        text notes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    attendance {
+        uuid id PK
+        uuid student_id FK
+        date session_date
+        text period
+        text status
+        text remarks
+        uuid recorded_by FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    assessments {
+        uuid id PK
+        uuid student_id FK
+        text title
+        text subject
+        text assessment_type
+        text term
+        date assessment_date
+        numeric score
+        numeric max_score
+        numeric weight_percentage
+        text feedback
+        uuid recorded_by FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    engagement_events {
+        uuid id PK
+        uuid student_id FK
+        text event_type
+        text title
+        text description
+        integer duration_minutes
+        timestamptz event_timestamp
+        jsonb metadata
+        timestamptz created_at
+    }
+
+    placement_records {
+        uuid id PK
+        uuid student_id FK
+        numeric aptitude_score
+        numeric coding_score
+        numeric mock_interview_score
+        numeric resume_score
+        text readiness_tier
+        integer mock_interviews_attended
+        date evaluated_at
+        text notes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    skills_records {
+        uuid id PK
+        uuid student_id FK
+        numeric technical_score
+        numeric soft_skills_score
+        integer certifications_count
+        jsonb verified_skills
+        date last_assessed_date
+        text notes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    feedback_records {
+        uuid id PK
+        uuid student_id FK
+        numeric faculty_sentiment
+        numeric student_satisfaction
+        text mentor_notes
+        text academic_term
+        date recorded_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    lms_activity_records {
+        uuid id PK
+        uuid student_id FK
+        integer weekly_login_count
+        numeric module_completion_pct
+        numeric assignments_submitted_pct
+        integer forum_posts_count
+        date last_login_date
+        date recorded_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    interventions {
+        uuid id PK
+        uuid student_id FK
+        text title
+        text intervention_type
+        text priority
+        text status
+        text description
+        text goals
+        uuid assigned_staff_id FK
+        text assigned_staff_name
+        date start_date
+        date target_completion_date
+        date actual_completion_date
+        date follow_up_date
+        text notes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    intervention_outcomes {
+        uuid id PK
+        uuid intervention_id FK
+        text metric_name
+        numeric baseline_value
+        numeric post_value
+        numeric target_value
+        date measurement_date
+        text outcome_status
+        text evidence_notes
+        text causation_disclaimer
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    risk_overrides {
+        uuid id PK
+        uuid student_id UK,FK
+        boolean is_overridden
+        text original_tier
+        text override_tier
+        text override_reason
+        text reviewed_by
+        timestamptz reviewed_at
+    }
+
+    audit_events {
+        uuid id PK
+        text entity_type
+        uuid entity_id
+        text action
+        uuid performed_by FK
+        text performed_by_name
+        jsonb details
+        text ip_address
+        timestamptz created_at
+    }
 ```
 
 ---
 
-## 3. Upgraded NLP Hybrid Retrieval Engine
+## 3. Data Dictionary & Table Specifications
 
-The upgraded engine in `src/lib/helpChatEngine.ts` implements a deterministic hybrid retrieval pipeline:
+### 3.1 Authentication & Role-Based Access Control
+
+#### `public.user_profiles`
+Stores profile metadata for authenticated academic staff, faculty, counselors, administrators, and governance auditors.
+* **Primary Key**: `id` (references `auth.users(id) ON DELETE CASCADE`)
+* **Custom Enum**: `app_role` (`'advisor'`, `'counselor'`, `'faculty'`, `'administrator'`, `'auditor'`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | — | Foreign key to `auth.users.id`. |
+| `email` | `TEXT` | No | — | Unique institutional email address. |
+| `full_name` | `TEXT` | No | — | Full display name of the staff member. |
+| `role` | `app_role` | No | `'advisor'` | Application role enum determining permissions. |
+| `institution_department` | `TEXT` | Yes | `NULL` | Department affiliation (e.g., Computer Science). |
+| `is_active` | `BOOLEAN` | No | `true` | Active status flag; disabled users lose access. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Timestamp of profile creation. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.2 Student Core Directory
+
+#### `public.students`
+The master record for each enrolled student containing demographic, departmental, and academic baseline telemetry.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+* **Unique Key**: `student_id` (e.g., `STU-2026-001`), `email`
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Internal unique primary key. |
+| `student_id` | `TEXT` | No | — | Official institutional roll/registration number (Unique). |
+| `user_id` | `UUID` | Yes | `NULL` | Links to `auth.users.id` when student registers an account. |
+| `first_name` | `TEXT` | No | — | Student first name. |
+| `last_name` | `TEXT` | No | — | Student last name. |
+| `email` | `TEXT` | Yes | `NULL` | Student contact email (Unique). |
+| `department` | `TEXT` | Yes | `NULL` | Academic department (e.g., Computer Science & Eng). |
+| `cgpa` | `NUMERIC(4,2)` | Yes | `NULL` | Cumulative GPA, bounded: `CHECK (cgpa BETWEEN 0 AND 10)`. |
+| `backlogs` | `INTEGER` | Yes | `NULL` | Active backlogs count: `CHECK (backlogs >= 0)`. |
+| `date_of_birth` | `DATE` | Yes | `NULL` | Date of birth. |
+| `gender` | `TEXT` | Yes | `NULL` | Gender identity. |
+| `enrollment_date`| `DATE` | No | `CURRENT_DATE` | Date of institutional admission. |
+| `current_grade` | `TEXT` | No | — | Current academic year/grade (e.g., `'3rd Year'`). |
+| `academic_term` | `TEXT` | No | — | Current operational term (e.g., `'Semester 6'`). |
+| `section` | `TEXT` | Yes | `NULL` | Class cohort section (e.g., `'A'`, `'B'`). |
+| `advisor_id` | `UUID` | Yes | `NULL` | Assigned staff advisor (`REFERENCES user_profiles(id)`). |
+| `status` | `TEXT` | No | `'active'` | `CHECK (status IN ('active', 'inactive', 'graduated', 'withdrawn', 'suspended', 'on_leave'))`. |
+| `notes` | `TEXT` | Yes | `NULL` | General advisor notes and context. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.3 Domain 1: Attendance Telemetry
+
+#### `public.attendance`
+Session-level daily attendance logs for tracking absenteeism, late arrivals, and chronic absence risk.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+* **Unique Constraint**: `uq_student_date_period UNIQUE (student_id, session_date, period)`
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `session_date` | `DATE` | No | — | Date of attendance session. |
+| `period` | `TEXT` | No | `'full_day'` | Session period (`'full_day'`, `'morning'`, `'afternoon'`). |
+| `status` | `TEXT` | No | — | `CHECK (status IN ('present', 'absent', 'late', 'excused'))`. |
+| `remarks` | `TEXT` | Yes | `NULL` | Optional teacher remarks. |
+| `recorded_by` | `UUID` | Yes | `NULL` | Staff member recording session (`REFERENCES user_profiles(id)`). |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Timestamp of logging. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.4 Domain 2: Academic Assessments
+
+#### `public.assessments`
+Graded curriculum milestones, continuous internal evaluations, and semester examinations.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+* **Integrity Constraint**: `chk_score_within_max CHECK (score <= max_score)`
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `title` | `TEXT` | No | — | Assessment unit title (e.g., `'Midterm Exam 1'`). |
+| `subject` | `TEXT` | No | — | Course subject code / title (e.g., `'CS301 Data Structures'`). |
+| `assessment_type`| `TEXT` | No | — | `CHECK (type IN ('quiz', 'assignment', 'midterm', 'final', 'project', 'lab'))`. |
+| `term` | `TEXT` | No | — | Academic term (e.g., `'Term 1'`). |
+| `assessment_date`| `DATE` | No | — | Date assessment took place. |
+| `score` | `NUMERIC(5,2)` | No | — | Obtained score: `CHECK (score >= 0)`. |
+| `max_score` | `NUMERIC(5,2)` | No | — | Maximum marks: `CHECK (max_score > 0)`. |
+| `weight_percentage`| `NUMERIC(5,2)` | Yes | `NULL` | Course weight: `CHECK (weight BETWEEN 0 AND 100)`. |
+| `feedback` | `TEXT` | Yes | `NULL` | Qualitative instructor feedback. |
+| `recorded_by` | `UUID` | Yes | `NULL` | Evaluator FK (`REFERENCES user_profiles(id)`). |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Timestamp of record creation. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.5 Domain 3: Engagement & Extracurricular Events
+
+#### `public.engagement_events`
+Tracks campus engagement, peer study sessions, library visits, workshops, and extracurricular activities.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `event_type` | `TEXT` | No | — | `CHECK (type IN ('lms_login', 'library_visit', 'counseling_session', 'extracurricular', 'mentoring', 'peer_study', 'workshop'))`. |
+| `title` | `TEXT` | No | — | Event title or headline. |
+| `description` | `TEXT` | Yes | `NULL` | Detailed description. |
+| `duration_minutes`| `INTEGER` | Yes | `NULL` | Duration in minutes: `CHECK (duration_minutes >= 0)`. |
+| `event_timestamp`| `TIMESTAMPTZ` | No | `now()` | Event date and time. |
+| `metadata` | `JSONB` | No | `'{}'::jsonb`| Flexible event-specific key-value telemetry. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+
+---
+
+### 3.6 Domain 4: Placement Readiness
+
+#### `public.placement_records`
+Telemetry for career readiness, technical aptitude, mock interview performance, and placement evaluation.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `aptitude_score` | `NUMERIC(5,2)` | No | — | General aptitude: `CHECK (score BETWEEN 0 AND 100)`. |
+| `coding_score` | `NUMERIC(5,2)` | No | — | Coding evaluation: `CHECK (score BETWEEN 0 AND 100)`. |
+| `mock_interview_score`| `NUMERIC(5,2)` | No | — | Interview score: `CHECK (score BETWEEN 0 AND 100)`. |
+| `resume_score` | `NUMERIC(5,2)` | Yes | `NULL` | Resume rating: `CHECK (score BETWEEN 0 AND 100)`. |
+| `readiness_tier` | `TEXT` | Yes | `NULL` | `CHECK (tier IN ('not_ready', 'developing', 'placement_ready', 'advanced_hire'))`. |
+| `mock_interviews_attended`| `INTEGER` | Yes | `NULL` | Count attended: `CHECK (count >= 0)`. |
+| `evaluated_at` | `DATE` | No | `CURRENT_DATE` | Date of placement assessment. |
+| `notes` | `TEXT` | Yes | `NULL` | Placement officer feedback. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.7 Domain 5: Skills & Competencies
+
+#### `public.skills_records`
+Quantified technical proficiencies, soft skills ratings, industry certifications, and verified skill badges.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `technical_score`| `NUMERIC(5,2)` | No | — | Technical proficiency: `CHECK (score BETWEEN 0 AND 100)`. |
+| `soft_skills_score`| `NUMERIC(5,2)`| No | — | Interpersonal skills: `CHECK (score BETWEEN 0 AND 100)`. |
+| `certifications_count`| `INTEGER` | Yes | `NULL` | Certified credentials count: `CHECK (count >= 0)`. |
+| `verified_skills`| `JSONB` | No | `'[]'::jsonb`| Array of verified badges (e.g., `["Python", "AWS", "SQL"]`). |
+| `last_assessed_date`| `DATE` | No | `CURRENT_DATE` | Date of most recent skills benchmark. |
+| `notes` | `TEXT` | Yes | `NULL` | Faculty evaluator observations. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.8 Domain 6: Feedback & Sentiment
+
+#### `public.feedback_records`
+Faculty evaluations, mentor reviews, and student institutional satisfaction sentiment metrics.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `faculty_sentiment`| `NUMERIC(5,2)`| No | — | Faculty perception: `CHECK (score BETWEEN 0 AND 100)`. |
+| `student_satisfaction`| `NUMERIC(5,2)`| No | — | Student survey sentiment: `CHECK (score BETWEEN 0 AND 100)`. |
+| `mentor_notes` | `TEXT` | Yes | `NULL` | Qualitative feedback from assigned mentor. |
+| `academic_term`| `TEXT` | No | — | Term during which feedback was collected. |
+| `recorded_at` | `DATE` | No | `CURRENT_DATE` | Recording date. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.9 Domain 7: Digital Learning & LMS Activity
+
+#### `public.lms_activity_records`
+Telemetry gathered from Learning Management Systems (Moodle, Canvas, Blackboard) covering logins, course progress, and forum collaboration.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `weekly_login_count`| `INTEGER` | Yes | `NULL` | Weekly active sessions: `CHECK (count >= 0)`. |
+| `module_completion_pct`| `NUMERIC(5,2)`| No | — | Course modules finished: `CHECK (pct BETWEEN 0 AND 100)`. |
+| `assignments_submitted_pct`| `NUMERIC(5,2)`| No | — | Submitted assignments: `CHECK (pct BETWEEN 0 AND 100)`. |
+| `forum_posts_count`| `INTEGER` | Yes | `NULL` | Discussion forum posts: `CHECK (count >= 0)`. |
+| `last_login_date`| `DATE` | Yes | `NULL` | Most recent login date recorded. |
+| `recorded_at` | `DATE` | No | `CURRENT_DATE` | Date metrics were aggregated. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.10 Support Interventions & Lifecycle
+
+#### `public.interventions`
+Targeted support action plans managed by advisors, following a 4-stage lifecycle state machine (`planned` $\rightarrow$ `in_progress` $\rightarrow$ `completed` / `cancelled`).
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+* **Chronological Constraints**:
+  - `chk_target_date_order CHECK (target_completion_date IS NULL OR target_completion_date >= start_date)`
+  - `chk_actual_date_order CHECK (actual_completion_date IS NULL OR actual_completion_date >= start_date)`
+  - `chk_followup_date_order CHECK (follow_up_date IS NULL OR follow_up_date >= start_date)`
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE`. |
+| `title` | `TEXT` | No | — | Concise intervention headline (e.g., `'Math Tutoring Plan'`). |
+| `intervention_type`| `TEXT` | No | — | `CHECK (type IN ('academic_tutoring', 'attendance_counseling', 'behavioral_support', 'parental_engagement', 'peer_mentoring', 'schedule_adjustment', 'wellness_check'))`. |
+| `priority` | `TEXT` | No | `'medium'` | `CHECK (priority IN ('low', 'medium', 'high', 'urgent'))`. |
+| `status` | `TEXT` | No | `'planned'` | `CHECK (status IN ('planned', 'in_progress', 'completed', 'cancelled', 'under_review'))`. |
+| `description` | `TEXT` | No | — | Root-cause analysis and operational strategy. |
+| `goals` | `TEXT` | Yes | `NULL` | Measurable milestones expected from intervention. |
+| `assigned_staff_id`| `UUID` | Yes | `NULL` | Staff FK (`REFERENCES user_profiles(id)`). |
+| `assigned_staff_name`| `TEXT` | Yes | `NULL` | Denormalized staff name for fast offline queries. |
+| `start_date` | `DATE` | No | `CURRENT_DATE` | Start date of support program. |
+| `target_completion_date`| `DATE` | Yes | `NULL` | Projected completion date. |
+| `actual_completion_date`| `DATE` | Yes | `NULL` | Date officially signed off as completed. |
+| `follow_up_date`| `DATE` | Yes | `NULL` | Scheduled date for review audit. |
+| `notes` | `TEXT` | Yes | `NULL` | Ongoing advisor case notes. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.11 Intervention Outcomes & Causation Disclaimers
+
+#### `public.intervention_outcomes`
+Tracks pre- and post-intervention metric deltas, enforcing an explicit ethical disclaimer to prevent false causal assertions.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `intervention_id`| `UUID` | No | — | FK to `interventions(id) ON DELETE CASCADE`. |
+| `metric_name` | `TEXT` | No | — | Metric benchmarked (e.g., `'attendance_percentage'`). |
+| `baseline_value`| `NUMERIC(7,2)`| No | — | Quantitative measure prior to intervention start. |
+| `post_value` | `NUMERIC(7,2)`| Yes | `NULL` | Quantitative measure following intervention conclusion. |
+| `target_value` | `NUMERIC(7,2)`| Yes | `NULL` | Desired target outcome. |
+| `measurement_date`| `DATE` | No | `CURRENT_DATE` | Date post-measurement was recorded. |
+| `outcome_status`| `TEXT` | No | `'evaluating'` | `CHECK (status IN ('improved', 'unchanged', 'declined', 'evaluating'))`. |
+| `evidence_notes`| `TEXT` | Yes | `NULL` | Contextual evidence supporting observed difference. |
+| `causation_disclaimer`| `TEXT` | No | Exact Legal String | Mandatory statement: *"Observed change reflects correlation during intervention interval; causal relationship not established without control study."* |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Record creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ` | No | `now()` | Maintained automatically by trigger. |
+
+---
+
+### 3.12 Human-in-the-Loop Risk Overrides
+
+#### `public.risk_overrides`
+Empowers academic advisors to adjust algorithmic risk classifications with mandatory, audited justification notes.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+* **Unique Constraint**: `student_id UNIQUE` (one active override state per student)
+* **Justification Constraint**: `CHECK (NOT is_overridden OR (override_tier IS NOT NULL AND length(trim(override_reason)) >= 5))`
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `student_id` | `UUID` | No | — | FK to `students(id) ON DELETE CASCADE` (Unique). |
+| `is_overridden` | `BOOLEAN` | No | `false` | Indicates whether human override is active. |
+| `original_tier` | `TEXT` | No | — | Algorithmic tier (`'low'`, `'moderate'`, `'high'`, `'critical'`, `'insufficient_data'`). |
+| `override_tier` | `TEXT` | Yes | `NULL` | Advisor tier (`'low'`, `'moderate'`, `'high'`, `'critical'`). |
+| `override_reason`| `TEXT` | Yes | `NULL` | Mandatory justification (Minimum 5 characters). |
+| `reviewed_by` | `TEXT` | Yes | `NULL` | Advisor name or email. |
+| `reviewed_at` | `TIMESTAMPTZ` | Yes | `NULL` | Review timestamp. |
+
+---
+
+### 3.13 Security & Compliance Audit Log
+
+#### `public.audit_events`
+An immutable, append-only log capturing every data access, modification, deletion, and intervention update for FERPA compliance.
+* **Primary Key**: `id` (`UUID DEFAULT gen_random_uuid()`)
+
+| Column | Type | Nullable | Default | Constraints / Description |
+|---|---|---|---|---|
+| `id` | `UUID` | No | `gen_random_uuid()` | Primary identifier. |
+| `entity_type` | `TEXT` | No | — | Affected entity (`'student'`, `'intervention'`, `'assessment'`, `'placement'`). |
+| `entity_id` | `UUID` | No | — | Target entity primary key UUID. |
+| `action` | `TEXT` | No | — | `CHECK (action IN ('CREATE', 'UPDATE', 'DELETE', 'VIEW', 'INTERVENTION_STATUS_CHANGE', 'FLAG_REVIEW'))`. |
+| `performed_by` | `UUID` | Yes | `NULL` | Operator FK (`REFERENCES auth.users(id)`). |
+| `performed_by_name`| `TEXT` | Yes | `NULL` | Display name of the operator. |
+| `details` | `JSONB` | No | `'{}'::jsonb`| Pre- and post-mutation JSON state snapshots. |
+| `ip_address` | `TEXT` | Yes | `NULL` | Client IP address for access verification. |
+| `created_at` | `TIMESTAMPTZ` | No | `now()` | Immutable timestamp of event. |
+
+---
+
+## 4. Security & Row-Level Security (RLS) Model
+
+The database enforces a defense-in-depth security model combining PostgreSQL Row-Level Security (RLS), security-definer helper functions, and service-role privilege separation.
 
 ```mermaid
 flowchart TD
-    A["User Input Query"] --> B["1. Out-of-Scope Guardrail Check"]
-    B -->|Creative / Non-Educational| F["Safe Fallback with Suggestions"]
-    B -->|In Scope| C["2. Multi-Turn Anaphoric Context Resolution"]
-    C --> D["3. Text Normalization & Contraction Expansion"]
-    D --> E["4. Strict Role Privacy Guardrail Pre-Check"]
-    E -->|Staff Action Query by Student| F
-    E -->|Role Authorized| G["5. Vocabulary Extraction & Bounded Levenshtein Typo Correction"]
-    G --> H["6. Domain Synonym & Educational Intent Expansion"]
-    H --> I["7. BM25 Robertson-Spärck Jones Scoring"]
-    I --> J["8. Substring Phrase & Title Containment Boost"]
-    J --> K["9. Multi-Token Coverage & False-Positive Pruning"]
-    K --> L{"Score >= Calibrated Threshold (14)"}
-    L -->|Yes| M["Verified Answer + Contextual Deep Links + Dynamic Follow-ups"]
-    L -->|No| F
+    Req["Incoming Database Request"] --> Role{"JWT Role Check"}
+    Role -->|anon / unauthenticated| Deny["401 Unauthorized / Empty Result (Deny All)"]
+    Role -->|authenticated| Eval{"User Context Evaluation"}
+    
+    Eval -->|Student Account| StudentRLS["Student Self-Scope RLS\n(student.user_id = auth.uid())"]
+    StudentRLS --> ReadSelf["Read Own Dossier & Scores Only"]
+    
+    Eval -->|Staff / Faculty / Advisor| StaffRLS["public.can_read_student_data()\n(Active user_profiles record)"]
+    StaffRLS --> ReadStaff["Read All Assigned Students Telemetry"]
+    
+    Eval -->|Direct Mutation Attempt| MutCheck{"Authenticated Direct Write?"}
+    MutCheck -->|Direct INSERT/UPDATE| DenyWrite["Blocked: No direct write policy"]
+    MutCheck -->|Via edunexus_commit RPC| ExecCommit["Serialized Transaction with Mandatory Audit"]
+    
+    Role -->|service_role Secret Key| AdminAccess["Full Backend Access\n(Bypasses RLS for CSV Ingestion & Sync)"]
 ```
 
-### 3.1 Linguistic Preprocessing & Text Normalization
+### 4.1 Security-Definer Helper Functions
 
-1. **Contraction Expansion (`expandContractions`)**: Expands 23 standard conversational English contractions to their formal uncontracted forms (e.g., *"what's"* $\rightarrow$ *"what is"*, *"how's"* $\rightarrow$ *"how is"*, *"can't"* $\rightarrow$ *"cannot"*, *"i'm"* $\rightarrow$ *"i am"*).
-2. **Punctuation & Case Normalization (`normalizeText`)**: Strips non-alphanumeric punctuation while safely preserving hyphens, collapses redundant whitespace, and lowercases text.
-3. **Stopword Filtering (`tokenize`)**: Filters 35 grammatical English function words (`a`, `the`, `is`, `for`, `what`, `how`, `when`, `where`, `can`, `do`) while preserving semantic nouns and action verbs. If a query consists entirely of stopwords, raw words are retained to prevent null tokens.
-4. **Morphological Stemming (`stemWord`)**: Applies rule-based English morphological reductions:
-   - Plural suffixes: `-ies` $\rightarrow$ `-y` (`categories` $\rightarrow$ `category`), `-es` $\rightarrow$ base (`assessments` $\rightarrow$ `assessment`), `-s` $\rightarrow$ base (`grades` $\rightarrow$ `grade`).
-   - Verbal participles: `-ing` $\rightarrow$ base (`logging` $\rightarrow$ `log`), `-ed` $\rightarrow$ base (`recorded` $\rightarrow$ `record`).
+Defined with `SECURITY DEFINER SET search_path = public, pg_temp` to prevent search-path injection vulnerabilities:
 
-### 3.2 Bounded Levenshtein Typo Correction
+```sql
+-- 1. Evaluates whether the user is an active educational staff member
+CREATE OR REPLACE FUNCTION public.is_authenticated_staff() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
+  SELECT auth.role() = 'authenticated'
+    AND auth.jwt()->'app_metadata'->>'role' IN ('administrator','admin','advisor','counselor','faculty','staff')
+    AND EXISTS (
+      SELECT 1 FROM public.user_profiles 
+      WHERE id = auth.uid() AND is_active
+        AND role IN ('administrator','advisor','counselor','faculty')
+    );
+$$;
 
-To prevent spelling mistakes from causing retrieval misses while guarding against semantic drift:
+-- 2. Authorizes staff and compliance auditors to view student records
+CREATE OR REPLACE FUNCTION public.can_read_student_data() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
+  SELECT public.is_authenticated_staff() OR (
+    auth.role() = 'authenticated' AND auth.jwt()->'app_metadata'->>'role' = 'auditor'
+    AND EXISTS (
+      SELECT 1 FROM public.user_profiles 
+      WHERE id = auth.uid() AND is_active AND role = 'auditor'
+    )
+  );
+$$;
 
-```typescript
-export function levenshteinDistance(s1: string, s2: string): number {
-  const m = s1.length;
-  const n = s2.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
-  }
-  return dp[m][n];
-}
+-- 3. Identifies administrative operators
+CREATE OR REPLACE FUNCTION public.is_administrator() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
+  SELECT auth.role() = 'authenticated' AND auth.jwt()->'app_metadata'->>'role' IN ('admin','administrator')
+    AND EXISTS (
+      SELECT 1 FROM public.user_profiles 
+      WHERE id = auth.uid() AND is_active AND role = 'administrator'
+    );
+$$;
 ```
 
-- **Bounds**:
-  - Tokens $< 4$ characters: Must match exactly (distance $0$).
-  - Tokens $4 \le \text{length} \le 6$: Maximum edit distance $\le 1$ (e.g., `creat` $\rightarrow$ `create`, `scroe` $\rightarrow$ `score`, `radr` $\rightarrow$ `radar`).
-  - Tokens $\ge 7$ characters: Maximum edit distance $\le 2$ (e.g., `analitics` $\rightarrow$ `analytics`, `intervetion` $\rightarrow$ `intervention`, `attendence` $\rightarrow$ `attendance`).
-- **Safety**: Typos are checked strictly against the current accessible knowledge base vocabulary and registered domain synonyms.
+### 4.2 Row-Level Security Policies Matrix
 
-### 3.3 Domain-Specific Educational Synonyms & Acronyms
-
-The dictionary maps institutional and educational terminology to standardized concepts:
-
-| Category | User Input Synonyms & Abbreviations | Mapped Canonical Domain Concepts |
-| :--- | :--- | :--- |
-| **Assessments & GPA** | `mark`, `marks`, `grade`, `grades`, `gpa`, `cgpa`, `exam`, `exams`, `test`, `tests`, `quiz` | `assessment`, `academic`, `score`, `performance` |
-| **Attendance & Punctuality** | `present`, `absent`, `absenteeism`, `absence`, `absences`, `session` | `attendance`, `session`, `recorded`, `rate` |
-| **Placement & Career** | `job`, `career`, `interview`, `interviews`, `employability`, `placement` | `placement`, `readiness`, `career`, `preparation` |
-| **Data Ingestion & CSV** | `spreadsheet`, `excel`, `ingest`, `ingestion`, `upload`, `import` | `csv`, `data`, `import`, `upload`, `file` |
-| **LMS & Engagement** | `lms`, `moodle`, `canvas`, `activity` | `learning`, `activity`, `moodle`, `canvas`, `engagement` |
-| **Visualizations** | `radar`, `spider`, `fingerprint`, `polygon` | `chart`, `radar`, `domain`, `dossier` |
-| **Advisor Actions** | `override`, `adjust`, `change level`, `modify tier` | `override`, `manual`, `tier`, `risk`, `advisor` |
-| **Governance & Ethics** | `ethical`, `punishment`, `penalty`, `disciplinary`, `advisory` | `governance`, `advisory`, `policy`, `disciplinary` |
-
-### 3.4 BM25 Okapi Term Weighting
-
-Term relevance is scored using the Robertson-Spärck Jones BM25 formulation ($k_1 = 1.2$, $b = 0.75$):
-
-$$\text{BM25}(D, Q) = \sum_{t \in Q} \text{IDF}(t) \cdot \frac{f(t, D) \cdot (k_1 + 1)}{f(t, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}$$
-
-$$\text{IDF}(t) = \ln\left(1 + \frac{N - n(t) + 0.5}{n(t) + 0.5}\right)$$
-
-Where:
-- $N$ is total accessible documents.
-- $n(t)$ is number of documents containing term $t$.
-- $f(t, D)$ is frequency of term $t$ in document $D$.
-- $|D|$ is token length of document $D$, and $\text{avgdl}$ is average document token length across the corpus.
-
-### 3.5 Multi-Turn Conversational Anaphora Resolution
-
-Conversational history is passed into `findBestAnswer(query, userRole, entries, history)`:
-1. `isFollowUpQuery(query)` identifies anaphoric questions starting with conversational markers (`"what if"`, `"how about"`, `"can i"`, `"where do i"`) or containing isolated pronouns (`"it"`, `"that"`, `"this"`).
-2. The engine retrieves the previous assistant turn's matched entry and category.
-3. Relevant context tokens are appended to the query:
-   - Asking *"What if attendance data is missing?"* after score calculation appends `missing domain unrecorded` $\rightarrow$ matches `dashboard-missing-domains`.
-   - Asking *"How do I import the data?"* after viewing template downloads appends `csv hub data` $\rightarrow$ matches `data-csv-import`.
-   - Asking *"Can I change it manually?"* after viewing risk tiers appends `risk tier override adjust manual` $\rightarrow$ matches `students-risk-override`.
-
-### 3.6 Multi-Token Coverage & Guardrails
-
-To prevent accidental single-word false positives on long queries (e.g. *"What is the flight velocity of an unladen swallow?"*):
-1. **Out-of-Scope Guardrail (`isOutOfScopeQuery`)**: Explicitly intercepts non-educational requests (creative writing, poems, jokes, recipes, weather, external trivia) and immediately returns the safe fallback.
-2. **Distinct Token Coverage Check**:
-   $$\text{Coverage Ratio} = \frac{\text{Matched Distinct Query Tokens}}{\text{Total Distinct Query Tokens}}$$
-   If a query has $\ge 3$ distinct content tokens, but matches fewer than 2 tokens and achieves $< 35\%$ coverage, the score is zeroed unless an exact sentence or phrase match occurs.
-3. **Staff Action Interceptor for Student Role**: If a student submits an administrative action verb (`import`, `upload`, `ingest`, `create`, `override`, `adjust`, `reset`, `seed`), the engine verifies whether the target entry is staff-only. If staff-only, it directly returns a clean fallback rather than returning a weakly matching student entry.
+| Table Name | RLS Status | Anon Role | Authenticated Staff Read | Authenticated Direct Write | Backend `service_role` |
+|---|---|---|---|---|---|
+| `user_profiles` | Enabled | Denied | Read active profiles | Update self profile only | Full Access |
+| `students` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `attendance` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `assessments` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `engagement_events` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `placement_records` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `skills_records` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `feedback_records` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `lms_activity_records` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `interventions` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `intervention_outcomes` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `risk_overrides` | Enabled | Denied | Read via `can_read_student_data()` | Blocked (via RPC) | Full Access |
+| `audit_events` | Enabled | Denied | Administrators & Auditors only | Insert only via trigger/RPC | Full Access |
 
 ---
 
-## 4. Curated Knowledge Base (36 Verified Entries)
+## 5. Triggers, Stored Procedures & Atomic Transactions
 
-All entries in `src/lib/helpContent.ts` are verified against the application's actual data model, algorithms, and workflows:
+### 5.1 Automated Timestamp Maintenance
+All mutable tables bind the `handle_updated_at` trigger to refresh `updated_at = now()` prior to any update:
 
-### A. General (`general`)
-- `general-what-is`: Platform overview, student journey synthesis across 7 domains.
-- `general-navigate`: Primary sidebar, mobile navigation, page access by role.
-- `general-theme`: Light/Dark appearance toggle stored in localStorage.
-- `general-accessibility`: Full keyboard navigation, ARIA live regions, skip-to-content, high contrast tokens, reduced motion.
-- `general-data-privacy`: Role-based isolation, cross-student barrier, bearer auth, in-memory client operations.
-- `general-ethical-governance`: Advisory diagnostic purpose; prohibition of automated penalties or punitive actions.
-
-### B. Dashboard & Scoring (`dashboard`)
-- `dashboard-staff-overview`: Executive cohort view, attendance metrics, assessment vectors, risk distributions.
-- `dashboard-student-overview`: Personal dashboard, success score, 7-domain progress, attendance logs, active support plans.
-- `dashboard-risk-tiers`: Diagnostic tiers (Low, Moderate, High, Critical) requiring human-in-the-loop advisory review.
-- `dashboard-success-score`: Composite formula (0-100) combining up to 7 weighted domains.
-- `dashboard-missing-domains`: Exclusion and proportional weight renormalization when domain evidence is unrecorded (missing domains are never penalized as zero).
-- `dashboard-dual-risk`: Decoupled Academic Risk vs Placement Risk across 4 strategic quadrants.
-- `dashboard-seven-domains`: Full definition of the KPMG 7 domains (Academic, Attendance, Placement, Skills, LMS Activity, Faculty Mentorship, Campus Engagement).
-- `dashboard-radar-chart`: Visual 7-domain radar fingerprint for holistic student profile review.
-- `dashboard-demo-data`: Synthetic evaluated student dataset indicator and production SIS distinction.
-
-### C. Student Directory & Journey (`students`)
-- `students-search`: Full-text search by student ID, name, email, department, or enrollment cohort.
-- `students-filters`: Multi-dimensional filtering by risk tier, department, academic status, and placement readiness.
-- `students-risk-override`: Advisor manual override modal with audit rationale and timestamp logging.
-- `students-dossier`: Comprehensive journey dossier with chronological milestone feed and contact details.
-- `students-export`: Exporting active student lists as standard CSV files.
-- `students-attendance-records`: Chronological session logs, present percentages, $<75\%$ advisory threshold flags.
-- `students-assessment-grades`: Standardized grades, test marks, GPA tracking, and trend direction vectors.
-
-### D. Interventions & Support (`interventions`)
-- `interventions-create`: 4-step creation workflow (support type, urgency, planned follow-up date, specific goals).
-- `interventions-lifecycle`: 4-stage progression (Draft $\rightarrow$ Assigned $\rightarrow$ In Progress $\rightarrow$ Completed).
-- `interventions-outcome`: Recording quantitative baseline vs post-intervention values with calculated delta.
-- `interventions-student-view`: Student self-service view of assigned support types and active goals without confidential notes.
-- `interventions-overdue`: Automated header alert and card flagging for overdue follow-up dates.
-
-### E. Analytics (`analytics`)
-- `analytics-overview`: Macro-level department distributions, dual-risk scatter maps, and domain evidence completeness.
-- `analytics-segments`: 5 behavioral student clusters (e.g., "Thriving Achievers", "Academically Strong but Placement-At-Risk").
-- `analytics-cohort-comparison`: Departmental benchmarks table comparing attendance, grades, and average success scores.
-
-### F. Data Hub (`data`)
-- `data-csv-import`: Step-by-step CSV ingestion across 7 dataset schemas.
-- `data-templates`: Downloadable standard schema templates with verified headers.
-- `data-duplicate-handling`: Configurable deduplication strategies ("Skip existing" vs "Overwrite").
-- `data-schema-validation`: Pre-flight schema validation with row-by-row diagnostics.
-- `data-reset-demo`: 1-click synthetic demo baseline restoration.
-
-### G. Account (`account`)
-- `account-sign-out`: Session clearing and return to login screen.
-- `account-roles`: Student, Advisor, Faculty, Staff, and Administrator role definitions.
-- `account-token`: Bearer token authentication and local session storage.
-- `account-troubleshooting`: Handling unlinked student records and expired session tokens.
-
----
-
-## 5. UI/UX Modernization & Viewport Scroll Stability
-
-### 5.1 Removal of Bandwidth Guide Widget
-In `src/pages/HelpPage.tsx`, the legacy Bandwidth Guide widget (download gauge, speed test buttons, download size progress bar, and environment tips) was completely removed. This eliminated unnecessary layout shifts and visual clutter while retaining the standalone `bandwidthEstimator.ts` logic in the codebase for potential network health diagnostics.
-
-### 5.2 Prevention of Unwanted Viewport Scrolling
-Page auto-scrolling was audited and corrected:
-- Removed calls to `window.scrollTo({ top: 0, behavior: 'smooth' })`.
-- Removed calls to `element.scrollIntoView(...)`.
-- Preserved user viewport stability when opening Help, switching themes, submitting chatbot questions, receiving streamed responses, or clicking suggested topic chips.
-- Verified in `HelpPage.test.tsx` that `window.scrollTo` and `Element.prototype.scrollIntoView` are never triggered during mount or chat interactions.
-
-### 5.3 Design System & Theme Alignment
-- **Strict Sharp Edges**: All components enforce `rounded-none` (`border-radius: 0 !important`) across cards, badges, buttons, inputs, message bubbles, and suggestion pills.
-- **Dark Theme Palette**: Avoids pure `#ffffff` in dark mode, utilizing eye-friendly, accessible slate/emerald tokens (`#e2ece6`, `#cbd5cf`, `#151c19`, `#18201d`, `#35433b`).
-
----
-
-## 6. Routing, SPA Fallback, & In-Memory Caching
-
-### 6.1 Render SPA Fallback Rewrite (`/* -> /index.html`)
-To fix the production issue where refreshing a client-side route (`/students`, `/journey`, `/interventions`, `/analytics`, `/csv-hub`, `/help`) returned a 404 "Not Found" error from Render's static hosting layer:
-- Added `frontend/public/_redirects`:
-  ```
-  /*    /index.html   200
-  ```
-- Vite copies `_redirects` into the `dist/` root during build, instructing Render's static file server to rewrite all direct URL requests and browser refreshes to `/index.html`, allowing React Router's `BrowserRouter` to render the requested page without unexpected redirects.
-
-### 6.2 In-Memory API Caching (`src/lib/apiCache.ts`)
-To eliminate repeated loading screens and buffering during client-side navigation:
-- Implemented a lightweight in-memory cache with configurable TTL (default 60 seconds).
-- Supports cache key invalidation, in-flight request deduplication, and background revalidation.
-- Dashboard, student directory, and analytics pages retrieve cached state immediately upon navigation.
-
----
-
-## 7. Quantitative Benchmark Evaluation & Results
-
-Evaluation was conducted via `frontend/src/__tests__/chatBenchmark.test.ts` utilizing the 42-case ground-truth dataset in `frontend/src/__tests__/chatEvaluationDataset.ts`:
-
-### 7.1 Quantitative Benchmark Summary
-
-```
-======================================================
-       EDUNEXUS AI CHATBOT EVALUATION BENCHMARK       
-======================================================
-Total Test Cases Evaluated:       42
-Legacy Baseline Accuracy:        76.2% (32/42)
-Upgraded NLP Engine Accuracy:    100.0% (42/42)
-Relative Accuracy Improvement:   +23.8%
-Follow-Up Resolution Accuracy:   100.0% (4/4)
-Role-Based Privacy Violations:   0 (Must be strictly 0)
-Average Query Latency:           1.41 ms (Pure client-side)
-Examples Upgraded & Corrected:   10
-======================================================
+```sql
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
-### 7.2 Results Breakdown by Scenario Category
+### 5.2 Exception-Safe Auth Sign-Up Trigger
+When a user registers through Supabase Auth, the `on_auth_user_created` trigger automatically constructs their associated record in `user_profiles` or links them to their pre-enrolled student dossier without aborting registration if metadata is missing:
 
-| Category | Cases | Legacy Baseline | Upgraded NLP Engine | Example Query Tested |
-| :--- | :---: | :---: | :---: | :--- |
-| **Exact FAQ Matches** | 5 | 100.0% (5/5) | **100.0% (5/5)** | *"What is EduNexus AI?"* |
-| **Paraphrases & Phrasing** | 8 | 75.0% (6/8) | **100.0% (8/8)** | *"Can you explain the formula behind the student success rating?"* |
-| **Synonyms & Abbreviations** | 8 | 62.5% (5/8) | **100.0% (8/8)** | *"Where can I check my marks and exam grades?"* |
-| **Typos & Misspellings** | 5 | 60.0% (3/5) | **100.0% (5/5)** | *"What do the analitics show for departments?"* |
-| **Conversational Follow-Up** | 4 | 0.0% (0/4) | **100.0% (4/4)** | *"Can I change it manually?"* (after risk tier question) |
-| **Missing Telemetry Policy** | 2 | 100.0% (2/2) | **100.0% (2/2)** | *"Does missing attendance count as zero in the score?"* |
-| **Role-Privacy Restrictions** | 4 | 50.0% (2/4) | **100.0% (4/4)** | *"How do I import CSV data?"* (as student $\rightarrow$ fallback) |
-| **Ambiguous / Multi-Topic** | 3 | 100.0% (3/3) | **100.0% (3/3)** | *"my progress"* (as student $\rightarrow$ personal overview) |
-| **Unsupported Out-of-Scope** | 3 | 66.7% (2/3) | **100.0% (3/3)** | *"Can you write a poem about artificial intelligence?"* $\rightarrow$ fallback |
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+DECLARE
+  v_role text;
+  v_dept text;
+  v_name text;
+BEGIN
+  v_role := COALESCE(new.raw_app_meta_data->>'role', new.raw_user_meta_data->>'role', 'student');
+  v_name := COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1));
+  v_dept := COALESCE(new.raw_user_meta_data->>'department', 'General Academics');
 
----
+  IF v_role IN ('advisor', 'counselor', 'faculty', 'administrator', 'auditor') THEN
+    INSERT INTO public.user_profiles (id, email, full_name, role, institution_department)
+    VALUES (new.id, new.email, v_name, v_role::app_role, v_dept)
+    ON CONFLICT (id) DO UPDATE SET
+      full_name = EXCLUDED.full_name,
+      role = EXCLUDED.role,
+      institution_department = EXCLUDED.institution_department,
+      updated_at = now();
+  END IF;
 
-## 8. Automated Verification & Quality Assurance Evidence
-
-The entire platform passes all static and dynamic quality checks:
-
-### 8.1 Frontend Vitest Suite (`npm test`)
-```
-✓ src/__tests__/apiCache.test.ts (8 tests)
-✓ src/__tests__/bandwidthEstimator.test.ts (22 tests)
-✓ src/__tests__/chatBenchmark.test.ts (1 test)
-✓ src/__tests__/helpChatEngine.test.ts (20 tests)
-✓ src/__tests__/helpContent.test.ts (8 tests)
-✓ src/__tests__/promptExamples.test.ts (2 tests)
-✓ src/__tests__/Spinner.test.tsx (8 tests)
-✓ src/__tests__/UIAnimationAndContrast.test.tsx (22 tests)
-✓ src/__tests__/routesAndNavigation.test.tsx (19 tests)
-✓ src/__tests__/HelpPage.test.tsx (9 tests)
-
-Test Files  10 passed (10)
-Tests       119 passed (119)
-Duration    3.88s
+  RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user suppressed exception: %', SQLERRM;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 ```
 
-### 8.2 TypeScript Typecheck (`npx tsc -b`)
-```bash
-$ cd frontend && npx tsc -b
-# Completed with exit code 0 (zero errors).
-```
+### 5.3 Atomic Transactional RPC: `edunexus_commit`
+Provides guaranteed all-or-nothing execution for mutations with mandatory audit trail coupling and transactional serialization:
 
-### 8.3 Linter (`npm run lint` / `oxlint`)
-```bash
-$ cd frontend && npm run lint
-Found 12 warnings and 0 errors. Finished in 64ms on 71 files with 116 rules.
-```
+```sql
+CREATE OR REPLACE FUNCTION public.edunexus_commit(
+  p_table text,
+  p_records jsonb,
+  p_audits jsonb,
+  p_delete_ids uuid[] DEFAULT ARRAY[]::uuid[]
+) RETURNS void LANGUAGE plpgsql SECURITY INVOKER SET search_path = public, pg_temp AS $$
+DECLARE
+  cols text;
+  updates text;
+BEGIN
+  -- 1. Whitelist table validation
+  IF p_table NOT IN ('students','attendance','assessments','engagement_events',
+    'placement_records','skills_records','feedback_records','lms_activity_records',
+    'interventions','intervention_outcomes','risk_overrides') THEN
+    RAISE EXCEPTION 'Unsupported table: %', p_table;
+  END IF;
 
-### 8.4 Production Build (`npm run build`)
-```bash
-$ cd frontend && npm run build
-vite v8.3.4 building client environment for production...
-dist/index.html                     0.46 kB │ gzip:   0.30 kB
-dist/assets/index-Cr3XQ_B1.css    124.08 kB │ gzip:  18.79 kB
-dist/assets/index-BhOPhvmZ.js   1,078.62 kB │ gzip: 288.28 kB
-✓ built in 463ms (exit code 0).
-```
+  -- 2. Audit Parity Enforcement: Every record mutation requires an audit event
+  IF jsonb_array_length(p_audits) <> jsonb_array_length(p_records) + cardinality(p_delete_ids) THEN
+    RAISE EXCEPTION 'Audit parity error: An audit event is mandatory for every mutation';
+  END IF;
 
-### 8.5 Backend Pytest Suite (`pytest`)
-```bash
-$ cd backend && source venv/bin/activate && pytest
-============================= test session starts ==============================
-collected 150 items
-tests/test_7domain_endpoints.py .....                                    [  3%]
-tests/test_authorization.py .........                                    [  9%]
-tests/test_cors_and_errors.py ...                                        [ 11%]
-tests/test_csv_service.py .......                                        [ 16%]
-tests/test_csv_service_7domains.py .......                               [ 20%]
-tests/test_dashboard_api.py .....                                        [ 24%]
-tests/test_database_service.py ......                                    [ 28%]
-tests/test_db_integration.py ss                                          [ 29%]
-tests/test_dual_risk_engine.py .......                                   [ 34%]
-tests/test_health.py ...                                                 [ 36%]
-tests/test_integrated_regressions.py .......................             [ 51%]
-tests/test_interventions_crud.py ......                                  [ 55%]
-tests/test_risk_engine.py ...............                                [ 65%]
-tests/test_schemas_validation.py .............                           [ 74%]
-tests/test_segmentation_engine.py ..............                         [ 83%]
-tests/test_student_dashboard.py .....                                    [ 86%]
-tests/test_students_journey_api.py ........                              [ 92%]
-tests/test_success_score_engine.py ............                          [100%]
-================== 148 passed, 2 skipped, 2 warnings in 0.65s ==================
+  -- 3. Serialize concurrent writes across batch operations
+  PERFORM pg_advisory_xact_lock(hashtext('edunexus_commit'));
+
+  -- 4. Dynamic column query compilation
+  SELECT 
+    string_agg(format('%I', column_name), ',' ORDER BY ordinal_position),
+    string_agg(format('%I=EXCLUDED.%I', column_name, column_name), ',' ORDER BY ordinal_position)
+      FILTER (WHERE column_name <> 'id')
+  INTO cols, updates 
+  FROM information_schema.columns 
+  WHERE table_schema='public' AND table_name=p_table;
+
+  -- 5. Execute Upsert
+  EXECUTE format(
+    'INSERT INTO public.%I (%s) SELECT %s FROM jsonb_populate_recordset(NULL::public.%I, $1) 
+     ON CONFLICT (id) DO UPDATE SET %s',
+    p_table, cols, cols, p_table, updates
+  ) USING p_records;
+
+  -- 6. Execute Deletes
+  EXECUTE format('DELETE FROM public.%I WHERE id = ANY($1)', p_table) USING p_delete_ids;
+
+  -- 7. Persist Audit Events
+  INSERT INTO public.audit_events SELECT * FROM jsonb_populate_recordset(NULL::public.audit_events, p_audits);
+END;
+$$;
 ```
 
 ---
 
-## 9. Developer & Maintainer Guide
+## 6. Application Layer Architecture & Repository Pattern
 
-### 9.1 Adding a New Knowledge Base Entry
+The Python/FastAPI backend interacts with the database through a cleanly layered architecture:
 
-To add a new topic or workflow to `src/lib/helpContent.ts`:
-
-```typescript
-{
-  id: 'category-unique-identifier',
-  keywords: ['core', 'search', 'terms', 'for', 'indexing'],
-  synonyms: ['alternative phrasing', 'synonym 1', 'synonym 2'],
-  question: 'What is the question asked by users?',
-  answer:
-    'Provide clear, structured, and verified instructions here. Avoid conversational filler.',
-  category: 'dashboard',      // 'general' | 'dashboard' | 'students' | 'interventions' | 'analytics' | 'data' | 'account'
-  roles: ['staff'],           // 'staff' | 'student' | 'all'
-  internalLink: '/target',    // Optional React Router path
-  linkLabel: 'Go to Target',  // Optional button label
-}
+```
+FastAPI Route Handlers (app/api/v1/)
+       │
+       ▼
+High-Level DatabaseService (app/services/database_service.py)
+       │
+       ▼
+Domain Repositories (app/db/repositories/)
+├── StudentRepository       ├── PlacementRepository
+├── AttendanceRepository    ├── SkillsRepository
+├── AssessmentRepository    ├── FeedbackRepository
+├── LMSRepository           ├── InterventionRepository
+└── EngagementRepository    └── AuditRepository
+       │
+       ▼
+Supabase Client Provider (app/db/client.py)
+       │  (PostgREST Client Timeout: 10s | Connection Pool)
+       ▼
+Supabase PostgreSQL 15+ Data Tier
 ```
 
-### 9.2 Adding New Domain Synonyms
+### 6.1 Database Client Provider (`app/db/client.py`)
+* **Singleton Client Cache**: Avoids the latency of reinitializing connections per request.
+* **Proactive Probes**: `verify_database_connection()` executes an active query against `students`, returning millisecond latency:
 
-To extend vocabulary mapping, append entries to `DOMAIN_SYNONYMS` in `src/lib/helpChatEngine.ts`:
-
-```typescript
-export const DOMAIN_SYNONYMS: Record<string, string[]> = {
-  // Existing entries...
-  transcript: ['grades', 'records', 'academic', 'history', 'assessment'],
-  syllabus: ['curriculum', 'course', 'academic', 'modules'],
-};
+```python
+def verify_database_connection() -> Dict[str, Any]:
+    if not is_database_configured():
+        return {"configured": False, "connected": False, "message": "Credentials missing"}
+    try:
+        client = get_db_client()
+        start = time.perf_counter()
+        res = client.table("students").select("id", count="exact").limit(1).execute()
+        latency = round((time.perf_counter() - start) * 1000, 2)
+        return {
+            "configured": True,
+            "connected": True,
+            "latency_ms": latency,
+            "total_students_detected": res.count or len(res.data or []),
+            "message": "Supabase PostgreSQL live connection verified successfully",
+        }
+    except Exception as e:
+        return {"configured": True, "connected": False, "error": str(e)}
 ```
 
-### 9.3 Running Tests & Benchmarks
+### 6.2 Domain Repositories (`app/db/repositories/`)
+Each domain entity encapsulates query construction, filtering, pagination, and error isolation:
+* **`StudentRepository`**: Paginated student directories, multi-parameter search, department grouping, status filtering.
+* **`AttendanceRepository`**: Attendance aggregations, student session history, date-window slicing.
+* **`AssessmentRepository`**: Grade distributions, subject averages, trajectory calculations.
+* **`InterventionRepository`**: Lifecycle transitions, overdue alerts (`follow_up_date <= CURRENT_DATE`), outcome evaluation attachments.
+* **`AuditRepository`**: Audit trail queries filtered by entity ID, date range, or actor.
+
+---
+
+## 7. Performance Optimization & Indexing Strategy
+
+To guarantee sub-50ms query responses across tens of thousands of records, the following composite and single-column B-tree indexes are maintained:
+
+| Index Name | Target Table | Indexed Columns | Optimized Query Pattern |
+|---|---|---|---|
+| `idx_students_student_id` | `students` | `student_id` | Roll number lookup during login & CSV matching |
+| `idx_students_status` | `students` | `status` | Active vs. withdrawn student directory filters |
+| `idx_students_department` | `students` | `department` | Departmental benchmark comparisons |
+| `idx_students_grade_section` | `students` | `current_grade, section` | Classroom cohort roster generation |
+| `idx_attendance_student_date`| `attendance` | `student_id, session_date DESC` | Recent attendance calculation & trajectory graph |
+| `idx_attendance_status` | `attendance` | `status` | Absenteeism percentage rollups |
+| `idx_assessments_student_date`| `assessments` | `student_id, assessment_date DESC` | Chronological academic report card generation |
+| `idx_assessments_subject` | `assessments` | `subject` | Course pass/fail rate analytics |
+| `idx_engagement_student_time`| `engagement_events` | `student_id, event_timestamp DESC`| Engagement activity timeline sorting |
+| `idx_placement_student_id` | `placement_records`| `student_id` | Placement radar chart & readiness score lookup |
+| `idx_skills_student_id` | `skills_records` | `student_id` | Technical vs soft skill radar overview |
+| `idx_feedback_student_id` | `feedback_records` | `student_id` | Student & mentor sentiment metrics |
+| `idx_lms_student_id` | `lms_activity_records` | `student_id` | Digital engagement frequency evaluation |
+| `idx_interventions_student_status`| `interventions` | `student_id, status` | Active support plan badge & dashboard counts |
+| `idx_interventions_priority` | `interventions` | `priority` | High/urgent priority queue sorting |
+| `idx_interventions_followup` | `interventions` | `follow_up_date` | Overdue follow-up alerts calculation |
+| `idx_outcomes_intervention` | `intervention_outcomes`| `intervention_id` | Pre/post metric evaluation retrieval |
+| `idx_audit_entity` | `audit_events` | `entity_type, entity_id` | Compliance audit inspection per record |
+| `idx_audit_created` | `audit_events` | `created_at DESC` | Security timeline streaming |
+
+---
+
+## 8. Migration Procedures & Deployment Guide
+
+### 8.1 Migration Pipeline Order
+
+When setting up a new Supabase environment or applying updates to production, apply migrations in this exact chronological order:
+
+```
+1. 00000000000000_init.sql
+   └── UUID extensions (uuid-ossp, pgcrypto).
+
+2. 20261011000001_initial_schema.sql
+   └── Core tables (user_profiles, students, attendance, assessments,
+       engagement_events, interventions, intervention_outcomes, audit_events).
+
+3. 20261012000001_kpmg_7domains.sql
+   └── 7-Domain tables (placement_records, skills_records, feedback_records,
+       lms_activity_records) with initial RLS policies.
+
+4. 20261013000001_integrity_and_authorization.sql
+   └── Extended columns (department, cgpa, backlogs), risk_overrides table,
+       security-definer helper functions, and edunexus_commit RPC.
+
+5. fix_auth_trigger.sql
+   └── Exception-safe handle_new_user trigger on auth.users.
+```
+
+> [!TIP]
+> **One-Click Consolidated Deployment**: The file [`supabase/complete_setup.sql`](file:///Users/ambatitharunsai/Edunexus-AI/supabase/complete_setup.sql) combines all migrations, schema definitions, RLS rules, and RPC functions into an idempotent script that can be executed directly in the **Supabase Dashboard SQL Editor** in a single step.
+
+### 8.2 Environment Configuration Checklist
+
+Configure the following variables in `backend/.env`:
+
+```env
+# Supabase Project Connection
+SUPABASE_URL="https://<your-project-id>.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="<your-supabase-service-role-secret-key>"
+
+# Application Settings
+ENVIRONMENT="production"
+DEBUG=false
+ALLOWED_ORIGINS="https://edunexus-ai.onrender.com"
+```
+
+Configure the following variables in `frontend/.env.production`:
+
+```env
+# Public Supabase Client (Anon Key ONLY)
+VITE_SUPABASE_URL="https://<your-project-id>.supabase.co"
+VITE_SUPABASE_ANON_KEY="<your-supabase-anon-publishable-key>"
+VITE_API_BASE_URL="https://edunexus-ai-backend.onrender.com"
+```
+
+---
+
+## 9. Verification & Diagnostics Suite
+
+### 9.1 Automated CLI Diagnostic Tool
+A dedicated end-to-end diagnostic utility is provided at [`backend/scripts/verify_registration_db.py`](file:///Users/ambatitharunsai/Edunexus-AI/backend/scripts/verify_registration_db.py). It tests credentials, active latency, write permissions, deletion clean-up, and Auth user registration:
 
 ```bash
-# Run the complete frontend test suite
-cd frontend && npm test
-
-# Run the quantitative chatbot benchmark suite specifically
-cd frontend && npx vitest run src/__tests__/chatBenchmark.test.ts
-
-# Run the HelpPage component tests
-cd frontend && npx vitest run src/__tests__/HelpPage.test.tsx
-
-# Run TypeScript typechecking
-cd frontend && npx tsc -b
-
-# Run linter
-cd frontend && npm run lint
-
-# Run backend pytest suite
-cd backend && source venv/bin/activate && pytest
+# Execute Diagnostic Suite
+cd backend
+source venv/bin/activate
+python scripts/verify_registration_db.py
 ```
+
+Expected diagnostic output:
+```
+=================================================================
+  EDUNEXUS AI — REGISTRATION DATABASE CONNECTION AUDIT
+=================================================================
+✓ [PASS]   Supabase Credentials
+           URL: https://xyz.supabase.co... | Key Length: 212 chars
+✓ [PASS]   PostgreSQL Live Connection
+           Latency: 38.4 ms | Enrolled Students: 36
+✓ [PASS]   Read 'students' Table
+           Retrieved 3 sample student records
+✓ [PASS]   Write & Delete in 'students' Table
+           Successfully inserted and deleted probe student (PROBE-4819)
+✓ [PASS]   Query 'user_profiles' Table
+           Table accessible; records found: 5
+=================================================================
+```
+
+### 9.2 Live Health & Status API Probes
+The backend exposes dedicated endpoints to monitor database connectivity and provide live indicators for registration and administrative pages:
+* `GET /api/v1/health`: Returns overall service status, version, and database connection probe.
+* `GET /api/v1/health/db-status`: Lightweight connection ping for UI status pills.
+* `GET /api/v1/auth/registration-status`: Verifies that the database is accepting new student self-registration records.
+
+### 9.3 Automated Test Coverage
+The database integration and repository logic are validated by 161 automated backend tests:
+```bash
+cd backend
+source venv/bin/activate
+pytest tests/test_database_service.py tests/test_db_integration.py
+```
+* `test_database_service.py`: Validates domain repository routing, filter logic, and pagination bounds.
+* `test_db_integration.py`: Validates live query execution, upsert behaviors, and RLS constraint compliance.

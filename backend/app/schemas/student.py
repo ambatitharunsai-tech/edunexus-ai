@@ -20,9 +20,9 @@ SeverityLevel = Literal['info', 'success', 'warning', 'critical']
 
 
 class StudentBase(BaseModel):
-    student_id: str = Field(..., min_length=2, max_length=30, description="Unique institution ID (e.g. STU-001)")
+    student_id: str = Field(..., min_length=1, max_length=50, description="Unique institution ID (e.g. STU-001)")
     first_name: str = Field(..., min_length=1, max_length=100)
-    last_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(default="", max_length=100)
     email: Optional[EmailStr] = None
     date_of_birth: Optional[date] = None
     gender: Optional[str] = None
