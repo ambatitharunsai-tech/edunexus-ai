@@ -11,20 +11,30 @@ from app.core.config import settings
 _supabase_client = None
 
 
+def _server_api_key() -> str:
+    """Prefer Supabase's current server-only secret key, with legacy fallback."""
+    secret_key = (getattr(settings, "SUPABASE_SECRET_KEY", "") or "").strip()
+    legacy_key = (getattr(settings, "SUPABASE_SERVICE_ROLE_KEY", "") or "").strip()
+    return secret_key or legacy_key
+
+
 def is_database_configured() -> bool:
-    """Check whether valid, non-placeholder Supabase credentials are configured."""
+    """Check for a project URL and a server-only Supabase key."""
     url = settings.SUPABASE_URL.strip() if settings.SUPABASE_URL else ""
-    key = settings.SUPABASE_SERVICE_ROLE_KEY.strip() if settings.SUPABASE_SERVICE_ROLE_KEY else ""
+    key = _server_api_key()
 
     if not url or not key:
         return False
 
-    # Check for unconfigured default placeholders
     placeholders = [
         "https://your-project.supabase.co",
         "https://your-project-id.supabase.co",
         "your-supabase-service-role-key-placeholder",
+        "your-service-role-key-placeholder",
         "your-service-role-key-here",
+        "your-supabase-secret-key-placeholder",
+        "your-secret-key-placeholder",
+        "your-secret-key-here",
     ]
     if any(p in url or p in key for p in placeholders):
         return False
@@ -44,15 +54,15 @@ def get_db_client():
     if not is_database_configured():
         raise RuntimeError(
             "Supabase database connection is not configured. "
-            "Please configure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in backend/.env "
-            "using your Supabase Project Settings -> API credentials."
+            "Please configure SUPABASE_URL and SUPABASE_SECRET_KEY in the backend environment. "
+            "SUPABASE_SERVICE_ROLE_KEY remains supported for existing deployments."
         )
 
     from supabase import create_client, ClientOptions
 
     _supabase_client = create_client(
         settings.SUPABASE_URL,
-        settings.SUPABASE_SERVICE_ROLE_KEY,
+        _server_api_key(),
         options=ClientOptions(
             postgrest_client_timeout=10,
             storage_client_timeout=10,
@@ -94,7 +104,14 @@ def verify_database_connection() -> Dict[str, Any]:
             "tables_verified": 0,
             "failed_tables": [],
             "message": "Database credentials are not configured on the backend.",
-            "url_configured": bool(settings.SUPABASE_URL),
+            "url_configured": bool(settings.SUPABASE_URL.strip()),
+            "server_key_configured": bool(_server_api_key()),
+            "missing_variables": [
+                key for key, present in (
+                    ("SUPABASE_URL", bool(settings.SUPABASE_URL.strip())),
+                    ("SUPABASE_SECRET_KEY", bool(_server_api_key())),
+                ) if not present
+            ],
         }
 
     start_time = time.perf_counter()
