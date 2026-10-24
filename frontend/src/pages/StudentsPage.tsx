@@ -194,9 +194,19 @@ export const StudentsPage: React.FC = () => {
       });
       await fetchStudents();
       return true;
-    } catch (err) {
-      console.error('Failed to create intervention:', err);
-      return false;
+    } catch {
+      // Retry once in case of Render cold-start latency
+      try {
+        await api('/api/v1/interventions', {
+          method: 'POST',
+          body: payload,
+        });
+        await fetchStudents();
+        return true;
+      } catch (err) {
+        console.error('Failed to create intervention:', err);
+        return false;
+      }
     }
   };
 

@@ -130,17 +130,23 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
       notes: notes.trim() || undefined,
     };
 
-    const isOk = await onSubmit(payload);
-    setSubmitting(false);
+    try {
+      const isOk = await onSubmit(payload);
+      setSubmitting(false);
 
-    if (isOk) {
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-        setSuccess(false);
-      }, 1200);
-    } else {
-      setSubmitError('Failed to save intervention. Check connection or try again.');
+      if (isOk) {
+        setSuccess(true);
+        setTimeout(() => {
+          onClose();
+          setSuccess(false);
+        }, 1200);
+      } else {
+        setSubmitError('Failed to save intervention. Check connection or try again.');
+      }
+    } catch (err: unknown) {
+      setSubmitting(false);
+      const msg = err instanceof Error ? err.message : 'Failed to save intervention. Check connection or try again.';
+      setSubmitError(msg);
     }
   };
 

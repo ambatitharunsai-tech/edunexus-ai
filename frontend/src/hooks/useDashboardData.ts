@@ -77,12 +77,21 @@ export function useDashboardData() {
           method: 'POST',
           body: payload,
         });
-        // Refresh dashboard overview with bypassCache to reflect new intervention immediately
         await fetchData({ bypassCache: true });
         return true;
-      } catch (err) {
-        console.error('Failed to create intervention:', err);
-        return false;
+      } catch {
+        // Retry once in case of Render backend cold-start or transient latency
+        try {
+          await api('/api/v1/interventions', {
+            method: 'POST',
+            body: payload,
+          });
+          await fetchData({ bypassCache: true });
+          return true;
+        } catch (err) {
+          console.error('Failed to create intervention:', err);
+          return false;
+        }
       }
     },
     [fetchData]
