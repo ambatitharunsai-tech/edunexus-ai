@@ -6,8 +6,10 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const demoAccounts = [
   { label: 'Advisor', token: 'edunexus-demo-advisor-token', description: 'Full cohort advisory access', role: 'advisor', email: 'advisor@edunexus.ai' },
-  { label: 'Admin', token: 'edunexus-demo-admin-token', description: 'Administrative governance access', role: 'admin', email: 'admin@edunexus.ai' },
+  { label: 'Administrator', token: 'edunexus-demo-admin-token', description: 'Administrative governance access', role: 'admin', email: 'admin@edunexus.ai' },
   { label: 'Faculty', token: 'edunexus-demo-faculty-token', description: 'Academic workflow review', role: 'faculty', email: 'faculty@edunexus.ai' },
+  { label: 'Data Operator', token: 'edunexus-demo-dataoperator-token', description: 'CSV ingestion and data validation', role: 'data_operator', email: 'operator@edunexus.ai' },
+  { label: 'Auditor / Viewer', token: 'edunexus-demo-viewer-token', description: 'Read-only accreditation review', role: 'viewer', email: 'viewer@edunexus.ai' },
   { label: 'Student', token: 'edunexus-demo-student-token', description: 'Read-only student view', role: 'student', email: 'student@edunexus.ai' },
 ];
 
