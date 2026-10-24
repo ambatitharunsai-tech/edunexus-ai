@@ -8,11 +8,16 @@ from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.students import router as students_router
 from app.api.v1.interventions import router as interventions_router
 from app.api.v1.csv import router as csv_router
+from app.api.v1.auth import auth_router, admin_router
 
 api_v1_router = APIRouter()
 
 # Register health check under v1 as well
 api_v1_router.include_router(health_router, prefix="", tags=["System"])
+
+# Mount Authentication & Administration Governance Routes
+api_v1_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+api_v1_router.include_router(admin_router, prefix="/admin", tags=["Administration"])
 
 # Mount Stage 3 Core Analytics & Dashboard Routes
 api_v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])

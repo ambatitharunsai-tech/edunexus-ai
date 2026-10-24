@@ -127,12 +127,19 @@ export const AppShell: React.FC<{ theme: AppTheme; onThemeChange: (theme: AppThe
     }
   };
 
-  // Determine current page title
+  // Determine role-tailored navigation items
+  const role = session?.role?.toLowerCase();
   const visibleNavItems = isStudent
     ? navItems.filter((item) => item.to === '/' || item.to === '/help')
-    : isStaff
-      ? navItems
-      : navItems.filter((item) => item.to === '/' || item.to === '/journey' || item.to === '/help');
+    : role === 'data_operator'
+      ? navItems.filter((item) => item.to === '/' || item.to === '/students' || item.to === '/csv-hub' || item.to === '/help')
+      : role === 'faculty' || role === 'viewer' || role === 'auditor'
+        ? navItems.filter((item) => item.to === '/' || item.to === '/students' || item.to === '/journey' || item.to === '/analytics' || item.to === '/help')
+        : role === 'advisor' || role === 'counselor'
+          ? navItems.filter((item) => item.to !== '/csv-hub')
+          : isStaff
+            ? navItems
+            : navItems.filter((item) => item.to === '/' || item.to === '/journey' || item.to === '/help');
 
   const currentNav = visibleNavItems.find((item) =>
     item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)

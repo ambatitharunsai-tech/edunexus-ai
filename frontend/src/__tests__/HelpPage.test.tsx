@@ -17,6 +17,7 @@ const renderHelpPage = (role: 'advisor' | 'student' = 'advisor') => {
     isAuthenticated: true,
     isStaff,
     signIn: vi.fn(),
+    signInWithCredentials: vi.fn(),
     signOut: vi.fn(),
     refreshSession: vi.fn(),
   };
