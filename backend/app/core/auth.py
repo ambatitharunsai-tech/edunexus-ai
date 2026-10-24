@@ -152,34 +152,58 @@ def get_current_user(
     # 2. Cryptographically verify Supabase JWT (JWKS for modern asymmetric signing keys)
     try:
         payload = verify_supabase_token_payload(raw_token)
-        user_id = payload["sub"]
-        email = payload.get("email") or user_id
-
-        # app_metadata is server managed; user_metadata and browser-supplied roles are untrusted.
-        app_metadata = payload.get("app_metadata", {})
-        if not isinstance(app_metadata, dict):
-            app_metadata = {}
-        user_metadata = payload.get("user_metadata", {})
-        if not isinstance(user_metadata, dict):
-            user_metadata = {}
-
-        linked_student_id = app_metadata.get("student_id")
-        full_name = user_metadata.get("full_name") or user_metadata.get("name")
-        return AuthenticatedUser(
-            user_id=str(user_id),
-            email=str(email),
-            role=str(app_metadata.get("role", "student")),
-            student_id=str(linked_student_id).strip() if linked_student_id else None,
-            full_name=str(full_name) if full_name else None,
-            is_active=True,
-            is_demo_session=False,
-        )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired Bearer token.",
         )
 
+    user_id = str(payload["sub"])
+    email = str(payload.get("email") or user_id)
+
+    # app_metadata is server managed; user_metadata and browser-supplied roles are untrusted.
+    app_metadata = payload.get("app_metadata", {})
+    if not isinstance(app_metadata, dict):
+        app_metadata = {}
+    user_metadata = payload.get("user_metadata", {})
+    if not isinstance(user_metadata, dict):
+        user_metadata = {}
+
+    role = str(app_metadata.get("role", "student")).lower()
+    linked_student_id = app_metadata.get("student_id")
+
+    # Student linking is resolved from the server-managed students.user_id foreign key.
+    # Never accept a student ID supplied only in editable user_metadata or request headers.
+    if role == "student" and not linked_student_id:
+        try:
+            from app.db.client import get_db_client, is_database_configured
+
+            if is_database_configured():
+                response = (
+                    get_db_client()
+                    .table("students")
+                    .select("id,student_id")
+                    .eq("user_id", user_id)
+                    .limit(1)
+                    .execute()
+                )
+                if response.data:
+                    linked_student_id = response.data[0].get("id") or response.data[0].get("student_id")
+        except Exception:
+            # Authentication remains valid, but the personal dashboard stays unavailable
+            # until the institutional student/account link can be verified.
+            linked_student_id = None
+
+    full_name = user_metadata.get("full_name") or user_metadata.get("name")
+    return AuthenticatedUser(
+        user_id=user_id,
+        email=email,
+        role=role,
+        student_id=str(linked_student_id).strip() if linked_student_id else None,
+        full_name=str(full_name) if full_name else None,
+        is_active=True,
+        is_demo_session=False,
+    )
 
 def get_optional_current_user(
     authorization: Optional[str] = Header(None),
