@@ -13,6 +13,10 @@ services:
     envVars:
       - key: VITE_API_BASE_URL
         value: https://edunexus-ai-api-z0v1.onrender.com
+      - key: VITE_SUPABASE_URL
+        value: https://blgqapkuizpyaqgyqftt.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: sb_publishable_3VC4FKHjx4ApAGFwaoQXSQ_crGEEkMw
 
   # EduNexus AI API — FastAPI Backend Service
   - type: web
@@ -25,3 +29,9 @@ services:
         value: 3.11.9
       - key: ENVIRONMENT
         value: production
+      - key: SUPABASE_URL
+        value: https://blgqapkuizpyaqgyqftt.supabase.co
+      - key: SUPABASE_JWT_ISSUER
+        value: https://blgqapkuizpyaqgyqftt.supabase.co/auth/v1
+      - key: ALLOWED_ORIGINS
+        value: https://edunexus-ai-web.onrender.com,http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:4173
