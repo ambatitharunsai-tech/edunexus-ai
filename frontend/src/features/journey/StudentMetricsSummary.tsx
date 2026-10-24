@@ -5,7 +5,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  HeartHandshake,
+  ClipboardCheck,
   CheckCircle2,
   AlertTriangle,
 } from 'lucide-react';
@@ -128,7 +128,7 @@ export const StudentMetricsSummary: React.FC<StudentMetricsSummaryProps> = ({ pr
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
-            <HeartHandshake className="w-5 h-5" />
+            <ClipboardCheck className="w-5 h-5" />
           </div>
         </CardContent>
       </Card>

@@ -5,7 +5,7 @@ import {
   TrendingDown,
   Minus,
   ChevronRight,
-  HeartHandshake,
+  ClipboardList,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -271,7 +271,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                           title="Assign Student Support Plan"
                           className="text-indigo-600 hover:text-indigo-800 p-1.5 h-auto"
                         >
-                          <HeartHandshake className="w-4 h-4" />
+                          <ClipboardList className="w-4 h-4" />
                         </Button>
                       )}
                       <Link

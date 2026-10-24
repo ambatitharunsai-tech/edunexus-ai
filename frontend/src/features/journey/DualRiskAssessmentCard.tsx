@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { BookOpen, Briefcase, AlertTriangle, HeartHandshake } from 'lucide-react';
+import { BookOpen, Briefcase, AlertTriangle } from 'lucide-react';
 import type { IndependentRiskSignal } from '../../types';
 
 interface DualRiskAssessmentCardProps {
@@ -40,10 +40,9 @@ export const DualRiskAssessmentCard: React.FC<DualRiskAssessmentCardProps> = ({
           <Button
             size="sm"
             onClick={onOpenIntervention}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 text-xs shadow-2xs"
+            className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-100 border border-slate-900 dark:border-zinc-700 rounded-md px-3 py-1.5 text-xs font-medium transition-colors shadow-none"
           >
-            <HeartHandshake className="w-3.5 h-3.5" />
-            <span>Targeted Support</span>
+            Targeted Support
           </Button>
         )}
       </div>

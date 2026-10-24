@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, RefreshCw, GraduationCap, HeartHandshake, CheckSquare } from 'lucide-react';
+import { Download, RefreshCw, GraduationCap, CheckSquare } from 'lucide-react';
 import { api, getCachedApiData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
@@ -476,9 +476,8 @@ export const StudentsPage: React.FC = () => {
                       const firstSelected = data?.students.find((s) => selectedStudentIds.includes(s.id));
                       if (firstSelected) handleOpenIntervention(firstSelected);
                     }}
-                    className="text-xs py-1 h-auto bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1"
+                    className="text-xs py-1 h-auto bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center rounded-md"
                   >
-                    <HeartHandshake className="w-3.5 h-3.5" />
                     <span>Assign Support Plan</span>
                   </Button>
                 )}

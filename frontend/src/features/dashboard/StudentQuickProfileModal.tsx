@@ -7,7 +7,6 @@ import {
   GraduationCap,
   CalendarCheck,
   Activity,
-  HeartHandshake,
   ArrowUpRight,
   ShieldCheck,
   AlertTriangle,
@@ -189,14 +188,13 @@ export const StudentQuickProfileModal: React.FC<StudentQuickProfileModalProps> =
             {onOpenIntervention && (
               <Button
                 size="sm"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5"
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-100 border border-slate-900 dark:border-zinc-700 rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shadow-none"
                 onClick={() => {
                   onClose();
                   onOpenIntervention(student);
                 }}
               >
-                <HeartHandshake className="w-4 h-4" />
-                <span>Launch Support Plan</span>
+                Launch Support Plan
               </Button>
             )}
           </div>

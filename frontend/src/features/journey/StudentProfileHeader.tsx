@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
-  HeartHandshake,
   Mail,
   GraduationCap,
   Calendar,
@@ -105,10 +104,9 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({
           <Button
             size="sm"
             onClick={onOpenIntervention}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-sm font-semibold"
+            className="bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shadow-none"
           >
-            <HeartHandshake className="w-4 h-4" />
-            <span>Create Support Plan</span>
+            Create Support Plan
           </Button>
         </div>
       </div>

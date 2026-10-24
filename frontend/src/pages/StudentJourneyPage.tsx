@@ -5,7 +5,6 @@ import {
   Sparkles,
   AlertTriangle,
   RefreshCw,
-  HeartHandshake,
   Shield,
   UserCheck,
   Briefcase,
@@ -294,10 +293,9 @@ export const StudentJourneyPage: React.FC = () => {
             <Button
               size="sm"
               onClick={() => setInterventionModalOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 text-xs font-semibold shadow-2xs"
+              className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-100 border border-slate-900 dark:border-zinc-700 rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shadow-none tracking-normal"
             >
-              <HeartHandshake className="w-3.5 h-3.5" />
-              <span>Log Support Plan</span>
+              Log Support Plan
             </Button>
           )}
         </div>
@@ -614,7 +612,6 @@ export const StudentJourneyPage: React.FC = () => {
                       onClick={() => setInterventionModalOpen(true)}
                       className="w-full text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50 mt-1 flex items-center justify-center gap-1.5"
                     >
-                      <HeartHandshake className="w-3.5 h-3.5" />
                       <span>Create New Plan</span>
                     </Button>
                   )}
@@ -737,7 +734,6 @@ export const StudentJourneyPage: React.FC = () => {
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <HeartHandshake className="w-3.5 h-3.5" />
                   <span>Support Plans ({profile.interventions?.length || 0})</span>
                 </button>
               </div>

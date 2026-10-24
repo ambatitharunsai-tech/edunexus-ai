@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Calendar,
   BookOpen,
-  HeartHandshake,
+  FileText,
   GraduationCap,
   Activity,
   AlertTriangle,
@@ -49,7 +49,7 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ events = [] })
       case 'attendance':
         return <Calendar className="w-3.5 h-3.5 text-indigo-600" />;
       case 'intervention':
-        return <HeartHandshake className="w-3.5 h-3.5 text-amber-600" />;
+        return <FileText className="w-3.5 h-3.5 text-amber-600" />;
       case 'milestone':
         return <GraduationCap className="w-3.5 h-3.5 text-purple-600" />;
       case 'engagement':

@@ -4,7 +4,7 @@ import {
   Users,
   CalendarCheck,
   AlertTriangle,
-  HeartHandshake,
+  ClipboardCheck,
   TrendingUp,
   ArrowUpRight,
   CheckCircle2,
@@ -603,7 +603,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0 shadow-2xs">
-                <HeartHandshake className="w-5 h-5" />
+                <ClipboardCheck className="w-5 h-5" />
               </div>
             </CardContent>
           </Card>
@@ -1169,11 +1169,10 @@ export const DashboardPage: React.FC = () => {
                               <Button
                                 variant="secondary"
                                 size="sm"
-                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 text-xs px-2 flex items-center gap-1"
+                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 text-xs px-2 flex items-center justify-center rounded-md"
                                 onClick={() => handleOpenIntervention(student)}
                                 title="Assign Intervention Support Plan"
                               >
-                                <HeartHandshake className="w-3.5 h-3.5" />
                                 <span>Intervene</span>
                               </Button>
                             )}

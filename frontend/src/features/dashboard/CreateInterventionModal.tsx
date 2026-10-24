@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { HeartHandshake, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import type { CreateInterventionPayload, FollowUpStudentItem } from '../../types';
 
 interface CreateInterventionModalProps {
@@ -336,11 +336,10 @@ export const CreateInterventionModal: React.FC<CreateInterventionModalProps> = (
             <Button
               type="submit"
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5"
+              className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-100 border border-slate-900 dark:border-zinc-700 rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shadow-none"
               disabled={submitting}
             >
-              <HeartHandshake className="w-4 h-4" />
-              <span>{submitting ? 'Activating...' : 'Activate Support Plan'}</span>
+              {submitting ? 'Activating...' : 'Activate Support Plan'}
             </Button>
           </div>
         </form>
