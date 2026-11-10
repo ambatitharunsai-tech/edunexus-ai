@@ -241,3 +241,45 @@ Repository: [ambatitharunsai-tech/edunexus-ai](https://github.com/ambatitharunsa
 Deployment target: [Render](https://render.com/)
 
 Challenge context: KPMG in India — Smart Campus Analytics: Predict, Optimize & Improve Student Success.
+
+
+## Local development quick start
+
+The repository is a monorepo with a FastAPI backend and a React frontend.
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate       # macOS/Linux
+# .venv\Scripts\activate      # Windows PowerShell
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Configure the Supabase URL and server-side key using the backend environment template before connecting to a database. Do not commit local environment files.
+
+### Frontend
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set `VITE_API_BASE_URL` to the URL of the FastAPI service when the frontend is not using the same origin. Run frontend checks with `npm run lint`, `npm test` and `npm run build`.
+
+### Repository map
+
+- `backend/app/api/` and `backend/app/routers/` – API route modules
+- `backend/app/services/` – student-success, risk, analytics and CSV services
+- `backend/app/db/` – Supabase client and repositories
+- `frontend/src/pages/` – application pages
+- `frontend/src/features/` – student, journey, dashboard and intervention features
+- `supabase/migrations/` – database schema and policy changes
+- `docs/` – architecture, API contracts, onboarding and verification notes
+
+See [frontend/README.md](frontend/README.md) for frontend scripts and [supabase/migrations/README.md](supabase/migrations/README.md) for the migration sequence.
