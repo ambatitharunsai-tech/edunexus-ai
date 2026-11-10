@@ -1,96 +1,58 @@
-# EduNexus AI — Database Migrations & Supabase Setup Guide
+# EduNexus AI – Supabase Migration Guide
 
-This document describes how to apply database migrations, configure Row Level Security (RLS), and initialize the database schema in Supabase for **EduNexus AI**.
+This directory contains SQL migrations for the EduNexus AI student-success database. Apply the schema migrations to a dedicated Supabase project and review the security policies before connecting real institutional data.
 
----
+## Migration order
 
-## 1. Where to Apply the SQL Migrations
+Apply the following schema files in this order:
 
-Follow these exact steps in your **Supabase Dashboard**:
+1. `20261011000001_initial_schema.sql` – core student, attendance, assessment, engagement, intervention, role and audit schema.
+2. `20261012000001_kpmg_7domains.sql` – adds placement, skills, LMS and feedback domain tables.
+3. `20261013000001_integrity_and_authorization.sql` – applies later integrity constraints, risk-override support and authorization-related changes.
 
-1. Log into your [Supabase Dashboard](https://supabase.com/dashboard).
-2. Select your project (e.g. `edunexus-ai`).
-3. In the left navigation sidebar, click on **SQL Editor** (icon: `>_`).
-4. Click **+ New query** in the top bar.
-5. Open the migration file:
-   [`supabase/migrations/20261011000001_initial_schema.sql`](file:///Users/ambatitharunsai/edunexus-ai/supabase/migrations/20261011000001_initial_schema.sql)
-6. Copy the entire contents of `20261011000001_initial_schema.sql` and paste them into the SQL Editor.
-7. Click the green **Run** button (or press `Cmd + Enter` / `Ctrl + Enter`).
-8. Verify that the output pane reports: `Success. No rows returned`.
+`00000000000000_init.sql` is an earlier placeholder containing comments only. It does not create the application schema and is not a replacement for the three schema migrations above.
 
----
+## Apply through the Supabase Dashboard
 
-## 2. Supabase Settings to Configure
+1. Open the [Supabase Dashboard](https://supabase.com/dashboard) and select the project dedicated to this application.
+2. Open **SQL Editor** and create a new query.
+3. Open the first migration file from this repository, copy its complete SQL contents, and paste them into the editor.
+4. Run the query and inspect the result for errors.
+5. Repeat the process for the second and third migration files in the order shown above.
+6. Verify the expected tables, constraints, indexes and policies in the Supabase dashboard.
 
-### A. Authentication & Providers
-In the Supabase Dashboard, go to **Authentication** -> **Providers**:
-- **Email**: Ensure **Email provider** is toggled **ON**.
-- **Confirm email**: For local prototyping, you can toggle **Confirm email** to **OFF** under *Auth -> Providers -> Email -> Email Auth* to avoid waiting for email confirmations during testing.
+Use the file paths in this repository (for example, `supabase/migrations/20261011000001_initial_schema.sql`). Do not use machine-specific `file://` paths copied from another developer's computer.
 
-### B. API Settings
-Go to **Project Settings** (gear icon) -> **API**:
-- Note your **Project URL** (e.g., `https://abcdefghijklm.supabase.co`).
-- Note your **Project API keys**:
-  - `anon` / `public`: Publishable key (safe for browser frontend).
-  - `service_role`: Secret key (privileged backend access only; bypasses RLS for batch tasks and seed scripts).
+## Credentials and environment
 
-> [!CAUTION]
-> **SECURITY MANDATE**:
-> - Never commit `.env` or `.env.local` to git.
-> - Never paste your `service_role` secret key into chat, issues, or frontend code.
-> - The `service_role` key must reside ONLY in `backend/.env`.
+The backend uses server-side Supabase configuration. Keep the service-role key on the server only.
 
----
+Example backend values:
 
-## 3. Environment Variables Required
-
-### Backend (`backend/.env`)
-Copy `backend/.env.example` to `backend/.env` and update:
 ```env
-PROJECT_NAME="EduNexus AI"
-API_V1_STR="/api/v1"
-ENVIRONMENT="development"
-DEBUG=true
-
-# CORS Allowed Origins
-ALLOWED_ORIGINS="http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
-
-# Supabase Server-Side Credentials (Obtain from Project Settings -> API)
-SUPABASE_URL="https://your-project-id.supabase.co"
-SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key-here"
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-server-side-secret
 ```
 
-### Frontend (`frontend/.env.local`)
-Copy `frontend/.env.example` to `frontend/.env.local` and update:
-```env
-# Backend API Base URL
-VITE_API_BASE_URL="http://localhost:8000"
+The frontend may use a publishable/anonymous key if its configured features require direct Supabase client access:
 
-# Supabase Client Configuration (Public anon key ONLY)
-VITE_SUPABASE_URL="https://your-project-id.supabase.co"
-VITE_SUPABASE_ANON_KEY="your-supabase-anon-key-here"
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-public-anon-key
 ```
 
----
+A `VITE_` variable is bundled into browser assets. Never put `SUPABASE_SERVICE_ROLE_KEY`, database passwords or other privileged secrets in frontend configuration, source files or public issue discussions.
 
-## 4. Database Schema Overview
+## Security checklist
 
-| Table | Purpose | Primary Key | Key Constraints |
-|-------|---------|-------------|-----------------|
-| `user_profiles` | RBAC for advisors, counselors, faculty, admins | UUID | Role enum, active flag |
-| `students` | Core student directory & demographics | UUID | `student_id UNIQUE`, status check |
-| `attendance` | Daily attendance session status | UUID | `UNIQUE(student_id, session_date, period)` |
-| `assessments` | Graded unit marks | UUID | `score <= max_score`, `score >= 0` |
-| `engagement_events` | Extracurricular, LMS logins, counseling logs | UUID | `duration_minutes >= 0`, JSONB metadata |
-| `interventions` | Student support plans | UUID | Priority check, date chronology check |
-| `intervention_outcomes` | Before/after metric comparison | UUID | Mandatory causation disclaimer |
-| `audit_events` | Access and mutation compliance trail | UUID | Performed by, entity reference |
+- Review the Row Level Security policies and grants created by the migrations.
+- Confirm that anonymous users cannot access student records.
+- Validate active staff roles and permissions before enabling real user accounts.
+- Keep audit records protected from unauthorized reads or modification.
+- Use a separate development Supabase project for test data.
+- Do not run demo reset or synthetic seeding workflows against production records.
+- Back up the database and review SQL changes before applying a migration to an existing production project.
 
----
+## Important
 
-## 5. Security & Row-Level Security (RLS) Model
-
-1. **Anonymous Deny**: Anonymous (`anon`) role has **zero** access policies. Unauthenticated users cannot read or write student data.
-2. **Staff Access Only**: Authenticated requests must belong to an active profile in `user_profiles` (`is_authenticated_staff()`).
-3. **Audit Isolation**: Only users with `administrator` or `auditor` roles can read `audit_events`.
-4. **Backend Ingestion**: The backend uses the `service_role` key exclusively for privileged server-side operations (batch risk scoring, CSV imports, synthetic seeding), completely isolating credentials from browser clients.
+The migration SQL defines database structure and policies; it does not configure every application environment variable or deploy the API. Complete the root README setup steps after the database is ready.
